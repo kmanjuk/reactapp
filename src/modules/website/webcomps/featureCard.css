@@ -1,0 +1,89 @@
+.feature-cards {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 2.5rem;
+    width: 90%;
+    max-width: 1000px;
+    margin: 10vh auto;
+  }
+  
+  .feature-card {
+    border-radius: 16px;
+    box-shadow: 0 30px 30px -25px rgba(65, 51, 183, 0.25);
+    max-width: 300px;
+  }
+  
+  .feature-information {
+    background-color: var(--c-white);
+    padding: 1.5rem;
+  }
+  .feature-information .feature-tag {
+    display: inline-block;
+    background-color: var(--c-titan-white);
+    color: var(--mainPrimaryCol);
+    font-weight: 600;
+    font-size: 0.875rem;
+    padding: 0.5em 0.75em;
+    line-height: 1;
+    border-radius: 6px;
+  }
+  .feature-information .feature-tag + * {
+    margin-top: 1rem;
+  }
+  .feature-information .feature-title {
+    font-size: 1.5rem;
+    color: var(--c-void);
+    line-height: 1.25;
+  }
+  .feature-information .feature-title + * {
+    margin-top: 1rem;
+  }
+  .feature-information .feature-info {
+    color: var(--c-charcoal);
+  }
+  .feature-information .feature-info + * {
+    margin-top: 1.25rem;
+  }
+  .feature-information .feature-button {
+    font: inherit;
+    line-height: 1;
+    background-color: var(--c-white);
+    border: 2px solid var(--c-indigo);
+    color: var(--c-indigo);
+    padding: 0.5em 1em;
+    border-radius: 6px;
+    font-weight: 500;
+    display: inline-flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.5rem;
+  }
+  .feature-information .feature-button:hover, .feature-information .feature-button:focus {
+    background-color: var(--c-indigo);
+    color: var(--c-white);
+  }
+  .feature-information .feature-details {
+    display: flex;
+    gap: 1rem;
+  }
+  .feature-information .feature-details div {
+    padding: 0.75em 1em;
+    background-color: var(--c-titan-white);
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 0.125em;
+    flex-basis: 50%;
+  }
+  .feature-information .feature-details dt {
+    font-size: 0.875rem;
+    color: var(--c-cold-purple);
+  }
+  .feature-information .feature-details dd {
+    color: var(--c-indigo);
+    font-weight: 600;
+    font-size: 1.25rem;
+  }
