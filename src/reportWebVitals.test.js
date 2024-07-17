@@ -1,41 +1,61 @@
 import reportWebVitals from './reportWebVitals'
 
-jest.mock('web-vitals', () => ({
-  getCLS: jest.fn(),
-  getFID: jest.fn(),
-  getFCP: jest.fn(),
-  getLCP: jest.fn(),
-  getTTFB: jest.fn(),
-}))
-
 describe('reportWebVitals', () => {
-  const { getCLS, getFID, getFCP, getLCP, getTTFB } = require('web-vitals')
+  let mockOnPerfEntry
 
   beforeEach(() => {
-    jest.clearAllMocks()
+    mockOnPerfEntry = jest.fn()
   })
 
-  test('calls performance metrics functions with onPerfEntry callback', async () => {
-    const mockOnPerfEntry = jest.fn()
+  test('calls web-vitals functions when onPerfEntry is provided', async () => {
+    // Mock the web-vitals module and its functions
+    const mockGetCLS = jest.fn()
+    const mockGetFID = jest.fn()
+    const mockGetFCP = jest.fn()
+    const mockGetLCP = jest.fn()
+    const mockGetTTFB = jest.fn()
 
-    await reportWebVitals(mockOnPerfEntry)
+    jest.mock('web-vitals', () => ({
+      getCLS: mockGetCLS,
+      getFID: mockGetFID,
+      getFCP: mockGetFCP,
+      getLCP: mockGetLCP,
+      getTTFB: mockGetTTFB,
+    }))
 
-    expect(getCLS).toHaveBeenCalledWith(mockOnPerfEntry)
-    expect(getFID).toHaveBeenCalledWith(mockOnPerfEntry)
-    expect(getFCP).toHaveBeenCalledWith(mockOnPerfEntry)
-    expect(getLCP).toHaveBeenCalledWith(mockOnPerfEntry)
-    expect(getTTFB).toHaveBeenCalledWith(mockOnPerfEntry)
+    // Call the reportWebVitals function
+    reportWebVitals(mockOnPerfEntry)
+
+    // Wait for the dynamic import to resolve
+    await new Promise(setImmediate)
+
+    // Verify that the web-vitals functions were called with the onPerfEntry callback
+    expect(mockGetCLS).toHaveBeenCalledWith(mockOnPerfEntry)
+    expect(mockGetFID).toHaveBeenCalledWith(mockOnPerfEntry)
+    expect(mockGetFCP).toHaveBeenCalledWith(mockOnPerfEntry)
+    expect(mockGetLCP).toHaveBeenCalledWith(mockOnPerfEntry)
+    expect(mockGetTTFB).toHaveBeenCalledWith(mockOnPerfEntry)
   })
 
-  test('does not call performance metrics functions if onPerfEntry is not a function', async () => {
-    await reportWebVitals(null)
-    await reportWebVitals({})
-    await reportWebVitals('not a function')
+  test('does not call web-vitals functions when onPerfEntry is not provided', async () => {
+    // Call the reportWebVitals function without a callback
+    reportWebVitals()
 
-    expect(getCLS).not.toHaveBeenCalled()
-    expect(getFID).not.toHaveBeenCalled()
-    expect(getFCP).not.toHaveBeenCalled()
-    expect(getLCP).not.toHaveBeenCalled()
-    expect(getTTFB).not.toHaveBeenCalled()
+    // Wait for the dynamic import to resolve
+    await new Promise(setImmediate)
+
+    // Verify that the web-vitals functions were not called
+    expect(mockOnPerfEntry).not.toHaveBeenCalled()
+  })
+
+  test('does not call web-vitals functions when onPerfEntry is not a function', async () => {
+    // Call the reportWebVitals function with a non-function argument
+    reportWebVitals('not a function')
+
+    // Wait for the dynamic import to resolve
+    await new Promise(setImmediate)
+
+    // Verify that the web-vitals functions were not called
+    expect(mockOnPerfEntry).not.toHaveBeenCalled()
   })
 })

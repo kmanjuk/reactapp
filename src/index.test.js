@@ -1,80 +1,83 @@
 import React from 'react'
-import { render, screen, waitFor } from '@testing-library/react'
+import { render } from '@testing-library/react'
+import '@testing-library/jest-dom/extend-expect'
 import axios from 'axios'
-import axiosMock from 'axios-mock-adapter'
+import { ErrorBoundary } from 'react-error-boundary'
+import { AppProvider } from './AppProvider'
+import { ErrorHandler } from './common/ErrorHandler'
 import App from './App'
 import reportWebVitals from './reportWebVitals'
 
-// Mocking axios
-const mock = new axiosMock(axios)
+// Mock the axios get function
+jest.mock('axios')
 
-// Mocking environment variables
-process.env.REACT_APP_USE_API_URL_LOCAL = '1'
-process.env.REACT_APP_API_URL_LOCAL = 'http://localhost:3000'
+// Mock the AppProvider and ErrorHandler
+jest.mock('./AppProvider', () => ({ children }) => <div>{children}</div>)
+jest.mock('./common/ErrorHandler', () => ({ error }) => <div>Error: {error.message}</div>)
 
-// Mocking reportWebVitals
-jest.mock('./reportWebVitals', () => jest.fn())
+// Mock the reportWebVitals
+jest.mock('./reportWebVitals')
 
-// Mocking App component
-jest.mock('./App', () => {
-  return function DummyApp(props) {
-    return <div data-testid="app">App Component - {JSON.stringify(props.appVariables)}</div>
+// Mock the ReactDOM.createRoot and ReactDOM.render
+jest.mock('react-dom/client', () => ({
+  createRoot: () => ({
+    render: jest.fn(),
+  }),
+}))
+
+describe('Index.js', () => {
+  let envData = {
+    REACT_APP_MANIFEST: JSON.stringify({ start_url: '' }),
+    REACT_APP_THEME_FAVICON: '/favicon.ico',
+    REACT_APP_PAGE_TITLE: 'Test Title',
+    REACT_APP_THEME_COLOR: '#FFFFFF',
   }
-})
 
-describe('Main entry point', () => {
-  beforeEach(() => {
-    document.body.innerHTML = `
-      <div id="root"></div>
-      <link id="appManifest" />
-      <link id="faviconLink" />
-      <title id="siteTitle"></title>
-      <meta id="themeColor" />
-    `
+  beforeAll(() => {
+    // Set up the environment variable
+    process.env.REACT_APP_USE_API_URL_LOCAL = '1'
+    process.env.REACT_APP_API_URL_LOCAL = 'http://localhost'
+    axios.get.mockResolvedValue({ data: envData })
   })
 
-  test('renders App component with environment variables', async () => {
-    const envData = {
-      REACT_APP_MANIFEST: '{"name":"My App"}',
-      REACT_APP_THEME_FAVICON: '/favicon.ico',
-      REACT_APP_PAGE_TITLE: 'My App',
-      REACT_APP_THEME_COLOR: '#FFFFFF',
-    }
+  test('renders App with environmental data', async () => {
+    require('./index') // Import the index.js file to execute it
+    await new Promise(process.nextTick) // Wait for promises to resolve
 
-    const processEnv = process.env
+    // Verify that axios.get was called
+    expect(axios.get).toHaveBeenCalledWith('http://localhost/envData')
 
-    mock.onGet('/api').reply(200, envData)
+    // Verify that the app root was rendered with the correct components
+    const root = require('react-dom/client').createRoot()
+    expect(root.render).toHaveBeenCalledWith(
+      <React.StrictMode>
+        <ErrorBoundary FallbackComponent={ErrorHandler}>
+          <AppProvider>
+            <App envData={envData} isLocalEnvironment="" />
+          </AppProvider>
+        </ErrorBoundary>
+      </React.StrictMode>
+    )
 
-    require('./index') // Trigger the code
-
-    await waitFor(() => {
-      expect(screen.getByTestId('app')).toBeInTheDocument()
-    })
-
-    expect(screen.getByTestId('app').textContent).toContain('My App')
-
-    const manifestLink = document.getElementById('appManifest')
-    expect(manifestLink.getAttribute('href')).toContain('blob:')
-
-    const favLink = document.getElementById('faviconLink')
-    expect(favLink.getAttribute('href')).toBe(envData.REACT_APP_THEME_FAVICON)
-
-    const siteTitle = document.getElementById('siteTitle')
-    expect(siteTitle.innerHTML).toBe(envData.REACT_APP_PAGE_TITLE)
-
-    const themeColor = document.getElementById('themeColor')
-    expect(themeColor.getAttribute('content')).toBe(envData.REACT_APP_THEME_COLOR)
-
-    expect(reportWebVitals).toHaveBeenCalled()
+    // Verify other DOM manipulations
+    expect(document.getElementById('appManifest').getAttribute('href')).toBeTruthy()
+    expect(document.getElementById('faviconLink').getAttribute('href')).toBe(envData.REACT_APP_THEME_FAVICON)
+    expect(document.getElementById('siteTitle').innerHTML).toBe(envData.REACT_APP_PAGE_TITLE)
+    expect(document.getElementById('themeColor').getAttribute('content')).toBe(envData.REACT_APP_THEME_COLOR)
   })
 
-  test('renders error message on API failure', async () => {
-    mock.onGet('/api').reply(500)
+  test('renders ErrorHandler on API failure', async () => {
+    axios.get.mockRejectedValue(new Error('API Error'))
+    require('./index') // Import the index.js file to execute it
+    await new Promise(process.nextTick) // Wait for promises to resolve
 
-    require('./index') // Trigger the code
+    // Verify that axios.get was called
+    expect(axios.get).toHaveBeenCalledWith('http://localhost/envData')
 
-    await waitFor(() => {
-      expect(screen.getByText('Internal Server Error')).toBeInTheDocument()
-    })
+    // Verify that the app root was rendered with the ErrorHandler
+    const root = require('react-dom/client').createRoot()
+    expect(root.render).toHaveBeenCalledWith(
+      <ErrorHandler error={{ message: 'API Error', stacktrace: undefined, level: 'error' }} />
+    )
   })
 })

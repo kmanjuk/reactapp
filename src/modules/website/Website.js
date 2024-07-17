@@ -4,11 +4,7 @@ import PropTypes from 'prop-types'
 import { useGetPageCall } from '../../lib/api/get'
 import { useGetSPAPageCall } from '../../lib/api/get'
 import * as Web from './webcomps'
-import { mainUILoad } from '../../lib/uiHelper'
-
-import t1 from '../../assets/themes/t1.css'
-import b from '../../assets/css/b.min.css'
-import custom from '../../assets/css/custom.min.css'
+import { mainUILoad, unloadCSS } from '../../lib/uiHelper'
 
 /**
  * @module modules/Website
@@ -19,6 +15,7 @@ import custom from '../../assets/css/custom.min.css'
  * @param {object} props.envData Environmental Variables
  * @param {object} props.appDataParsed Routes, Site and SEO data
  * @param {object} props.routeData Current route details
+ * @param {object} props.isLocalEnvironment environment api calls to be made
  *
  * @example
  * <Website routeData={route} appDataParsed={appDataParsed} envData={envData} />
@@ -26,27 +23,43 @@ import custom from '../../assets/css/custom.min.css'
 
 export const Website = ({ envData, appDataParsed, routeData, isLocalEnvironment }) => {
   /**
-   * Render website pages
-   * @function Website
-   * @description render webpage
-   * @returns html webpage is rendered
+   * On load function to clear css and load theme css conditionally
+   * @function useEffect
+   * @description Loads css files conditionally and removes unwanted css
+   * @returns loads css
    */
+  React.useEffect(() => {
+    unloadCSS()
+    return () => {
+      var defaultTheme = appDataParsed.webSettings['webSettings-defaultTheme'] || 'T1'
+      if (defaultTheme === 'T1') {
+        import('../../assets/themes/t1.css')
+      }
+    }
+  }, [])
 
-  const theme = 'T1'
-  if (theme === 'T1') {
-    document.getElementsByTagName('head')[0].innerHTML +=
-      '<link href="' + t1 + '" rel="stylesheet">'
-    document.getElementsByTagName('head')[0].innerHTML += '<link href="' + b + '" rel="stylesheet">'
-    document.getElementsByTagName('head')[0].innerHTML +=
-      '<link href="' + custom + '" rel="stylesheet">'
-  }
-
+  /**
+   * mainLoad function assigns theme colors and favicon
+   * @function mainUILoad
+   * @description Theme colors and favicons are loaded to the page from env
+   * @returns loads theme colors and favicon
+   */
   mainUILoad(
     envData.REACT_APP_PRIMARY_COLOR,
     envData.REACT_APP_SECONDARY_COLOR,
     envData.REACT_APP_THEME_FAVICON,
   )
 
+  /**
+   * Get pageData by making api call
+   * @function useGetPageCall
+   * @param {string} isLocalEnvironment api url
+   * @param {string} apiEndpoint api endpoint name
+   * @param {string} pageId api url
+   * @param {string} name page name
+   * @param {boolean} enabled if true makes api call else doesn't
+   * @returns {object} returns pageData
+   */
   const getPage = useGetPageCall({
     apiURL: isLocalEnvironment,
     apiEndpoint: 'pageData',
@@ -55,6 +68,15 @@ export const Website = ({ envData, appDataParsed, routeData, isLocalEnvironment 
     enabled: true,
   })
 
+  /**
+   * Get pageData by making api call
+   * @function useGetSPAPageCall
+   * @param {string} isLocalEnvironment api url
+   * @param {string} apiEndpoint api endpoint name
+   * @param {string} homePage page name
+   * @param {boolean} enabled if true makes api call else doesn't
+   * @returns {object} returns SPA pageData
+   */
   const getSPAPage = useGetSPAPageCall({
     apiURL: isLocalEnvironment,
     apiEndpoint: 'spaPageData',
@@ -62,6 +84,13 @@ export const Website = ({ envData, appDataParsed, routeData, isLocalEnvironment 
     enabled: true,
   })
 
+  /**
+   * Loading screen if api is being fetched
+   * @function Loading
+   * @description renders loading screen while fetching appData
+   * @param {boolean} getPage.isLoading true render loading screen
+   * @returns loading screen
+   */
   if (getPage.isLoading || getSPAPage.isLoading) {
     return (
       <>
@@ -81,6 +110,13 @@ export const Website = ({ envData, appDataParsed, routeData, isLocalEnvironment 
       </>
     )
   }
+
+  /**
+   * Render website pages
+   * @function Website
+   * @description render webpage
+   * @returns html webpage is rendered
+   */
 
   let TagName
 
@@ -123,7 +159,6 @@ export const Website = ({ envData, appDataParsed, routeData, isLocalEnvironment 
                   .sort((a, b) => a.pageElementDisplayOrder - b.pageElementDisplayOrder)
                   .map((comp, compIndex) => (
                     <div key={compIndex}>
-                      {console.log(comp.className.className)}
                       {(TagName = Web[comp.className.className])}
                       {TagName ? (
                         <TagName pageData={comp} envData={envData} />

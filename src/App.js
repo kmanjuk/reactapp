@@ -4,14 +4,9 @@ import PropTypes from 'prop-types'
 
 import { useGetQuery } from './lib/api/get'
 import { appDataProcessor } from './lib/appDataProcessor'
-import { Website } from './modules/website/website'
+import { Website } from './modules/website/Website'
 import { Error404 } from './common/Error404'
-
-//importing css files for backend page layout
-// import './assets/css/b.min.css'
-// import './assets/css/icons.min.css'
-// import './assets/css/app.min.css'
-// import './assets/css/custom.min.css'
+import { Landing } from './modules/website/Landing'
 
 /**
  * @module App
@@ -86,10 +81,10 @@ function App({ envData, isLocalEnvironment }) {
             />
           ))
         ) : (
-          //route to landing page when home page is not available or doesn't have page elements on home page
-          <Route path="/" exact element={<div>Landing</div>} />
+          //route to landing page when home page is not available
+          <Route path="/" exact element={<Landing envData={envData} />} />
         )}
-        <Route path="*" element={<Error404 />} />
+        <Route key="not-found" path="*" element={<Error404 pageNotFound={true} />} />
       </Routes>
     </BrowserRouter>
   )

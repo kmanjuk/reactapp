@@ -1,25 +1,8 @@
 import React from 'react'
-import { Link } from 'react-router-dom'
+import PropTypes from 'prop-types'
 
+import { unloadCSS } from '../lib/uiHelper'
 import errorImg from '../assets/images/error400-cover.png'
-import boots from '../assets/css/bootstrap.min.css'
-import icos from '../assets/css/icons.min.css'
-import app from '../assets/css/app.min.css'
-
-const errrInit = 'app'
-if (errrInit === 'app') {
-  var links = document.querySelectorAll('link[name="themeLoad"]')
-  var linksArray = Array.prototype.slice.call(links)
-  linksArray.forEach(function (child) {
-    child.parentNode.removeChild(child)
-  })
-  document.getElementsByTagName('head')[0].innerHTML +=
-    '<link name="be-app" href="' + boots + '" rel="stylesheet">'
-  document.getElementsByTagName('head')[0].innerHTML +=
-    '<link name="be-app" href="' + app + '" rel="stylesheet">'
-  document.getElementsByTagName('head')[0].innerHTML +=
-    '<link name="be-app" href="' + icos + '" rel="stylesheet">'
-}
 
 /**
  * @module common/Error404
@@ -29,10 +12,32 @@ if (errrInit === 'app') {
  * @component
  *
  * @example
- * <Error404	/>
+ * <Error404 pageNotFound={true}	/>
  */
 
-export const Error404 = () => {
+export const Error404 = ({ pageNotFound }) => {
+  /**
+   * On load function to clear css and load theme css conditionally
+   * @function useEffect
+   * @description Loads css files conditionally and removes unwanted css
+   * @returns loads css
+   */
+  React.useEffect(() => {
+    unloadCSS()
+    return () => {
+      if (pageNotFound === true) {
+        import('../assets/css/bootstrap.min.css')
+        import('../assets/css/icons.min.css')
+        import('../assets/css/app.min.css')
+      }
+    }
+  }, [])
+  /**
+   * Render 404 error page
+   * @function Error404
+   * @description render 404 error page
+   * @returns 404 error page is rendered when there is no matching route
+   */
   return (
     <div className="auth-page-wrapper pb-5 d-flex justify-content-center align-items-center min-vh-100">
       <div className="auth-page-content overflow-hidden p-0">
@@ -46,9 +51,9 @@ export const Error404 = () => {
               <div>
                 <h4>SORRY, PAGE NOT FOUND 😭</h4>
                 <p>The page you are looking for not available!</p>
-                <Link to="/" className="btn btn-secondary text-white">
+                <a href="/" className="btn btn-secondary text-white">
                   <i className="mdi mdi-home me-1" /> Back To Home
-                </Link>
+                </a>
               </div>
             </div>
           </div>
@@ -56,4 +61,8 @@ export const Error404 = () => {
       </div>
     </div>
   )
+}
+
+Error404.propTypes = {
+  pageNotFound: PropTypes.bool,
 }

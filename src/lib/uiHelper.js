@@ -113,3 +113,11 @@ export const handleSearch = (e, setAllData, schema, allData, filter, filterObjec
   }
   queryClient.setQueryData(schema.api, { formData: filtered })
 }
+
+export function unloadCSS() {
+  var links = document.querySelectorAll('link[type="text/css"]')
+  var linksArray = Array.prototype.slice.call(links)
+  linksArray.forEach(function (child) {
+    child.parentNode.removeChild(child)
+  })
+}

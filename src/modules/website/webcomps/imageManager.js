@@ -1,10 +1,9 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import { default as dayjs } from 'dayjs'
 
-import { useGetCall } from '../../../lib/api/get'
-import { useCreateImageCall } from '../../../lib/api/create'
-import httpParams from '../../../lib/httpParams'
+import { useGetCall } from '../../../../lib/api/get'
+import { useCreateImageCall } from '../../../../lib/api/create'
+import httpParams from '../../../../lib/httpParams'
 import { useOnClickOutside } from '../../../modules/lib/OnClickOutside'
 
 export const ImageManager = (props) => {

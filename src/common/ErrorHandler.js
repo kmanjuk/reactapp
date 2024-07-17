@@ -1,8 +1,9 @@
 import React from 'react'
 import PropTypes from 'prop-types'
+import log from 'loglevel'
 import remote from 'loglevel-plugin-remote'
 
-import log from 'loglevel'
+import { unloadCSS } from '../lib/uiHelper'
 import errorImg from '../assets/images/error.png'
 
 /**
@@ -21,13 +22,49 @@ import errorImg from '../assets/images/error.png'
  */
 
 export const ErrorHandler = ({ error }) => {
+  /**
+   * On load function to clear css and load theme css conditionally
+   * @function useEffect
+   * @description Loads css files conditionally and removes unwanted css
+   * @returns loads css
+   */
+  React.useEffect(() => {
+    unloadCSS()
+    return () => {
+      if (error) {
+        import('../assets/css/bootstrap.min.css')
+        import('../assets/css/icons.min.css')
+        import('../assets/css/app.min.css')
+      }
+    }
+  }, [])
+
+  /**
+   * customJSON function formats error message
+   * @function customJSON
+   * @description error message is formatted
+   * @returns return a json
+   */
   const customJSON = (log) => ({
     msg: error.message,
     level: error.label,
     stacktrace: error.stacktrace,
     log: log,
   })
+
+  /**
+   * Post error to server
+   * @function remote
+   * @param {object} format error data in json format
+   * @param {string} url api endpoint name
+   */
   remote.apply(log, { format: customJSON, url: '/logger' })
+  /**
+   * Error handler page
+   * @function ErrorHandler
+   * @description render error page
+   * @returns error page is rendered when something goes wrong
+   */
   return (
     <div className="auth-page-wrapper pb-5 d-flex justify-content-center align-items-center min-vh-100">
       <div className="auth-page-content overflow-hidden p-0">
@@ -55,5 +92,4 @@ export const ErrorHandler = ({ error }) => {
 
 ErrorHandler.propTypes = {
   error: PropTypes.object.isRequired,
-  resetErrorBoundary: PropTypes.func,
 }
