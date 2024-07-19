@@ -9,6 +9,15 @@ import { AppProvider } from './AppProvider'
 import { ErrorHandler } from './common/ErrorHandler'
 
 /**
+ * @file CRM application framework.
+ *
+ * @version 0.1
+ * @author Thulisha Reddy Technologies
+ * @copyright 2024
+ *
+ */
+
+/**
  * @module Index
  * @description This is the main module of the application.
  *

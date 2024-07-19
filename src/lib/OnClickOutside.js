@@ -1,4 +1,17 @@
 import * as React from 'react'
+
+/**
+ * @class OnClickOutside
+ * @description hook to make pop-ups close when clicked outside of their body
+ * @author Thulisha Reddy Technologies
+ */
+
+/**
+ * handle outside click event
+ * @function useOnClickOutside
+ * @param {ref} ref element ref
+ * @param {func} handler function to detect click event
+ */
 export const useOnClickOutside = (ref, handler) => {
   React.useEffect(
     () => {

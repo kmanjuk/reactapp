@@ -53,7 +53,7 @@ describe('T1Contact1 component', () => {
       <T1Contact1
         pageData={mockPageData}
         authSession={mockAuthSession}
-        appVariables={mockAppVariables}
+        envData={mockAppVariables}
         setLoginModal={mockSetLoginModal}
       />
     );
@@ -79,7 +79,7 @@ describe('T1Contact1 component', () => {
       <T1Contact1
         pageData={mockPageData}
         authSession={null}
-        appVariables={mockAppVariables}
+        envData={mockAppVariables}
         setLoginModal={mockSetLoginModal}
       />
     );
@@ -99,7 +99,7 @@ describe('T1Contact1 component', () => {
       <T1Contact1
         pageData={mockPageData}
         authSession={mockAuthSession}
-        appVariables={mockAppVariables}
+        envData={mockAppVariables}
         setLoginModal={mockSetLoginModal}
       />
     );
@@ -138,7 +138,7 @@ describe('T1Contact1 component', () => {
       <T1Contact1
         pageData={mockPageData}
         authSession={mockAuthSession}
-        appVariables={mockAppVariables}
+        envData={mockAppVariables}
         setLoginModal={mockSetLoginModal}
       />
     );
@@ -164,7 +164,7 @@ describe('T1Contact1 component', () => {
       <T1Contact1
         pageData={mockPageData}
         authSession={mockAuthSession}
-        appVariables={mockAppVariables}
+        envData={mockAppVariables}
         setLoginModal={mockSetLoginModal}
       />
     );

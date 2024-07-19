@@ -5,6 +5,8 @@ import { useGetPageCall } from '../../lib/api/get'
 import { useGetSPAPageCall } from '../../lib/api/get'
 import * as Web from './webcomps'
 import { mainUILoad, unloadCSS } from '../../lib/uiHelper'
+import { useOnClickOutside } from '../../lib/OnClickOutside'
+import { LoginModal } from '../../common/LoginModal'
 
 /**
  * @module modules/Website
@@ -22,6 +24,9 @@ import { mainUILoad, unloadCSS } from '../../lib/uiHelper'
  */
 
 export const Website = ({ envData, appDataParsed, routeData, isLocalEnvironment }) => {
+  const [toggleLoginModal, setToggleLoginModal] = React.useState(false)
+  const sideLoginModalRef = React.useRef()
+  useOnClickOutside(sideLoginModalRef, () => setToggleLoginModal(false))
   /**
    * On load function to clear css and load theme css conditionally
    * @function useEffect
@@ -139,7 +144,14 @@ export const Website = ({ envData, appDataParsed, routeData, isLocalEnvironment 
                         <div key={compIndex}>
                           {(TagName = Web[comp.className.className])}
                           {TagName ? (
-                            <TagName pageData={comp} envData={envData} />
+                            <TagName
+                              setLoginModal={setToggleLoginModal}
+                              pageData={comp}
+                              toggleLoginModal={toggleLoginModal}
+                              sideLoginModalRef={sideLoginModalRef}
+                              envData={envData}
+                              isLocalEnvironment={isLocalEnvironment}
+                            />
                           ) : (
                             <div>Something Went Wrong!</div>
                           )}
@@ -161,7 +173,14 @@ export const Website = ({ envData, appDataParsed, routeData, isLocalEnvironment 
                     <div key={compIndex}>
                       {(TagName = Web[comp.className.className])}
                       {TagName ? (
-                        <TagName pageData={comp} envData={envData} />
+                        <TagName
+                          setLoginModal={setToggleLoginModal}
+                          pageData={comp}
+                          toggleLoginModal={toggleLoginModal}
+                          sideLoginModalRef={sideLoginModalRef}
+                          envData={envData}
+                          isLocalEnvironment={isLocalEnvironment}
+                        />
                       ) : (
                         <div>Something Went Wrong!</div>
                       )}
@@ -186,7 +205,14 @@ export const Website = ({ envData, appDataParsed, routeData, isLocalEnvironment 
                         <div key={compIndex}>
                           {(TagName = Web[comp.className.className])}
                           {TagName ? (
-                            <TagName pageData={comp} envData={envData} />
+                            <TagName
+                              setLoginModal={setToggleLoginModal}
+                              pageData={comp}
+                              toggleLoginModal={toggleLoginModal}
+                              sideLoginModalRef={sideLoginModalRef}
+                              envData={envData}
+                              isLocalEnvironment={isLocalEnvironment}
+                            />
                           ) : (
                             <div>Something Went Wrong!</div>
                           )}
@@ -195,6 +221,16 @@ export const Website = ({ envData, appDataParsed, routeData, isLocalEnvironment 
                   ),
             ),
         )}
+      {toggleLoginModal && (
+        <LoginModal
+          setToggleLoginModal={setToggleLoginModal}
+          toggleLoginModal={toggleLoginModal}
+          sideLoginModalRef={sideLoginModalRef}
+          envData={envData}
+          isLocalEnvironment={isLocalEnvironment}
+          appDataParsed={appDataParsed}
+        />
+      )}
     </>
   )
 }

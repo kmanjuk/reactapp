@@ -1,6 +1,7 @@
 import React from 'react'
 import { Link } from 'react-router-dom'
 import PropTypes from 'prop-types'
+import { T1NavbarChild } from './T1NavbarChild'
 
 /**
  * @module modules/website/webcomps/t1/T1Navbar
@@ -46,39 +47,6 @@ export const T1Navbar = ({ authSession, setLoginModal, userLogout, pageData }) =
   React.useEffect(() => {
     window.addEventListener('scroll', resizeWindow)
   }, [])
-
-  const MobNavDd = ({ nav, navIndex }) => {
-    const [childLink, setChildLink] = React.useState(false)
-    return (
-      <li
-        key={navIndex}
-        className={`t1-slicknav_${childLink ? 'open' : 'collapsed'} t1-slicknav_parent pb-2`}
-      >
-        <a href="#!" className="slicknav_item slicknav_row" style={{ outline: 'none' }}></a>
-        <a href="#!" onClick={() => setChildLink(!childLink)}>
-          {nav.name} <i className="icofont-rounded-down" />
-        </a>
-        <span className="t1-slicknav_arrow">►</span>
-        <ul
-          className={`dropdown ${!childLink ? 'slicknav_hidden' : ''} pt-2`}
-          role="menu"
-          aria-hidden="true"
-          style={{
-            display: childLink ? 'block' : 'none',
-            listStyleType: 'none',
-          }}
-        >
-          {nav.childItems.map((cNav, cNavIndex) => (
-            <li key={cNavIndex} className="pb-2 pl-4">
-              <Link to={cNav.link} role="menuitem">
-                {cNav.name}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </li>
-    )
-  }
 
   /**
    * Render T1Navbar page
@@ -172,7 +140,7 @@ export const T1Navbar = ({ authSession, setLoginModal, userLogout, pageData }) =
                     >
                       {pageData.content.content.navLinks.map((nav, navIndex) =>
                         nav.childItems && nav.childItems.length > 0 ? (
-                          <MobNavDd nav={nav} navIndex={navIndex} key={navIndex} />
+                          <T1NavbarChild nav={nav} navIndex={navIndex} key={navIndex} />
                         ) : (
                           <li key={navIndex} className="pb-2">
                             <Link to={nav.link} role="menuitem">

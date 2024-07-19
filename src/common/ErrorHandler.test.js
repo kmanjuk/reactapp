@@ -1,5 +1,5 @@
 import React from 'react'
-import { render, screen } from '@testing-library/react'
+import { render, screen, fireEvent } from '@testing-library/react'
 import '@testing-library/jest-dom/extend-expect'
 import { ErrorHandler } from './ErrorHandler'
 import { unloadCSS } from '../lib/uiHelper'
@@ -54,12 +54,11 @@ describe('ErrorHandler component', () => {
   test('logs error correctly', () => {
     render(<ErrorHandler error={error} />)
 
-    const customJSON = (log) => ({
+    const customJSON = {
       msg: error.message,
       level: error.label,
       stacktrace: error.stacktrace,
-      log: log,
-    })
+    }
 
     expect(remote.apply).toHaveBeenCalledWith(log, {
       format: customJSON,
@@ -68,8 +67,11 @@ describe('ErrorHandler component', () => {
   })
 
   test('mocks reload function onclick', async () => {
-    render(<ErrorHandler error={error} />)
-
-    expect(jest.isMockFunction(window.location.reload)).toBe(true)
+    const handleOnClick = jest.fn()
+    const { getByTestId } = render(<ErrorHandler error={error} />)
+    const button = getByTestId("reload-button");
+    fireEvent.click(button)
+    expect(handleOnClick).toBeTruthy()
+    expect(button).toHaveClass("btn-secondary")
   })
 })

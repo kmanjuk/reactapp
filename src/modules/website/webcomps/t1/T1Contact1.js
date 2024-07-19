@@ -13,7 +13,7 @@ import { useCreateCall } from '../../../../lib/api/create'
  * @example
  * <T1Contact1 pageData={pageData} />
  */
-export const T1Contact1 = ({ pageData, authSession, appVariables, setLoginModal }) => {
+export const T1Contact1 = ({ pageData, authSession, envData, setLoginModal }) => {
   /**
    * @callback SuccessMessageStateSetter
    * @param {SuccessMessageState} state
@@ -43,13 +43,13 @@ export const T1Contact1 = ({ pageData, authSession, appVariables, setLoginModal 
     const data = Object.fromEntries(formData)
 
     data['userId'] = authSess.session.user.userId
-    data['appId'] = appVariables.REACT_APP_APP_ID
-    data['tenantId'] = appVariables.REACT_APP_TENANT_ID
-    data['orgId'] = appVariables.REACT_APP_ORG_ID
+    data['appId'] = envData.REACT_APP_APP_ID
+    data['tenantId'] = envData.REACT_APP_TENANT_ID
+    data['orgId'] = envData.REACT_APP_ORG_ID
 
     await createCallMutation
       .mutateAsync({
-        url: appVariables.REACT_APP_API_URL,
+        url: envData.REACT_APP_API_URL,
         apiEndpoint: 'usermessage',
         data: data, //data,
         messageTitle: 'modSchema.message.title',
@@ -111,7 +111,7 @@ export const T1Contact1 = ({ pageData, authSession, appVariables, setLoginModal 
 
                 {successMsg && (
                   <div className="alert alert-success alert-dismissible fade show" role="alert">
-                    Thank you for your message, we'll get back to you as soon as possible.
+                    Thank you for your message, we&apos;ll get back to you as soon as possible.
                     <button
                       type="button"
                       className="close"

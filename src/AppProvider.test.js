@@ -1,36 +1,37 @@
-import * as React from 'react'
-import { render, screen } from '@testing-library/react'
-import '@testing-library/jest-dom/extend-expect'
-import { QueryClient, QueryClientProvider } from 'react-query'
-import { AppProvider } from './AppProvider'
+import React from 'react';
+import { render } from '@testing-library/react';
+import { QueryClientProvider } from 'react-query';
+import { AppProvider } from './AppProvider';
+import { queryClient } from './lib/reactQueryClient';
 
-// Mock the queryClient
-const queryClient = new QueryClient()
-
-jest.mock('./lib/reactQueryClient', () => ({
-  queryClient: queryClient,
-}))
-
-describe('AppProvider component', () => {
-  test('renders children correctly', () => {
-    render(
+describe('AppProvider Component', () => {
+  it('renders children and loading indicator correctly', () => {
+    const { getByText, getByTestId } = render(
       <AppProvider>
-        <div>Test Child Component</div>
+        <div>Child Component</div>
       </AppProvider>
-    )
+    );
 
-    expect(screen.getByText('Test Child Component')).toBeInTheDocument()
-  })
+    // Ensure children are rendered
+    expect(getByText('Child Component')).toBeInTheDocument();
 
-  test('displays fallback loader during suspense', () => {
-    render(
-      <React.Suspense fallback={<div>Loading...</div>}>
-        <AppProvider>
-          <div>Test Child Component</div>
-        </AppProvider>
-      </React.Suspense>
-    )
+    // Ensure loading indicator is rendered
+    expect(getByTestId('global-loader')).toBeInTheDocument();
+    expect(getByTestId('global-loader')).toHaveTextContent('LOADING.........');
+  });
 
-    expect(screen.getByText('LOADING.........')).toBeInTheDocument()
-  })
-})
+  it('provides QueryClientProvider with queryClient', () => {
+    const { container } = render(
+      <AppProvider>
+        <div>Child Component</div>
+      </AppProvider>
+    );
+
+    // Ensure QueryClientProvider is rendered and has the queryClient prop
+    const queryClientProvider = container.querySelector('QueryClientProvider');
+    expect(queryClientProvider).toBeInTheDocument();
+    expect(queryClientProvider).toHaveAttribute('client', queryClient);
+  });
+
+  // Add more test cases for edge cases, prop types, etc.
+});

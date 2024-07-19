@@ -1,9 +1,9 @@
 /**
- * @module appDataProcessor
- *  @description Filter out settings and seo, other than parsing routes and appElements data
+ * @class appDataProcessor
+ * @description Filter out settings and seo, other than parsing routes and appElements data
  * @function appDataProcessor
- *  @param {object} appData reponse data from appData api call.
- *  @returns {object} object.
+ * @param {object} appData reponse data from appData api call.
+ * @returns {object} object.
  */
 export const appDataProcessor = (appData) => {
   if (!appData.data.formData || appData.data.formData.length <= 0) {

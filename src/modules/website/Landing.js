@@ -1,8 +1,10 @@
 import React from 'react'
-import PropTypes from 'prop-types'
 import { Link } from 'react-router-dom'
+import PropTypes from 'prop-types'
 
+import { useOnClickOutside } from '../../lib/OnClickOutside'
 import bgPattern from '../../assets/images/bg-pattern.png'
+import { LoginModal } from '../../common/LoginModal'
 
 /**
  * @module website/Landing
@@ -16,7 +18,11 @@ import bgPattern from '../../assets/images/bg-pattern.png'
  * <Landing envData={envData}	/>
  */
 
-export const Landing = ({ envData }) => {
+export const Landing = ({ envData, isLocalEnvironment, isLoggedIn }) => {
+  const [toggleLoginModal, setToggleLoginModal] = React.useState(false)
+  const sideLoginModalRef = React.useRef()
+  useOnClickOutside(sideLoginModalRef, () => setToggleLoginModal(false))
+
   /**
    * On load function to clear css and load theme css conditionally
    * @function useEffect
@@ -60,6 +66,16 @@ export const Landing = ({ envData }) => {
               className="trtui-navbar-nav trtui-mx-auto trtui-mt-2 trtui-mt-lg-0"
               id="navbar-example"
             ></ul>
+            {!isLoggedIn && (
+              <div className>
+                <button
+                  onClick={() => setToggleLoginModal(true)}
+                  className="trtui-btn trtui-btn-primary"
+                >
+                  Login
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </nav>
@@ -98,10 +114,22 @@ export const Landing = ({ envData }) => {
           Contact Web Admin
         </Link>
       </div>
+      {toggleLoginModal && (
+        <LoginModal
+          setToggleLoginModal={setToggleLoginModal}
+          toggleLoginModal={toggleLoginModal}
+          sideLoginModalRef={sideLoginModalRef}
+          envData={envData}
+          isLocalEnvironment={isLocalEnvironment}
+        />
+      )}
     </div>
   )
 }
 
 Landing.propTypes = {
   envData: PropTypes.object.isRequired,
+  isLocalEnvironment: PropTypes.object.isRequired,
+  authDetails: PropTypes.object.isRequired,
+  isLoggedIn: PropTypes.bool.isLoggedIn,
 }

@@ -7,6 +7,8 @@ import { appDataProcessor } from './lib/appDataProcessor'
 import { Website } from './modules/website/Website'
 import { Error404 } from './common/Error404'
 import { Landing } from './modules/website/Landing'
+import { useAuthStore } from './store/auth'
+import * as authentication from './lib/authentication'
 
 /**
  * @module App
@@ -29,6 +31,18 @@ function App({ envData, isLocalEnvironment }) {
    * @returns {object} all required parameters
    */
   const getAppData = useGetQuery({ apiURL: envData.REACT_APP_API_URL_WEB, apiEndpoint: 'appData' })
+
+  /**
+   * Get authDetails from auth store
+   * @function authDetails
+   * @returns {object} auth details if logged in
+   */
+  const authDetails = useAuthStore((state) => state)
+  const { setAuthentication } = useAuthStore()
+
+  React.useEffect(() => {
+    authentication.getUser({ isLocalEnvironment, setAuthentication })
+  })
 
   //render loading screen while appData is fetched
   /**
@@ -76,13 +90,24 @@ function App({ envData, isLocalEnvironment }) {
                   appDataParsed={appDataParsed}
                   envData={envData}
                   isLocalEnvironment={isLocalEnvironment}
+                  authDetails={authDetails}
                 />
               }
             />
           ))
         ) : (
           //route to landing page when home page is not available
-          <Route path="/" exact element={<Landing envData={envData} />} />
+          <Route
+            path="/"
+            exact
+            element={
+              <Landing
+                envData={envData}
+                authDetails={authDetails}
+                isLocalEnvironment={isLocalEnvironment}
+              />
+            }
+          />
         )}
         <Route key="not-found" path="*" element={<Error404 pageNotFound={true} />} />
       </Routes>

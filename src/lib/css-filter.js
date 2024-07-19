@@ -152,7 +152,7 @@ class Color {
 }
 
 class Solver {
-  constructor(target, baseColor) {
+  constructor(target) {
     this.target = target
     this.targetHSL = target.hsl()
     this.reusedColor = new Color(0, 0, 0)
@@ -291,6 +291,13 @@ function hexToRgb(hex) {
   return result ? [parseInt(result[1], 16), parseInt(result[2], 16), parseInt(result[3], 16)] : null
 }
 
+/**
+ * @class css-filter
+ * @description set of functions to help with css color conversion
+ * @function convCol
+ * @param {string} val color values as input for conversion
+ * @returns {object} coverted color value
+ */
 export function convCol(val) {
   const rgb = hexToRgb(val)
   if (rgb.length !== 3) {
@@ -304,33 +311,3 @@ export function convCol(val) {
   let str = myres[1].slice(0, -2)
   return str
 }
-
-// $(document).ready(() => {
-//   $('button.execute').click(() => {
-//     const rgb = hexToRgb($('input.target').val());
-//     if (rgb.length !== 3) {
-//       alert('Invalid format!');
-//       return;
-//     }
-
-//     const color = new Color(rgb[0], rgb[1], rgb[2]);
-//     const solver = new Solver(color);
-//     const result = solver.solve();
-
-//     let lossMsg;
-//     if (result.loss < 1) {
-//       lossMsg = 'This is a perfect result.';
-//     } else if (result.loss < 5) {
-//       lossMsg = 'The is close enough.';
-//     } else if (result.loss < 15) {
-//       lossMsg = 'The color is somewhat off. Consider running it again.';
-//     } else {
-//       lossMsg = 'The color is extremely off. Run it again!';
-//     }
-
-//     $('.realPixel').css('background-color', color.toString());
-//     $('.filterPixel').attr('style', result.filter);
-//     $('.filterDetail').text(result.filter);
-//     $('.lossDetail').html(`Loss: ${result.loss.toFixed(1)}. <b>${lossMsg}</b>`);
-//   });
-// });

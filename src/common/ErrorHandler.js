@@ -45,12 +45,11 @@ export const ErrorHandler = ({ error }) => {
    * @description error message is formatted
    * @returns return a json
    */
-  const customJSON = (log) => ({
+  const customJSON = {
     msg: error.message,
     level: error.label,
     stacktrace: error.stacktrace,
-    log: log,
-  })
+  }
 
   /**
    * Post error to server
@@ -78,7 +77,11 @@ export const ErrorHandler = ({ error }) => {
               <div>
                 <h4>Something Went Wrong!</h4>
                 <pre className="text-danger">{error.message}</pre>
-                <button onClick={() => window.location.reload()} className="btn btn-secondary">
+                <button
+                  data-testid={'reload-button'}
+                  onClick={() => window.location.reload()}
+                  className="btn btn-secondary"
+                >
                   <i className="mdi mdi-refresh me-1" /> Try Again
                 </button>
               </div>

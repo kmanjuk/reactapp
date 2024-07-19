@@ -2,12 +2,12 @@ import Axios from 'axios'
 
 //Creating new Axios instance with custom config
 /**
- * @module Axios
- *  @description An instance of axios
+ * @class Axios
+ * @description An instance of axios
  * @function axios
- *  @param {string} baseURL api end point url
+ * @param {string} baseURL api end point url
  * @param {boolean} withCredentials boolean whether to use creadentials
- *  @returns {object} response data object
+ * @returns {object} response data object
  */
 export const axios = Axios.create({
   baseURL: '',
