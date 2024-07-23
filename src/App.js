@@ -2,13 +2,17 @@ import React from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import PropTypes from 'prop-types'
 
+import { isValidJsonString } from './lib/uiHelper'
+import { useOnClickOutside } from './lib/OnClickOutside'
+import { Website } from './modules/website/Website'
+import { Landing } from './modules/website/Landing'
+import { Error404 } from './common/Error404'
+import { Logout } from './common/Logout'
 import { useGetQuery } from './lib/api/get'
 import { appDataProcessor } from './lib/appDataProcessor'
-import { Website } from './modules/website/Website'
-import { Error404 } from './common/Error404'
-import { Landing } from './modules/website/Landing'
 import { useAuthStore } from './store/auth'
-import * as authentication from './lib/authentication'
+import { ModuleBuilder } from './modules/ModuleBuilder'
+import { getUser } from './lib/authentication'
 
 /**
  * @module App
@@ -23,6 +27,21 @@ import * as authentication from './lib/authentication'
  */
 
 function App({ envData, isLocalEnvironment }) {
+  /**
+   * @callback LoginModalToggleStateSetter
+   * @param {LoginModalToggleState} state
+   * @returns {void}
+   */
+  const [toggleLoginModal, setToggleLoginModal] = React.useState(false)
+
+  /**
+   * @callback SideLoginRefSetter
+   * @param {SideLoginRefSetter} ref
+   * @returns {boolean}
+   */
+  const sideLoginModalRef = React.useRef()
+  useOnClickOutside(sideLoginModalRef, () => setToggleLoginModal(false))
+
   //api call to get appData (appData has routes and app data)
   /**
    * Get appData by making api call
@@ -40,9 +59,17 @@ function App({ envData, isLocalEnvironment }) {
   const authDetails = useAuthStore((state) => state)
   const { setAuthentication } = useAuthStore()
 
+  /**
+   * getUser function checks if user is authorized
+   * @function getUser
+   * @param {string} isLocalEnvironment
+   * @param {func} setAuthentication
+   * @param {string} authDetails
+   * @returns {object} sets session if user is authorized
+   */
   React.useEffect(() => {
-    authentication.getUser({ isLocalEnvironment, setAuthentication })
-  })
+    getUser({ isLocalEnvironment, setAuthentication, authDetails })
+  }, [])
 
   //render loading screen while appData is fetched
   /**
@@ -63,9 +90,12 @@ function App({ envData, isLocalEnvironment }) {
       </div>
     )
   }
-
   //filter getAppData to seperate routes, site and seo data
   const appDataParsed = appDataProcessor(getAppData)
+
+  const isLoggedIn = isValidJsonString(authDetails)
+    ? authDetails.loggedIn
+    : JSON.parse(JSON.stringify(authDetails)).loggedIn || false
 
   /**
    * Render routes
@@ -91,6 +121,9 @@ function App({ envData, isLocalEnvironment }) {
                   envData={envData}
                   isLocalEnvironment={isLocalEnvironment}
                   authDetails={authDetails}
+                  setToggleLoginModal={setToggleLoginModal}
+                  toggleLoginModal={toggleLoginModal}
+                  sideLoginModalRef={sideLoginModalRef}
                 />
               }
             />
@@ -103,12 +136,38 @@ function App({ envData, isLocalEnvironment }) {
             element={
               <Landing
                 envData={envData}
-                authDetails={authDetails}
                 isLocalEnvironment={isLocalEnvironment}
+                authDetails={authDetails}
               />
             }
           />
         )}
+        {/* backend module routes are rendered if user is logged in */}
+        {isLoggedIn &&
+          appDataParsed.routesData.length > 0 &&
+          appDataParsed.routesData.map((mod, modInd) => (
+            <Route
+              key={`${modInd}${mod.component}${mod.name}`}
+              path={`console/${mod.path}`}
+              element={
+                <ModuleBuilder
+                  routeData={mod}
+                  appDataParsed={appDataParsed}
+                  envData={envData}
+                  isLocalEnvironment={isLocalEnvironment}
+                  authDetails={authDetails}
+                  setToggleLoginModal={setToggleLoginModal}
+                  toggleLoginModal={toggleLoginModal}
+                  sideLoginModalRef={sideLoginModalRef}
+                />
+              }
+            />
+          ))}
+        <Route
+          key="logout"
+          path="console/logout"
+          element={<Logout isLocalEnvironment={isLocalEnvironment} />}
+        />
         <Route key="not-found" path="*" element={<Error404 pageNotFound={true} />} />
       </Routes>
     </BrowserRouter>

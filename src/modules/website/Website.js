@@ -4,8 +4,7 @@ import PropTypes from 'prop-types'
 import { useGetPageCall } from '../../lib/api/get'
 import { useGetSPAPageCall } from '../../lib/api/get'
 import * as Web from './webcomps'
-import { mainUILoad, unloadCSS } from '../../lib/uiHelper'
-import { useOnClickOutside } from '../../lib/OnClickOutside'
+import { mainUILoad, unloadCSS, isValidJsonString } from '../../lib/uiHelper'
 import { LoginModal } from '../../common/LoginModal'
 
 /**
@@ -23,16 +22,25 @@ import { LoginModal } from '../../common/LoginModal'
  * <Website routeData={route} appDataParsed={appDataParsed} envData={envData} />
  */
 
-export const Website = ({ envData, appDataParsed, routeData, isLocalEnvironment }) => {
-  const [toggleLoginModal, setToggleLoginModal] = React.useState(false)
-  const sideLoginModalRef = React.useRef()
-  useOnClickOutside(sideLoginModalRef, () => setToggleLoginModal(false))
+export const Website = ({
+  envData,
+  appDataParsed,
+  routeData,
+  isLocalEnvironment,
+  authDetails,
+  setToggleLoginModal,
+  toggleLoginModal,
+  sideLoginModalRef,
+}) => {
   /**
    * On load function to clear css and load theme css conditionally
    * @function useEffect
    * @description Loads css files conditionally and removes unwanted css
    * @returns loads css
    */
+  const isLoggedIn = isValidJsonString(authDetails)
+    ? authDetails.loggedIn
+    : JSON.parse(JSON.stringify(authDetails)).loggedIn || false
   React.useEffect(() => {
     unloadCSS()
     return () => {
@@ -151,6 +159,7 @@ export const Website = ({ envData, appDataParsed, routeData, isLocalEnvironment 
                               sideLoginModalRef={sideLoginModalRef}
                               envData={envData}
                               isLocalEnvironment={isLocalEnvironment}
+                              isLoggedIn={isLoggedIn}
                             />
                           ) : (
                             <div>Something Went Wrong!</div>
@@ -180,6 +189,7 @@ export const Website = ({ envData, appDataParsed, routeData, isLocalEnvironment 
                           sideLoginModalRef={sideLoginModalRef}
                           envData={envData}
                           isLocalEnvironment={isLocalEnvironment}
+                          isLoggedIn={isLoggedIn}
                         />
                       ) : (
                         <div>Something Went Wrong!</div>
@@ -212,6 +222,7 @@ export const Website = ({ envData, appDataParsed, routeData, isLocalEnvironment 
                               sideLoginModalRef={sideLoginModalRef}
                               envData={envData}
                               isLocalEnvironment={isLocalEnvironment}
+                              isLoggedIn={isLoggedIn}
                             />
                           ) : (
                             <div>Something Went Wrong!</div>
@@ -240,4 +251,8 @@ Website.propTypes = {
   appDataParsed: PropTypes.object.isRequired,
   routeData: PropTypes.object.isRequired,
   isLocalEnvironment: PropTypes.string.isRequired,
+  authDetails: PropTypes.object.isRequired,
+  setToggleLoginModal: PropTypes.func.isRequired,
+  toggleLoginModal: PropTypes.bool.isRequired,
+  sideLoginModalRef: PropTypes.object.isRequired,
 }

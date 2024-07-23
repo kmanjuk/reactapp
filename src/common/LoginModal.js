@@ -10,6 +10,14 @@ export const LoginModal = ({
   isLocalEnvironment,
   setToggleLoginModal,
 }) => {
+  React.useEffect(() => {
+    return () => {
+      import('../assets/css/bootstrap.min.css')
+      import('../assets/css/icons.min.css')
+      import('../assets/css/app.min.css')
+    }
+  }, [])
+
   const redirectURL = window.location.origin
   const emailLogin = () => {
     window.open(isLocalEnvironment + '/auth/login', '_self')

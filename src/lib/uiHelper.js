@@ -40,3 +40,17 @@ export function unloadCSS() {
     child.parentNode.removeChild(child)
   })
 }
+
+/**
+ * check if json is valid
+ * @function isValidJsonString
+ * @description verity if json is valid
+ */
+export const isValidJsonString = (str) => {
+  try {
+    JSON.parse(str)
+  } catch (e) {
+    return false
+  }
+  return true
+}

@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-export const getUser = async ({ isLocalEnvironment, setAuthentication }) => {
+export const getUser = async ({ isLocalEnvironment, setAuthentication, authDetails }) => {
   await fetch(isLocalEnvironment + '/auth/login/success', {
     method: 'GET',
     credentials: 'include',
@@ -15,32 +15,21 @@ export const getUser = async ({ isLocalEnvironment, setAuthentication }) => {
       throw new Error('authentication has been failed!')
     })
     .then(async (resObject) => {
-      console.log(resObject)
-      if (!localStorage.getItem('authenticateSession')) {
-        getUserSession(isLocalEnvironment)
+      //localStorage.setItem('loggedIn', true)
+      if (
+        resObject.user?.profile?.id &&
+        !authDetails.roleId &&
+        !authDetails.role &&
+        !authDetails.session
+      ) {
+        getUserSession({ isLocalEnvironment, resObject, setAuthentication })
       }
-
-      await setAuthentication(
-        {
-          name: resObject.user.profile.displayName,
-          email: resObject.user.profile.emails[0].value,
-          profileImg: resObject.user.profile.photos[0].value,
-          tokenObject: resObject.tokenObject,
-          profile: {},
-        },
-        'passport',
-        resObject,
-        '',
-        '',
-      )
     })
     .catch((err) => {
       console.log(err)
     })
 }
-
-export const getUserSession = async (isLocalEnvironment) => {
-  const authDetails = {}
+const getUserSession = async ({ isLocalEnvironment, resObject, setAuthentication }) => {
   await axios
     .get(isLocalEnvironment + '/authenticateSession', {
       method: 'GET',
@@ -52,16 +41,14 @@ export const getUserSession = async (isLocalEnvironment) => {
       },
     })
     .then(async (tres) => {
-      const authSession = {}
-
-      authSession['session'] = tres.data.formData
       const defaultRole = tres.data.formData.user.userRoles.filter((f) => f.roleName === 'AppUser')
-      authDetails['role'] = defaultRole[0].roleName
-      authDetails['roleId'] = defaultRole[0].roleId
-      authSession['role'] = defaultRole[0].roleName
-      authSession['roleId'] = defaultRole[0].roleId
-
-      localStorage.setItem('authenticateSession', JSON.stringify(authSession))
+      await setAuthentication({
+        resObject: resObject,
+        tokenSource: 'passport',
+        session: tres,
+        role: defaultRole[0].roleName,
+        roleId: defaultRole[0].roleId,
+      })
     })
     .catch((err) => {
       console.log(err)

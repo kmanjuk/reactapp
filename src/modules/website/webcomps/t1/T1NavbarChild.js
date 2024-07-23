@@ -59,6 +59,6 @@ export const T1NavbarChild = ({ nav, navIndex }) => {
 }
 
 T1NavbarChild.propTypes = {
-  nav: PropTypes.string.isRequired,
+  nav: PropTypes.object.isRequired,
   navIndex: PropTypes.number.isRequired,
 }

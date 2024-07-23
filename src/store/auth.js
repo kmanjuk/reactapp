@@ -4,15 +4,19 @@ import { persist } from 'zustand/middleware'
 export const useAuthStore = create(
   persist(
     (set) => ({
-      setAuthentication: (authDetails, tokenSource, session, role, roleId) => {
+      setAuthentication: (authDetails) => {
         set((state) => ({
           ...state,
-          authentication: authDetails,
-          tokenSource: tokenSource,
-          session: session,
-          role: role,
-          roleId: roleId,
+          loggedIn: true,
+          authentication: authDetails.resObject,
+          tokenSource: authDetails.tokenSource,
+          session: authDetails.session,
+          role: authDetails.role,
+          roleId: authDetails.roleId,
         }))
+      },
+      unsetAuthentication: () => {
+        set(() => ({}))
       },
     }),
     {

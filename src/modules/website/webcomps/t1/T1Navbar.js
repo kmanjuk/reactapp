@@ -14,14 +14,13 @@ import { T1NavbarChild } from './T1NavbarChild'
  * @example
  * <T1Navbar pageData={pageData} />
  */
-export const T1Navbar = ({ authSession, setLoginModal, userLogout, pageData }) => {
+export const T1Navbar = ({ isLoggedIn, setLoginModal, pageData }) => {
   /**
    * @callback OpenNavsStateSetter
    * @param {OpenNavsState} state
    * @returns {void}
    */
   const [openNavs, setOpenNavs] = React.useState(false)
-
   /**
    * @callback WindowWidthStateSetter
    * @param {WindowWidthState} state
@@ -149,7 +148,7 @@ export const T1Navbar = ({ authSession, setLoginModal, userLogout, pageData }) =
                           </li>
                         ),
                       )}
-                      {authSession ? (
+                      {isLoggedIn ? (
                         <>
                           <li className="pb-2">
                             <Link to="/console/my-profile" role="menuitem" title="My Profile">
@@ -157,12 +156,7 @@ export const T1Navbar = ({ authSession, setLoginModal, userLogout, pageData }) =
                             </Link>
                           </li>
                           <li className="pb-2">
-                            <Link
-                              to="#!"
-                              role="menuitem"
-                              title="Logout"
-                              onClick={() => userLogout()}
-                            >
+                            <Link to="/console/logout" role="menuitem" title="Logout">
                               - Logout
                             </Link>
                           </li>
@@ -202,7 +196,7 @@ export const T1Navbar = ({ authSession, setLoginModal, userLogout, pageData }) =
                           </li>
                         ),
                       )}
-                      {authSession ? (
+                      {isLoggedIn ? (
                         <li>
                           <Link
                             to="/console/my-profile"
@@ -212,10 +206,9 @@ export const T1Navbar = ({ authSession, setLoginModal, userLogout, pageData }) =
                             <i style={{ fontSize: '1.5rem' }} className="fa fa-user" />
                           </Link>
                           <Link
-                            to="#!"
+                            to="/console/logout"
                             title="Logout"
                             style={{ position: 'relative' }}
-                            onClick={() => userLogout()}
                           >
                             <i style={{ fontSize: '1.5rem' }} className="fa fa-sign-out" />
                           </Link>
@@ -240,8 +233,7 @@ export const T1Navbar = ({ authSession, setLoginModal, userLogout, pageData }) =
 }
 
 T1Navbar.propTypes = {
-  userLogout: PropTypes.func.isRequired,
-  setLoginModal: PropTypes.bool.isRequired,
+  setLoginModal: PropTypes.func.isRequired,
   pageData: PropTypes.object.isRequired,
-  authSession: PropTypes.object.isRequired,
+  isLoggedIn: PropTypes.bool.isRequired,
 }
