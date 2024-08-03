@@ -1,120 +1,106 @@
-// T1Navbar.test.js
+import React from 'react'
+import { render, screen, fireEvent } from '@testing-library/react'
+import '@testing-library/jest-dom/extend-expect'
+import { T1Navbar } from './T1Navbar'
+import { BrowserRouter as Router } from 'react-router-dom'
 
-import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
-import '@testing-library/jest-dom';
-import { T1Navbar } from './T1Navbar'; // Adjust the import path based on your project structure
-import { BrowserRouter } from 'react-router-dom';
-
-describe('T1Navbar component', () => {
-  const mockPageData = {
+// Test case data
+const pageData = {
+  content: {
     content: {
-      content: {
-        isTopBar: true,
-        topBarLinks: [
-          { name: 'Home', link: '/' },
-          { name: 'About', link: '/about' },
-        ],
-        topBarPhone: '123-456-7890',
-        topBarEmail: 'info@example.com',
-        logo: '/logo.png',
-        logoTitle: 'Logo',
-        navLinks: [
-          { name: 'Home', link: '/', childItems: [] },
-          { name: 'Services', link: '/services', childItems: [{ name: 'Consulting', link: '/services/consulting' }] },
-        ],
-      },
+      isTopBar: true,
+      topBarLinks: [
+        { name: 'Link 1', link: '/link1' },
+        { name: 'Link 2', link: '/link2' },
+      ],
+      topBarPhone: '123-456-7890',
+      topBarEmail: 'example@example.com',
+      logo: 'logo.png',
+      logoTitle: 'Logo Title',
+      navLinks: [
+        { name: 'Nav 1', link: '/nav1', childItems: [{ name: 'SubNav 1', link: '/subnav1' }] },
+        { name: 'Nav 2', link: '/nav2' },
+      ],
     },
-  };
+  },
+}
 
-  const mockUserLogout = jest.fn();
-  const mockSetLoginModal = jest.fn();
-
-  it('renders the top bar correctly', () => {
+describe('T1Navbar Component', () => {
+  it('should render the component with initial props', () => {
     render(
-      <BrowserRouter>
-        <T1Navbar
-          authSession={null}
-          setLoginModal={mockSetLoginModal}
-          userLogout={mockUserLogout}
-          pageData={mockPageData}
-        />
-      </BrowserRouter>
-    );
+      <Router>
+        <T1Navbar isLoggedIn={false} setLoginModal={jest.fn()} pageData={pageData} />
+      </Router>
+    )
 
-    const topBarLinks = screen.getAllByRole('link');
-    expect(topBarLinks).toHaveLength(2);
-    expect(topBarLinks[0]).toHaveTextContent('Home');
-    expect(topBarLinks[1]).toHaveTextContent('About');
+    // Test top bar visibility
+    expect(screen.getByText('Link 1')).toBeInTheDocument()
+    expect(screen.getByText('Link 2')).toBeInTheDocument()
+    expect(screen.getByText('123-456-7890')).toBeInTheDocument()
+    expect(screen.getByText('example@example.com')).toBeInTheDocument()
 
-    const topBarPhone = screen.getByText('123-456-7890');
-    expect(topBarPhone).toBeInTheDocument();
+    // Test logo
+    expect(screen.getByAltText('Logo Title')).toBeInTheDocument()
 
-    const topBarEmail = screen.getByRole('link', { name: /info@example.com/i });
-    expect(topBarEmail).toBeInTheDocument();
-  });
+    // Test navigation links
+    expect(screen.getByText('Nav 1')).toBeInTheDocument()
+    expect(screen.getByText('Nav 2')).toBeInTheDocument()
+  })
 
-  it('renders the main navigation links correctly', () => {
+  it('should toggle mobile menu visibility', () => {
     render(
-      <BrowserRouter>
-        <T1Navbar
-          authSession={null}
-          setLoginModal={mockSetLoginModal}
-          userLogout={mockUserLogout}
-          pageData={mockPageData}
-        />
-      </BrowserRouter>
-    );
+      <Router>
+        <T1Navbar isLoggedIn={false} setLoginModal={jest.fn()} pageData={pageData} />
+      </Router>
+    )
 
-    const mainNavLinks = screen.getAllByRole('link');
-    expect(mainNavLinks).toHaveLength(4); // Home, About (top bar), Home, Services
+    // Check initial state of mobile menu
+    const mobileMenuButton = screen.getByRole('button')
+    const mobileMenu = screen.getByRole('menu')
 
-    const homeLink = screen.getAllByRole('link', { name: /home/i })[1];
-    const servicesLink = screen.getByRole('link', { name: /services/i });
-    expect(homeLink).toBeInTheDocument();
-    expect(servicesLink).toBeInTheDocument();
-  });
+    expect(mobileMenu).toHaveClass('t1-slicknav_hidden')
 
-  it('renders the user profile and logout links correctly when authenticated', () => {
-    const mockAuthSession = { user: 'testUser' };
+    // Click to open mobile menu
+    fireEvent.click(mobileMenuButton)
+    expect(mobileMenu).not.toHaveClass('t1-slicknav_hidden')
 
+    // Click to close mobile menu
+    fireEvent.click(mobileMenuButton)
+    expect(mobileMenu).toHaveClass('t1-slicknav_hidden')
+  })
+
+  it('should show login link when not logged in', () => {
+    const setLoginModalMock = jest.fn()
     render(
-      <BrowserRouter>
-        <T1Navbar
-          authSession={mockAuthSession}
-          setLoginModal={mockSetLoginModal}
-          userLogout={mockUserLogout}
-          pageData={mockPageData}
-        />
-      </BrowserRouter>
-    );
+      <Router>
+        <T1Navbar isLoggedIn={false} setLoginModal={setLoginModalMock} pageData={pageData} />
+      </Router>
+    )
 
-    const profileLink = screen.getByRole('link', { title: /my profile/i });
-    const logoutLink = screen.getByRole('link', { title: /logout/i });
+    expect(screen.getByRole('link', { name: /login/i })).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('link', { name: /login/i }))
+    expect(setLoginModalMock).toHaveBeenCalled()
+  })
 
-    expect(profileLink).toBeInTheDocument();
-    expect(logoutLink).toBeInTheDocument();
-
-    fireEvent.click(logoutLink);
-    expect(mockUserLogout).toHaveBeenCalledTimes(1);
-  });
-
-  it('renders the login link correctly when not authenticated', () => {
+  it('should show profile and logout links when logged in', () => {
     render(
-      <BrowserRouter>
-        <T1Navbar
-          authSession={null}
-          setLoginModal={mockSetLoginModal}
-          userLogout={mockUserLogout}
-          pageData={mockPageData}
-        />
-      </BrowserRouter>
-    );
+      <Router>
+        <T1Navbar isLoggedIn={true} setLoginModal={jest.fn()} pageData={pageData} />
+      </Router>
+    )
 
-    const loginLink = screen.getByRole('link', { title: /login/i });
-    expect(loginLink).toBeInTheDocument();
+    expect(screen.getByRole('link', { name: /my profile/i })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: /logout/i })).toBeInTheDocument()
+  })
 
-    fireEvent.click(loginLink);
-    expect(mockSetLoginModal).toHaveBeenCalledWith(true);
-  });
-});
+  it('should show the top bar if isTopBar is true in pageData', () => {
+    render(
+      <Router>
+        <T1Navbar isLoggedIn={false} setLoginModal={jest.fn()} pageData={pageData} />
+      </Router>
+    )
+
+    expect(screen.getByText('Link 1')).toBeInTheDocument()
+    expect(screen.getByText('Link 2')).toBeInTheDocument()
+  })
+})

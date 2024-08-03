@@ -255,16 +255,16 @@ export const AppLayoutHeader = ({
                       <img
                         className="trtui-rounded-circle trtui-header-profile-user"
                         src={
-                          authSession.authentication.user.profile.photos[0].value || defaultAvatar
+                          authDetails.authentication.user.profile.photos[0].value || defaultAvatar
                         }
                         alt="Header Avatar"
                       />
                       <span className="trtui-text-start trtui-ms-xl-2">
                         <span className="trtui-d-none trtui-d-xl-inline-block trtui-ms-1 trtui-fw-semibold trtui-user-name-text">
-                          {authSession?.session?.data?.formData?.user?.userFullName}
+                          {authDetails.session.user?.userFullName}
                         </span>
                         <span className="trtui-d-none trtui-d-xl-block trtui-ms-1 trtui-fs-12 trtui-user-name-sub-text">
-                          {authSession?.role}
+                          {authDetails?.role}
                         </span>
                       </span>
                     </span>
@@ -284,7 +284,7 @@ export const AppLayoutHeader = ({
                     ref={userDropDownRef}
                   >
                     <h6 className="trtui-dropdown-header">
-                      Welcome {authSession?.session?.data?.formData?.user.userFullName}!
+                      Welcome {authDetails?.session?.user.userFullName}!
                     </h6>
                     <Link className="trtui-dropdown-item" to="/console/my-profile">
                       <i className="mdi mdi-account-circle trtui-text-muted trtui-fs-16 trtui-align-middle trtui-me-1" />

@@ -13,7 +13,7 @@ import { useCreateCall } from '../../../../lib/api/create'
  * @example
  * <T1Contact1 pageData={pageData} />
  */
-export const T1Contact1 = ({ pageData, authSession, envData, setLoginModal }) => {
+export const T1Contact1 = ({ isLoggedIn, setLoginModal, pageData, envData }) => {
   /**
    * @callback SuccessMessageStateSetter
    * @param {SuccessMessageState} state
@@ -43,13 +43,10 @@ export const T1Contact1 = ({ pageData, authSession, envData, setLoginModal }) =>
     const data = Object.fromEntries(formData)
 
     data['userId'] = authSess.session.user.userId
-    data['appId'] = envData.REACT_APP_APP_ID
-    data['tenantId'] = envData.REACT_APP_TENANT_ID
-    data['orgId'] = envData.REACT_APP_ORG_ID
 
     await createCallMutation
       .mutateAsync({
-        url: envData.REACT_APP_API_URL,
+        url: envData.REACT_APP_API_URL_WEB,
         apiEndpoint: 'usermessage',
         data: data, //data,
         messageTitle: 'modSchema.message.title',
@@ -92,7 +89,7 @@ export const T1Contact1 = ({ pageData, authSession, envData, setLoginModal }) =>
                   {pageData.content.content.text}
                   {/* If you have any questions please fell free to contact with us. */}
                 </p>
-                {!authSession && (
+                {!isLoggedIn && (
                   <div
                     style={{
                       position: 'absolute',
@@ -143,9 +140,9 @@ export const T1Contact1 = ({ pageData, authSession, envData, setLoginModal }) =>
                   onSubmit={(e) => sendMessage(e)}
                   style={{
                     zIndex: '2',
-                    filter: authSession ? '' : 'blur(2px)',
-                    WebkitFilter: authSession ? '' : 'blur(2px)',
-                    pointerEvents: authSession ? '' : 'none',
+                    filter: isLoggedIn ? '' : 'blur(2px)',
+                    WebkitFilter: isLoggedIn ? '' : 'blur(2px)',
+                    pointerEvents: isLoggedIn ? '' : 'none',
                   }}
                 >
                   <div className="row">
@@ -210,8 +207,8 @@ export const T1Contact1 = ({ pageData, authSession, envData, setLoginModal }) =>
 }
 
 T1Contact1.propTypes = {
-  envData: PropTypes.object.isRequired,
-  setLoginModal: PropTypes.bool.isRequired,
+  setLoginModal: PropTypes.func.isRequired,
   pageData: PropTypes.object.isRequired,
-  authSession: PropTypes.object.isRequired,
+  isLoggedIn: PropTypes.bool.isRequired,
+  envData: PropTypes.object.isRequired,
 }

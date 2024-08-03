@@ -1,67 +1,19 @@
-import React from 'react'
-import { render, screen } from '@testing-library/react'
-import '@testing-library/jest-dom/extend-expect'
-import { Landing } from './Landing'
-import { BrowserRouter as Router } from 'react-router-dom'
+import React from 'react';
+import { render, fireEvent } from '@testing-library/react';
+import { Landing } from './Landing';
 
-jest.mock('../../assets/css/bootstrap.min.css', () => {})
-jest.mock('../../assets/css/icons.min.css', () => {})
-jest.mock('../../assets/css/app.min.css', () => {})
-jest.mock('../../assets/images/bg-pattern.png', () => 'bg-pattern.png')
+test('toggles login modal on login button click', () => {
+  const { getByText, queryByText } = render(
+    <Landing envData={{ REACT_APP_THEME_LOGO: 'logo.png' }} isLocalEnvironment="true" isLoggedIn={false} />
+  );
 
-const envData = {
-  REACT_APP_THEME_LOGO: 'logo.png'
-}
+  // Check that the login modal is not rendered initially
+  expect(queryByText(/Login/i)).toBeInTheDocument();
+  expect(queryByText(/Login to your account/i)).not.toBeInTheDocument();
 
-describe('Landing component', () => {
-  test('loads CSS files on mount', () => {
-    render(
-      <Router>
-        <Landing envData={envData} />
-      </Router>
-    )
+  // Click on login button
+  fireEvent.click(getByText(/Login/i));
 
-    // Verify CSS files were imported
-    expect(require('../../assets/css/bootstrap.min.css')).toBeDefined()
-    expect(require('../../assets/css/icons.min.css')).toBeDefined()
-    expect(require('../../assets/css/app.min.css')).toBeDefined()
-  })
-
-  test('renders logo correctly', () => {
-    render(
-      <Router>
-        <Landing envData={envData} />
-      </Router>
-    )
-
-    const logos = screen.getAllByAltText(/logo/i)
-    logos.forEach((logo) => {
-      expect(logo).toHaveAttribute('src', 'logo.png')
-    })
-  })
-
-  test('renders maintenance message', () => {
-    render(
-      <Router>
-        <Landing envData={envData} />
-      </Router>
-    )
-
-    expect(screen.getByText(/Website Under Maintenance/i)).toBeInTheDocument()
-    expect(
-      screen.getByText(/This website is currently undergoing scheduled maintenance/i)
-    ).toBeInTheDocument()
-  })
-
-  test('renders contact link', () => {
-    render(
-      <Router>
-        <Landing envData={envData} />
-      </Router>
-    )
-
-    const contactLink = screen.getByText(/Contact Web Admin/i)
-    expect(contactLink).toBeInTheDocument()
-    expect(contactLink.closest('a')).toHaveAttribute('href', '/')
-  })
-})
+  // Check that the login modal is now rendered
+  expect(queryByText(/Login to your account/i)).toBeInTheDocument();
+});

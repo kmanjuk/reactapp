@@ -1,56 +1,72 @@
-import axiosInstance from './axios'; // Adjust the import based on your file structure
+import MockAdapter from 'axios-mock-adapter'
+import { axios } from './axios'  // Adjust the import according to your file structure
 
-describe('axios instance', () => {
+describe('Axios instance', () => {
+  let mock
+
+  beforeEach(() => {
+    mock = new MockAdapter(axios)
+  })
+
   afterEach(() => {
-    jest.clearAllMocks();
-  });
+    mock.reset()
+  })
 
-  it('should set baseURL and withCredentials', () => {
-    expect(axiosInstance.defaults.baseURL).toBe('');
-    expect(axiosInstance.defaults.withCredentials).toBe(true);
-  });
+  it('should add authorization headers if token exists', async () => {
+    const token = 'test-token'
+    const authenticateSession = {
+      state: {
+        authentication: {
+          tokenObject: token,
+        },
+        tokenSource: 'local',
+      },
+    }
+    localStorage.setItem('authenticateSession', JSON.stringify(authenticateSession))
 
-  it('should add auth headers on request if token exists in localStorage', () => {
-    const localStorageMock = {
-      getItem: jest.fn().mockReturnValue(JSON.stringify({ state: { authentication: { tokenObject: 'mockToken' } } })),
-    };
-    global.localStorage = localStorageMock;
+    mock.onGet('/test').reply(200, { data: 'success' })
 
-    const config = {
-      headers: {},
-    };
-    const updatedConfig = axiosInstance.interceptors.request.handlers[0].fulfilled(config);
-    
-    expect(updatedConfig.headers.authorization).toBe('Bearer mockToken');
-    expect(updatedConfig.headers.Accept).toBe('application/json');
-  });
+    const response = await axios.get('/test')
 
-  it('should not add auth headers on request if token does not exist in localStorage', () => {
-    const localStorageMock = {
-      getItem: jest.fn().mockReturnValue(null),
-    };
-    global.localStorage = localStorageMock;
+    expect(response).toEqual({ data: 'success' })
+    expect(mock.history.get[0].headers.authorization).toBe(`Bearer ${token}`)
+    expect(mock.history.get[0].headers.tokenSource).toBe('local')
 
-    const config = {
-      headers: {},
-    };
-    const updatedConfig = axiosInstance.interceptors.request.handlers[0].fulfilled(config);
-    
-    expect(updatedConfig.headers.authorization).toBeUndefined();
-    expect(updatedConfig.headers.Accept).toBe('application/json');
-  });
+    localStorage.removeItem('authenticateSession')
+  })
 
-  it('should return response data on successful response', async () => {
-    const responseData = { data: 'mockData' };
-    const response = await axiosInstance.interceptors.response.handlers[0].fulfilled({ data: responseData });
-    
-    expect(response).toEqual(responseData);
-  });
+  it('should not add authorization headers if token does not exist', async () => {
+    localStorage.removeItem('authenticateSession')
 
-  it('should return empty object on error response', async () => {
-    const error = { message: 'mockError' };
-    const response = await axiosInstance.interceptors.response.handlers[1].rejected(error);
-    
-    expect(response).toEqual({ formData: [], error });
-  });
-});
+    mock.onGet('/test').reply(200, { data: 'success' })
+
+    const response = await axios.get('/test')
+
+    expect(response).toEqual({ data: 'success' })
+    expect(mock.history.get[0].headers.authorization).toBeUndefined()
+  })
+
+  it('should handle response success', async () => {
+    mock.onGet('/test').reply(200, { data: 'success' })
+
+    const response = await axios.get('/test')
+
+    expect(response).toEqual({ data: 'success' })
+  })
+
+  it('should handle response error', async () => {
+    const errorResponse = {
+      response: {
+        status: 404,
+        data: { message: 'Not Found' },
+      },
+    }
+    mock.onGet('/test').reply(() => {
+      return [404, { message: 'Not Found' }]
+    })
+
+    const response = await axios.get('/test')
+
+    expect(response).toEqual({ formData: [], error: errorResponse })
+  })
+})

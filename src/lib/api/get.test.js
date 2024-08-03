@@ -1,94 +1,112 @@
-import React from 'react';
-import { renderHook } from '@testing-library/react';
-import { useGetQuery, useGetMutate, useGetPageCall, useGetSPAPageCall } from './get'; // Adjust import path based on your project structure
-import axios from '../axios'; // Mocked Axios instance
+import { renderHook } from '@testing-library/react'
+import { QueryClient, QueryClientProvider } from 'react-query'
+import MockAdapter from 'axios-mock-adapter'
+import { axios } from '../axios'
+import { useGetQuery, useGetPageCall, useGetSPAPageCall } from './get'
 
-// Mock Axios module
-jest.mock('../axios', () => ({
-  axios: {
-    get: jest.fn(),
-  },
-}));
+// Create a mock instance of axios
+const mock = new MockAdapter(axios)
+const queryClient = new QueryClient()
 
-// Test useGetQuery hook
-describe('useGetQuery hook', () => {
+const wrapper = ({ children }) => (
+  <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+)
+
+describe('useGetQuery', () => {
   afterEach(() => {
-    jest.clearAllMocks();
-  });
+    mock.reset()
+  })
 
-  test('fetches data correctly', async () => {
-    axios.get.mockResolvedValueOnce({ data: { id: 1, name: 'Test' } });
-    const { result, waitForNextUpdate } = renderHook(() => useGetQuery({ apiURL: '/api', apiEndpoint: 'data', enabled: true }));
-    
-    expect(result.current.isLoading).toBe(true);
-    await waitForNextUpdate();
-    
-    expect(result.current.data).toEqual({ id: 1, name: 'Test' });
-    expect(result.current.isLoading).toBe(false);
-  });
+  it('fetches successfully data from an API', async () => {
+    const call = { apiURL: 'https://api.example.com', apiEndpoint: 'data' }
+    const data = { data: 'Test data' }
+    mock.onGet(`${call.apiURL}/${call.apiEndpoint}`).reply(200, data)
 
-  test('handles error correctly', async () => {
-    axios.get.mockRejectedValueOnce(new Error('API Error'));
-    const { result, waitForNextUpdate } = renderHook(() => useGetQuery({ apiURL: '/api', apiEndpoint: 'data', enabled: true }));
-    
-    expect(result.current.isLoading).toBe(true);
-    await waitForNextUpdate();
-    
-    expect(result.current.error.message).toBe('API Error');
-    expect(result.current.data).toBeUndefined();
-    expect(result.current.isLoading).toBe(false);
-  });
-});
+    const { result, waitFor } = renderHook(() => useGetQuery(call, { config: { enabled: true } }), {
+      wrapper,
+    })
 
-// Test useGetMutate hook
-describe('useGetMutate hook', () => {
+    await waitFor(() => result.current.isSuccess)
+
+    expect(result.current.data).toEqual(data)
+  })
+
+  it('handles error state', async () => {
+    const call = { apiURL: 'https://api.example.com', apiEndpoint: 'data' }
+    mock.onGet(`${call.apiURL}/${call.apiEndpoint}`).reply(500)
+
+    const { result, waitFor } = renderHook(() => useGetQuery(call, { config: { enabled: true } }), {
+      wrapper,
+    })
+
+    await waitFor(() => result.current.isError)
+
+    expect(result.current.error).toBeTruthy()
+  })
+})
+
+describe('useGetPageCall', () => {
   afterEach(() => {
-    jest.clearAllMocks();
-  });
+    mock.reset()
+  })
 
-  test('executes mutation correctly', async () => {
-    axios.get.mockResolvedValueOnce({ data: { id: 1, name: 'Test' } });
-    const { result } = renderHook(() => useGetMutate());
-    
-    const mutationResult = await result.current.mutateAsync({ apiURL: '/api/data' });
-    
-    expect(mutationResult).toEqual({ id: 1, name: 'Test' });
-    expect(axios.get).toHaveBeenCalledWith('/api/data');
-  });
-});
+  it('fetches page data successfully', async () => {
+    const call = { apiURL: 'https://api.example.com', apiEndpoint: 'pageData', id: 1, pageName: 'Home Page' }
+    const data = { data: 'Page Data' }
+    mock.onGet(`${call.apiURL}/${call.apiEndpoint}?pageId=1&pageName=HomePage`).reply(200, data)
 
-// Test useGetPageCall hook
-describe('useGetPageCall hook', () => {
+    const { result, waitFor } = renderHook(() => useGetPageCall(call, { config: { enabled: true } }), {
+      wrapper,
+    })
+
+    await waitFor(() => result.current.isSuccess)
+
+    expect(result.current.data).toEqual(data)
+  })
+
+  it('handles error state', async () => {
+    const call = { apiURL: 'https://api.example.com', apiEndpoint: 'pageData', id: 1, pageName: 'Home Page' }
+    mock.onGet(`${call.apiURL}/${call.apiEndpoint}?pageId=1&pageName=HomePage`).reply(500)
+
+    const { result, waitFor } = renderHook(() => useGetPageCall(call, { config: { enabled: true } }), {
+      wrapper,
+    })
+
+    await waitFor(() => result.current.isError)
+
+    expect(result.current.error).toBeTruthy()
+  })
+})
+
+describe('useGetSPAPageCall', () => {
   afterEach(() => {
-    jest.clearAllMocks();
-  });
+    mock.reset()
+  })
 
-  test('fetches data with correct parameters', async () => {
-    axios.get.mockResolvedValueOnce({ data: { id: 1, name: 'Test' } });
-    const { result, waitForNextUpdate } = renderHook(() => useGetPageCall({ apiURL: '/api', apiEndpoint: 'data', id: 1, pageName: 'Test Page', enabled: true }));
-    
-    expect(result.current.isLoading).toBe(true);
-    await waitForNextUpdate();
-    
-    expect(result.current.data).toEqual({ id: 1, name: 'Test' });
-    expect(axios.get).toHaveBeenCalledWith('/api/data?pageId=1&pageName=TestPage');
-  });
-});
+  it('fetches SPA page data successfully', async () => {
+    const call = { apiURL: 'https://api.example.com', apiEndpoint: 'spaPageData', homePage: 'Home Page' }
+    const data = { data: 'SPA Page Data' }
+    mock.onGet(`${call.apiURL}/${call.apiEndpoint}?pageName=HomePage`).reply(200, data)
 
-// Test useGetSPAPageCall hook
-describe('useGetSPAPageCall hook', () => {
-  afterEach(() => {
-    jest.clearAllMocks();
-  });
+    const { result, waitFor } = renderHook(() => useGetSPAPageCall(call, { config: { enabled: true } }), {
+      wrapper,
+    })
 
-  test('fetches SPA page data with correct parameters', async () => {
-    axios.get.mockResolvedValueOnce({ data: { id: 1, name: 'Test' } });
-    const { result, waitForNextUpdate } = renderHook(() => useGetSPAPageCall({ apiURL: '/api', apiEndpoint: 'data', homePage: 'Home Page', enabled: true }));
-    
-    expect(result.current.isLoading).toBe(true);
-    await waitForNextUpdate();
-    
-    expect(result.current.data).toEqual({ id: 1, name: 'Test' });
-    expect(axios.get).toHaveBeenCalledWith('/api/data?pageName=HomePage');
-  });
-});
+    await waitFor(() => result.current.isSuccess)
+
+    expect(result.current.data).toEqual(data)
+  })
+
+  it('handles error state', async () => {
+    const call = { apiURL: 'https://api.example.com', apiEndpoint: 'spaPageData', homePage: 'Home Page' }
+    mock.onGet(`${call.apiURL}/${call.apiEndpoint}?pageName=HomePage`).reply(500)
+
+    const { result, waitFor } = renderHook(() => useGetSPAPageCall(call, { config: { enabled: true } }), {
+      wrapper,
+    })
+
+    await waitFor(() => result.current.isError)
+
+    expect(result.current.error).toBeTruthy()
+  })
+})

@@ -24,13 +24,4 @@ describe('Error404 component', () => {
     expect(screen.getByRole('img', { name: '' })).toHaveAttribute('src', 'mocked-error-img.png')
     expect(screen.getByRole('link', { name: /Back To Home/i })).toBeInTheDocument()
   })
-
-  test('loads CSS files correctly when pageNotFound is true', async () => {
-    render(<Error404 pageNotFound={true} />)
-
-    expect(unloadCSS).toHaveBeenCalled()
-    await import('../assets/css/bootstrap.min.css')
-    await import('../assets/css/icons.min.css')
-    await import('../assets/css/app.min.css')
-  })
 })

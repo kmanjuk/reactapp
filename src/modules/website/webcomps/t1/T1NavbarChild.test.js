@@ -1,54 +1,67 @@
-import React from 'react';
-import { render, fireEvent } from '@testing-library/react';
-import { T1NavbarChild } from './T1NavbarChild'; // Adjust the import path based on your project structure
+import React from 'react'
+import { render, screen, fireEvent } from '@testing-library/react'
+import '@testing-library/jest-dom/extend-expect'
+import { T1NavbarChild } from './T1NavbarChild'
+import { BrowserRouter as Router } from 'react-router-dom'
 
-describe('T1NavbarChild', () => {
-  const mockNav = {
-    name: 'Parent Nav',
-    childItems: [
-      { link: '/child1', name: 'Child 1' },
-      { link: '/child2', name: 'Child 2' },
-    ],
-  };
+// Test case data
+const navData = {
+  name: 'Parent Item',
+  childItems: [
+    { name: 'Child Item 1', link: '/child1' },
+    { name: 'Child Item 2', link: '/child2' }
+  ]
+}
 
-  test('renders parent nav name', () => {
-    const { getByText } = render(<T1NavbarChild nav={mockNav} navIndex={0} />);
-    const parentLink = getByText(mockNav.name);
-    expect(parentLink).toBeInTheDocument();
-  });
+describe('T1NavbarChild Component', () => {
+  it('should render the component with initial props', () => {
+    render(
+      <Router>
+        <T1NavbarChild nav={navData} navIndex={0} />
+      </Router>
+    )
+    expect(screen.getByText('Parent Item')).toBeInTheDocument()
+  })
 
-  test('initially hides child items', () => {
-    const { queryByText } = render(<T1NavbarChild nav={mockNav} navIndex={0} />);
-    const child1 = queryByText('Child 1');
-    const child2 = queryByText('Child 2');
-    expect(child1).not.toBeInTheDocument();
-    expect(child2).not.toBeInTheDocument();
-  });
+  it('should toggle child items visibility when clicking the parent link', () => {
+    render(
+      <Router>
+        <T1NavbarChild nav={navData} navIndex={0} />
+      </Router>
+    )
 
-  test('expands child items on parent link click', () => {
-    const { getByText, queryByText } = render(<T1NavbarChild nav={mockNav} navIndex={0} />);
-    const parentLink = getByText(mockNav.name);
-    fireEvent.click(parentLink);
+    const parentLink = screen.getByText('Parent Item')
+    const childItems = screen.queryByText('Child Item 1')
+    
+    // Initially, child items should not be visible
+    expect(childItems).toBeNull()
 
-    const child1 = queryByText('Child 1');
-    const child2 = queryByText('Child 2');
-    expect(child1).toBeInTheDocument();
-    expect(child2).toBeInTheDocument();
-  });
+    // Click to expand
+    fireEvent.click(parentLink)
 
-  test('collapses child items on parent link click again', () => {
-    const { getByText, queryByText } = render(<T1NavbarChild nav={mockNav} navIndex={0} />);
-    const parentLink = getByText(mockNav.name);
+    // Child items should be visible after clicking
+    expect(screen.getByText('Child Item 1')).toBeInTheDocument()
+    expect(screen.getByText('Child Item 2')).toBeInTheDocument()
 
-    // First click to expand
-    fireEvent.click(parentLink);
+    // Click again to collapse
+    fireEvent.click(parentLink)
 
-    // Second click to collapse
-    fireEvent.click(parentLink);
+    // Child items should not be visible after clicking again
+    expect(screen.queryByText('Child Item 1')).toBeNull()
+    expect(screen.queryByText('Child Item 2')).toBeNull()
+  })
 
-    const child1 = queryByText('Child 1');
-    const child2 = queryByText('Child 2');
-    expect(child1).not.toBeInTheDocument();
-    expect(child2).not.toBeInTheDocument();
-  });
-});
+  it('should render child links correctly', () => {
+    render(
+      <Router>
+        <T1NavbarChild nav={navData} navIndex={0} />
+      </Router>
+    )
+
+    // Click to expand
+    fireEvent.click(screen.getByText('Parent Item'))
+
+    expect(screen.getByText('Child Item 1').closest('a')).toHaveAttribute('href', '/child1')
+    expect(screen.getByText('Child Item 2').closest('a')).toHaveAttribute('href', '/child2')
+  })
+})

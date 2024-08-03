@@ -8,16 +8,61 @@ import { useOnClickOutside } from '../../lib/OnClickOutside'
 import { useGetQuery } from '../../lib/api/get'
 import { isValidJsonString } from '../../lib/uiHelper'
 
-export const AppLayout = ({ envData, setToggleLoginModal, authDetails, routeData }) => {
+import { Profile } from '../profile/Profile'
+
+/**
+ * @module AppLayout
+ * @description AppLayout renders layout for backend app
+ *
+ * @component
+ * @param {object} envData Environmental Variables
+ * @param {func} setToggleLoginModal Toggle login modal
+ * @param {object} authDetails Contains authentication details
+ * @param {object} routeData Details of module
+ *
+ * @example
+ * <AppLayout setToggleLoginModal={setToggleLoginModal}
+        toggleLoginModal={toggleLoginModal}
+        sideLoginModalRef={sideLoginModalRef}
+        envData={envData}
+        isLocalEnvironment={isLocalEnvironment}
+        authDetails={authDetails}
+        routeData={routeData} />
+ * @author Thulisha Reddy Technologies
+ */
+
+export const AppLayout = ({
+  envData,
+  setToggleLoginModal,
+  authDetails,
+  routeData,
+  isLocalEnvironment,
+}) => {
+  /**
+   * @callback ToggleMenuSetter
+   * @param {ToggleMenuSetter} ref
+   * @returns {boolean}
+   */
   const [toggleMenu, setToggleMenu] = React.useState(false)
+
+  /**
+   * @callback SideMenuRefSetter
+   * @param {SideMenuRefSetter} ref
+   * @returns {boolean}
+   */
   const sideMenuRef = React.useRef()
   useOnClickOutside(sideMenuRef, () => setToggleMenu(false))
+
+  /**
+   * @function isValidJsonString
+   * @param {object} routeData
+   * @returns {object}
+   */
 
   const moduleSchema = isValidJsonString(routeData)
     ? routeData.apiEndPointSchema
     : JSON.parse(JSON.stringify(routeData)).apiEndPointSchema
 
-  console.log(moduleSchema)
   /**
    * Get appData by making api call
    * @function useGetQuery
@@ -60,6 +105,18 @@ export const AppLayout = ({ envData, setToggleLoginModal, authDetails, routeData
       </>
     )
   }
+
+  const Modules = {
+    Profile: Profile,
+  }
+
+  let ModuleName = Modules[routeData.component]
+  /**
+   * Render app layout
+   * @function return
+   * @description renders application layout
+   * @returns app layout
+   */
   return (
     <>
       <AppLayoutHeader
@@ -76,6 +133,18 @@ export const AppLayout = ({ envData, setToggleLoginModal, authDetails, routeData
         setToggleMenu={setToggleMenu}
         sideMenuRef={sideMenuRef}
       />
+      <div className="trtui-main-content">
+        <div className="trtui-page-content" style={{ minHeight: '100vh' }}>
+          <div className="trtui-container-fluid">
+            <ModuleName
+              authDetails={authDetails}
+              routeData={routeData}
+              isLocalEnvironment={isLocalEnvironment}
+              envData={envData}
+            />
+          </div>
+        </div>
+      </div>
       <AppLayoutFooter />
     </>
   )
@@ -86,4 +155,5 @@ AppLayout.propTypes = {
   setToggleLoginModal: PropTypes.func.isRequired,
   authDetails: PropTypes.object.isRequired,
   routeData: PropTypes.object.isRequired,
+  isLocalEnvironment: PropTypes.string.isRequired,
 }

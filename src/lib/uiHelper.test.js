@@ -1,80 +1,66 @@
-import {
-    mainUILoad,
-    setSideMenu,
-    setTopBarMenu,
-    setSideMenuMobile,
-    openModal,
-    closeModal,
-    addMainCrud,
-    closeAddMainCrud,
-    handleSearch,
-    unloadCSS,
-  } from './uiHelper'; // Adjust import based on your file structure
-  
-  // Mock necessary elements and functions for testing
-  const mockSetLoginModal = jest.fn();
-  const mockSetMainCrudAdd = jest.fn();
-  const mockSchema = { api: '/api/data' };
-  const mockAllData = { formData: [{ id: 1, name: 'John' }, { id: 2, name: 'Jane' }] };
-  
-  describe('UI and Data Handling Functions', () => {
-    // Mock document and elements required by functions
-    beforeEach(() => {
-      document.body.innerHTML = `
-        <div id="leftBar"></div>
-        <button id="mhcollapseLB"></button>
-        <button id="mhcloseLB"></button>
-        <button id="mhcollapseLBMobile"></button>
-        <button id="mhcloseLBMobile"></button>
-        <button id="tbMenuOpen"></button>
-        <button id="tbMenuClose"></button>
-        <link id="faviconLink" type="image/x-icon" rel="shortcut icon">
-      `;
-    });
-  
-    // Test mainUILoad function
-    test('mainUILoad should update favicon link and set CSS variables', () => {
-      const favicon = 'path/to/favicon.ico';
-      mainUILoad('#FF0000', '#00FF00', favicon);
-  
-      expect(document.getElementById('faviconLink').getAttribute('href')).toBe(favicon);
-      expect(document.documentElement.style.getPropertyValue('--primaryCol')).toBe(convCol('#00FF00'));
-      expect(document.documentElement.style.getPropertyValue('--primaryCol-hover')).toBe(convCol('#FF0000'));
-    });
-  
-    // Test setSideMenu function
-    test('setSideMenu should toggle classes and styles for side menu', () => {
-      setSideMenu('open');
-      expect(document.body.classList.contains('toggle-menu')).toBe(true);
-      expect(document.getElementById('leftBar').classList.contains('sideMenu')).toBe(true);
-      expect(document.getElementById('mhcollapseLB').style.display).toBe('none');
-      expect(document.getElementById('mhcloseLB').style.display).toBe('inline');
-  
-      setSideMenu('close');
-      expect(document.body.classList.contains('toggle-menu')).toBe(false);
-      expect(document.getElementById('leftBar').classList.contains('sideMenu')).toBe(false);
-      expect(document.getElementById('mhcollapseLB').style.display).toBe('inline');
-      expect(document.getElementById('mhcloseLB').style.display).toBe('none');
-    });
-  
-    // Add more tests for other functions...
-  
-    // Test handleSearch function
-    test('handleSearch should filter data based on search criteria', () => {
-      const mockEvent = { target: { value: 'john' } };
-      const mockSetAllData = jest.fn();
-      handleSearch(mockEvent, mockSetAllData, mockSchema, mockAllData, '', '');
-  
-      expect(localStorage.getItem('filterVal')).toBe('john');
-      expect(mockSetAllData).toHaveBeenCalledWith(mockAllData);
-      // Add more assertions based on expected filtered data
-    });
-  
-    // Test unloadCSS function
-    test('unloadCSS should remove all <link> elements from the DOM', () => {
-      unloadCSS();
-      const linkElements = document.querySelectorAll('link[type="text/css"]');
-      expect(linkElements.length).toBe(0);
-    });
-  });
-  
+import { mainUILoad, unloadCSS, isValidJsonString } from './uiHelper'
+import { convCol } from './css-filter'
+
+jest.mock('./css-filter', () => ({
+  convCol: jest.fn()
+}))
+
+describe('uiHelper functions', () => {
+  beforeEach(() => {
+    document.documentElement.style.setProperty = jest.fn()
+    document.body.classList.add = jest.fn()
+    const link = document.createElement('link')
+    link.id = 'faviconLink'
+    document.head.appendChild(link)
+  })
+
+  afterEach(() => {
+    document.documentElement.style.setProperty.mockReset()
+    document.body.classList.add.mockReset()
+    document.head.innerHTML = ''
+  })
+
+  describe('mainUILoad', () => {
+    it('should set theme colors and favicon', () => {
+      convCol.mockReturnValueOnce('filter1').mockReturnValueOnce('filter2')
+
+      mainUILoad('#123456', '#654321', 'favicon.ico')
+
+      expect(document.body.classList.add).toHaveBeenCalledWith('vertical-layout')
+      expect(document.getElementById('faviconLink').getAttribute('href')).toBe('favicon.ico')
+      expect(convCol).toHaveBeenCalledWith('#654321')
+      expect(convCol).toHaveBeenCalledWith('#123456')
+      expect(document.documentElement.style.setProperty).toHaveBeenCalledWith('--mainPrimaryCol', '#123456')
+      expect(document.documentElement.style.setProperty).toHaveBeenCalledWith('--mainPrimaryColHover', '#123456')
+      expect(document.documentElement.style.setProperty).toHaveBeenCalledWith('--primaryCol', 'filter1')
+      expect(document.documentElement.style.setProperty).toHaveBeenCalledWith('--primaryCol-hover', 'filter2')
+    })
+  })
+
+  describe('unloadCSS', () => {
+    it('should unload all CSS files', () => {
+      const link1 = document.createElement('link')
+      link1.type = 'text/css'
+      const link2 = document.createElement('link')
+      link2.type = 'text/css'
+      document.head.appendChild(link1)
+      document.head.appendChild(link2)
+
+      unloadCSS()
+
+      expect(document.querySelectorAll('link[type="text/css"]').length).toBe(0)
+    })
+  })
+
+  describe('isValidJsonString', () => {
+    it('should return true for valid JSON string', () => {
+      const jsonString = '{"name": "John", "age": 30}'
+      expect(isValidJsonString(jsonString)).toBe(true)
+    })
+
+    it('should return false for invalid JSON string', () => {
+      const invalidJsonString = '{"name": "John", "age": 30'
+      expect(isValidJsonString(invalidJsonString)).toBe(false)
+    })
+  })
+})

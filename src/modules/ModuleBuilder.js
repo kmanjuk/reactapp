@@ -1,9 +1,10 @@
 import React from 'react'
 import PropTypes from 'prop-types'
+import { Helmet } from 'react-helmet'
 
 import { AppLayout } from './appLayout/AppLayout'
-import { unloadCSS } from '../lib/uiHelper'
 import { LoginModal } from '../common/LoginModal'
+import { Notifications } from '../common/notifications/Notifications'
 
 export const ModuleBuilder = ({
   envData,
@@ -15,17 +16,13 @@ export const ModuleBuilder = ({
   appDataParsed,
   routeData,
 }) => {
-  React.useEffect(() => {
-    unloadCSS()
-    return () => {
-      import('../assets/css/bootstrap.min.css')
-      import('../assets/css/icons.min.css')
-      import('../assets/css/app.min.css')
-      import('../assets/css/custom.min.css')
-    }
-  }, [])
   return (
     <div id="layout-wrapper">
+      <Helmet>
+        <link rel="stylesheet" href="/css/bootstrap.min.css" />
+        <link rel="stylesheet" href="/css/app.min.css" />
+      </Helmet>
+      <Notifications />
       <AppLayout
         setToggleLoginModal={setToggleLoginModal}
         toggleLoginModal={toggleLoginModal}

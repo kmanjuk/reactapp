@@ -45,7 +45,7 @@ const getUserSession = async ({ isLocalEnvironment, resObject, setAuthentication
       await setAuthentication({
         resObject: resObject,
         tokenSource: 'passport',
-        session: tres,
+        session: tres.data.formData,
         role: defaultRole[0].roleName,
         roleId: defaultRole[0].roleId,
       })

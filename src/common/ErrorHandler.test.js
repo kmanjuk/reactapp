@@ -2,14 +2,8 @@ import React from 'react'
 import { render, screen, fireEvent } from '@testing-library/react'
 import '@testing-library/jest-dom/extend-expect'
 import { ErrorHandler } from './ErrorHandler'
-import { unloadCSS } from '../lib/uiHelper'
 import log from 'loglevel'
 import remote from 'loglevel-plugin-remote'
-
-// Mock the necessary modules
-jest.mock('../lib/uiHelper', () => ({
-  unloadCSS: jest.fn(),
-}))
 
 jest.mock('../assets/images/error.png', () => 'mocked-error-img.png')
 
@@ -38,17 +32,8 @@ describe('ErrorHandler component', () => {
 
     expect(screen.getByText('Something Went Wrong!')).toBeInTheDocument()
     expect(screen.getByText(error.message)).toBeInTheDocument()
-    expect(screen.getByRole('img', { name: '' })).toHaveAttribute('src', 'mocked-error-img.png')
+    expect(screen.getByRole('img', { name: /error-500 image/i })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /Try Again/i })).toBeInTheDocument()
-  })
-
-  test('loads CSS files correctly when error is present', async () => {
-    render(<ErrorHandler error={error} />)
-
-    expect(unloadCSS).toHaveBeenCalled()
-    await import('../assets/css/bootstrap.min.css')
-    await import('../assets/css/icons.min.css')
-    await import('../assets/css/app.min.css')
   })
 
   test('logs error correctly', () => {
@@ -72,6 +57,7 @@ describe('ErrorHandler component', () => {
     const button = getByTestId("reload-button");
     fireEvent.click(button)
     expect(handleOnClick).toBeTruthy()
-    expect(button).toHaveClass("btn-secondary")
+    expect(button).toHaveClass("trtui-btn-secondary")
   })
+  
 })

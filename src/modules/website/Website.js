@@ -4,8 +4,10 @@ import PropTypes from 'prop-types'
 import { useGetPageCall } from '../../lib/api/get'
 import { useGetSPAPageCall } from '../../lib/api/get'
 import * as Web from './webcomps'
-import { mainUILoad, unloadCSS, isValidJsonString } from '../../lib/uiHelper'
+import { mainUILoad, isValidJsonString } from '../../lib/uiHelper'
 import { LoginModal } from '../../common/LoginModal'
+import { ThemeHelmet } from './ThemeHelmet'
+import { Loading } from '../../common/Loading'
 
 /**
  * @module modules/Website
@@ -32,24 +34,9 @@ export const Website = ({
   toggleLoginModal,
   sideLoginModalRef,
 }) => {
-  /**
-   * On load function to clear css and load theme css conditionally
-   * @function useEffect
-   * @description Loads css files conditionally and removes unwanted css
-   * @returns loads css
-   */
   const isLoggedIn = isValidJsonString(authDetails)
     ? authDetails.loggedIn
     : JSON.parse(JSON.stringify(authDetails)).loggedIn || false
-  React.useEffect(() => {
-    unloadCSS()
-    return () => {
-      var defaultTheme = appDataParsed.webSettings['webSettings-defaultTheme'] || 'T1'
-      if (defaultTheme === 'T1') {
-        import('../../assets/themes/t1.css')
-      }
-    }
-  }, [])
 
   /**
    * mainLoad function assigns theme colors and favicon
@@ -96,7 +83,6 @@ export const Website = ({
     homePage: appDataParsed.webSettings['webSettings-defaultSPAPage'],
     enabled: true,
   })
-
   /**
    * Loading screen if api is being fetched
    * @function Loading
@@ -104,24 +90,8 @@ export const Website = ({
    * @param {boolean} getPage.isLoading true render loading screen
    * @returns loading screen
    */
-  if (getPage.isLoading || getSPAPage.isLoading) {
-    return (
-      <>
-        <div
-          className="spinner-border"
-          role="status"
-          style={{
-            position: 'fixed',
-            top: '50%',
-            left: '50%',
-            color: envData.REACT_APP_THEME_COLOR,
-          }}
-        >
-          <span className="sr-only">Loading...</span>
-        </div>
-        <span className="sr-only">Loading...</span>
-      </>
-    )
+  if (getPage.isLoading || getSPAPage.isLoading || getPage.isRefetching) {
+    return <Loading envData={envData} appDataParsed={appDataParsed} />
   }
 
   /**
@@ -135,6 +105,7 @@ export const Website = ({
 
   return (
     <>
+      <ThemeHelmet defaultTheme={appDataParsed.webSettings['webSettings-defaultTheme'] || 'T1'} />
       {routeData.isSPA &&
         JSON.parse(getSPAPage.data?.formData.pageData).length > 0 &&
         JSON.parse(getSPAPage.data?.formData.pageData).map(

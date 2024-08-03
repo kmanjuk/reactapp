@@ -1,183 +1,108 @@
-// T1Contact1.test.js
+import React from 'react'
+import { render, screen, fireEvent } from '@testing-library/react'
+import '@testing-library/jest-dom/extend-expect'
+import { T1Contact1 } from './T1Contact1'
+import { useCreateCall } from '../../../../lib/api/create'
 
-import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
-import '@testing-library/jest-dom';
-import { T1Contact1 } from './T1Contact1'; // Adjust the import path based on your project structure
-import userEvent from '@testing-library/user-event';
+// Mock the useCreateCall hook
+jest.mock('../../../../lib/api/create')
 
-describe('T1Contact1 component', () => {
-  const mockPageData = {
+const mockCreateCall = {
+  mutateAsync: jest.fn()
+}
+
+useCreateCall.mockReturnValue(mockCreateCall)
+
+describe('T1Contact1 Component', () => {
+  const pageData = {
     content: {
       content: {
-        mapUrl: 'https://maps.google.com',
+        mapUrl: 'https://maps.example.com',
         mapHeight: '400',
         header: 'Contact Us',
-        text: 'If you have any questions, please feel free to contact us.',
+        text: 'If you have any questions please feel free to contact us.',
         phone: '123-456-7890',
         address: '123 Main St, Anytown, USA',
-        email: 'contact@domain.com',
-      },
-    },
-  };
+        email: 'contact@example.com'
+      }
+    }
+  }
 
-  const mockAuthSession = {
-    session: {
-      user: {
-        userId: 'testuser',
-      },
-    },
-  };
+  const envData = {
+    REACT_APP_API_URL_WEB: 'https://api.example.com'
+  }
 
-  const mockAppVariables = {
-    REACT_APP_APP_ID: 'testAppId',
-    REACT_APP_TENANT_ID: 'testTenantId',
-    REACT_APP_ORG_ID: 'testOrgId',
-    REACT_APP_API_URL: 'https://api.test.com',
-  };
+  const setLoginModal = jest.fn()
 
-  const mockSetLoginModal = jest.fn();
-  const mockUseCreateCall = jest.fn();
+  it('should render the component with initial props', () => {
+    render(<T1Contact1 isLoggedIn={false} setLoginModal={setLoginModal} pageData={pageData} envData={envData} />)
+    expect(screen.getByText('Contact Us')).toBeInTheDocument()
+    expect(screen.getByText('If you have any questions please feel free to contact us.')).toBeInTheDocument()
+  })
 
-  jest.mock('../../../../lib/api/create', () => ({
-    useCreateCall: () => mockUseCreateCall,
-  }));
+  it('should display the login button when user is not logged in', () => {
+    render(<T1Contact1 isLoggedIn={false} setLoginModal={setLoginModal} pageData={pageData} envData={envData} />)
+    expect(screen.getByText('Login')).toBeInTheDocument()
+  })
 
-  beforeEach(() => {
-    mockUseCreateCall.mockClear();
-    mockSetLoginModal.mockClear();
-  });
+  it('should display the contact form when user is logged in', () => {
+    render(<T1Contact1 isLoggedIn={true} setLoginModal={setLoginModal} pageData={pageData} envData={envData} />)
+    expect(screen.getByPlaceholderText('Subject')).toBeInTheDocument()
+    expect(screen.getByPlaceholderText('Your Message Here...')).toBeInTheDocument()
+  })
 
-  it('renders contact form correctly', () => {
-    render(
-      <T1Contact1
-        pageData={mockPageData}
-        authSession={mockAuthSession}
-        envData={mockAppVariables}
-        setLoginModal={mockSetLoginModal}
-      />
-    );
+  it('should show success message after form submission', async () => {
+    mockCreateCall.mutateAsync.mockResolvedValueOnce({})
+    render(<T1Contact1 isLoggedIn={true} setLoginModal={setLoginModal} pageData={pageData} envData={envData} />)
 
-    const headerElement = screen.getByText('Contact Us');
-    expect(headerElement).toBeInTheDocument();
+    fireEvent.change(screen.getByPlaceholderText('Subject'), { target: { value: 'Test Subject' } })
+    fireEvent.change(screen.getByPlaceholderText('Your Message Here...'), { target: { value: 'Test Message' } })
+    fireEvent.submit(screen.getByRole('button', { name: /send/i }))
 
-    const textElement = screen.getByText('If you have any questions, please feel free to contact us.');
-    expect(textElement).toBeInTheDocument();
+    await screen.findByText("Thank you for your message, we'll get back to you as soon as possible.")
+    expect(screen.getByText("Thank you for your message, we'll get back to you as soon as possible.")).toBeInTheDocument()
+  })
 
-    const phoneElement = screen.getByText('123-456-7890');
-    expect(phoneElement).toBeInTheDocument();
+  it('should show error message if form submission fails', async () => {
+    mockCreateCall.mutateAsync.mockRejectedValueOnce({})
+    render(<T1Contact1 isLoggedIn={true} setLoginModal={setLoginModal} pageData={pageData} envData={envData} />)
 
-    const addressElement = screen.getByText('123 Main St, Anytown, USA');
-    expect(addressElement).toBeInTheDocument();
+    fireEvent.change(screen.getByPlaceholderText('Subject'), { target: { value: 'Test Subject' } })
+    fireEvent.change(screen.getByPlaceholderText('Your Message Here...'), { target: { value: 'Test Message' } })
+    fireEvent.submit(screen.getByRole('button', { name: /send/i }))
 
-    const emailElement = screen.getByText('contact@domain.com');
-    expect(emailElement).toBeInTheDocument();
-  });
+    await screen.findByText('Something went wrong, please try again!')
+    expect(screen.getByText('Something went wrong, please try again!')).toBeInTheDocument()
+  })
 
-  it('displays login modal when not authenticated and contact form is clicked', () => {
-    render(
-      <T1Contact1
-        pageData={mockPageData}
-        authSession={null}
-        envData={mockAppVariables}
-        setLoginModal={mockSetLoginModal}
-      />
-    );
+  it('should make the API call with correct data', async () => {
+    const authSess = {
+      session: {
+        user: {
+          userId: 'test-user-id'
+        }
+      }
+    }
+    localStorage.setItem('authenticateSession', JSON.stringify(authSess))
+    mockCreateCall.mutateAsync.mockResolvedValueOnce({})
+    render(<T1Contact1 isLoggedIn={true} setLoginModal={setLoginModal} pageData={pageData} envData={envData} />)
 
-    const loginButton = screen.getByRole('img', { name: 'Login' });
-    userEvent.click(loginButton);
+    fireEvent.change(screen.getByPlaceholderText('Subject'), { target: { value: 'Test Subject' } })
+    fireEvent.change(screen.getByPlaceholderText('Your Message Here...'), { target: { value: 'Test Message' } })
+    fireEvent.submit(screen.getByRole('button', { name: /send/i }))
 
-    expect(mockSetLoginModal).toHaveBeenCalledTimes(1);
-  });
-
-  it('submits the form correctly when authenticated', async () => {
-    mockUseCreateCall.mockReturnValue({
-      mutateAsync: jest.fn().mockResolvedValueOnce({}),
-    });
-
-    render(
-      <T1Contact1
-        pageData={mockPageData}
-        authSession={mockAuthSession}
-        envData={mockAppVariables}
-        setLoginModal={mockSetLoginModal}
-      />
-    );
-
-    const subjectInput = screen.getByPlaceholderText('Subject');
-    const messageTextarea = screen.getByPlaceholderText('Your Message Here...');
-    const sendButton = screen.getByText('Send');
-
-    userEvent.type(subjectInput, 'Test Subject');
-    userEvent.type(messageTextarea, 'Test Message');
-    userEvent.click(sendButton);
-
-    expect(mockUseCreateCall().mutateAsync).toHaveBeenCalledWith(expect.objectContaining({
-      url: mockAppVariables.REACT_APP_API_URL,
+    await screen.findByText("Thank you for your message, we'll get back to you as soon as possible.")
+    expect(mockCreateCall.mutateAsync).toHaveBeenCalledWith({
+      url: envData.REACT_APP_API_URL_WEB,
       apiEndpoint: 'usermessage',
-      data: expect.objectContaining({
+      data: {
         subject: 'Test Subject',
         message: 'Test Message',
-        userId: 'testuser',
-        appId: mockAppVariables.REACT_APP_APP_ID,
-        tenantId: mockAppVariables.REACT_APP_TENANT_ID,
-        orgId: mockAppVariables.REACT_APP_ORG_ID,
-      }),
+        userId: 'test-user-id'
+      },
       messageTitle: 'modSchema.message.title',
       message: 'modSchema.message.message',
       noConfirmation: true,
-    }));
-  });
-
-  it('shows success message on successful form submission', async () => {
-    mockUseCreateCall.mockReturnValue({
-      mutateAsync: jest.fn().mockResolvedValueOnce({}),
-    });
-
-    render(
-      <T1Contact1
-        pageData={mockPageData}
-        authSession={mockAuthSession}
-        envData={mockAppVariables}
-        setLoginModal={mockSetLoginModal}
-      />
-    );
-
-    const subjectInput = screen.getByPlaceholderText('Subject');
-    const messageTextarea = screen.getByPlaceholderText('Your Message Here...');
-    const sendButton = screen.getByText('Send');
-
-    userEvent.type(subjectInput, 'Test Subject');
-    userEvent.type(messageTextarea, 'Test Message');
-    userEvent.click(sendButton);
-
-    const successAlert = await screen.findByRole('alert');
-    expect(successAlert).toHaveTextContent("Thank you for your message, we'll get back to you as soon as possible.");
-  });
-
-  it('shows error message on failed form submission', async () => {
-    mockUseCreateCall.mockReturnValue({
-      mutateAsync: jest.fn().mockRejectedValueOnce(new Error('Failed to submit')),
-    });
-
-    render(
-      <T1Contact1
-        pageData={mockPageData}
-        authSession={mockAuthSession}
-        envData={mockAppVariables}
-        setLoginModal={mockSetLoginModal}
-      />
-    );
-
-    const subjectInput = screen.getByPlaceholderText('Subject');
-    const messageTextarea = screen.getByPlaceholderText('Your Message Here...');
-    const sendButton = screen.getByText('Send');
-
-    userEvent.type(subjectInput, 'Test Subject');
-    userEvent.type(messageTextarea, 'Test Message');
-    userEvent.click(sendButton);
-
-    const errorAlert = await screen.findByRole('alert');
-    expect(errorAlert).toHaveTextContent('Something went wrong, please try again!');
-  });
-});
+    })
+  })
+})

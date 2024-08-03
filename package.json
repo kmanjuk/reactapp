@@ -11,6 +11,7 @@
   "dependencies": {
     "@babel/core": "^7.16.0",
     "@babel/preset-env": "^7.24.7",
+    "@hookform/resolvers": "^3.9.0",
     "@pmmmwh/react-refresh-webpack-plugin": "^0.5.3",
     "@svgr/webpack": "^8.1.0",
     "@testing-library/jest-dom": "^5.17.0",
@@ -28,6 +29,7 @@
     "case-sensitive-paths-webpack-plugin": "^2.4.0",
     "css-loader": "^6.5.1",
     "css-minimizer-webpack-plugin": "^3.2.0",
+    "dayjs": "^1.11.12",
     "docdash": "^2.0.2",
     "dotenv": "^10.0.0",
     "dotenv-expand": "^5.1.0",
@@ -39,12 +41,14 @@
     "html-webpack-plugin": "^5.5.0",
     "identity-obj-proxy": "^3.0.0",
     "jest": "^27.5.1",
+    "jest-fetch-mock": "^3.0.3",
     "jest-resolve": "^27.4.2",
     "jest-watch-typeahead": "^1.0.0",
     "jsdoc": "^4.0.3",
     "loglevel": "^1.9.1",
     "loglevel-plugin-remote": "^0.6.8",
     "mini-css-extract-plugin": "^2.4.5",
+    "nanoid": "^5.0.7",
     "postcss": "^8.4.4",
     "postcss-flexbugs-fixes": "^5.0.2",
     "postcss-loader": "^6.2.1",
@@ -57,6 +61,8 @@
     "react-dev-utils": "^12.0.1",
     "react-dom": "^18.3.1",
     "react-error-boundary": "^4.0.13",
+    "react-helmet": "^6.1.0",
+    "react-hook-form": "^7.52.1",
     "react-player": "^2.16.0",
     "react-query": "^3.39.3",
     "react-refresh": "^0.11.0",
@@ -74,6 +80,7 @@
     "webpack-dev-server": "^4.6.0",
     "webpack-manifest-plugin": "^4.0.2",
     "workbox-webpack-plugin": "^6.4.1",
+    "yup": "^1.4.0",
     "zustand": "^4.5.4"
   },
   "scripts": {
@@ -113,7 +120,8 @@
       "react-app-polyfill/jsdom"
     ],
     "setupFilesAfterEnv": [
-      "<rootDir>/src/setupTests.js"
+      "<rootDir>/src/setupTests.js",
+      "<rootDir>/src/serviceWorkerRegistration.js"
     ],
     "testMatch": [
       "<rootDir>/src/**/__tests__/**/*.{js,jsx,ts,tsx}",

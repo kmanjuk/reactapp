@@ -6,30 +6,24 @@ export const AppLayoutMenubar = ({ toggleMenu, sideMenuRef, envData }) => {
   return (
     <div className="trtui-app-menu trtui-navbar-menu" style={{ marginLeft: toggleMenu ? 0 : '' }}>
       <div
-        className="trtui-navbar-brand-box"
+        className="trtui-navbar-brand-box trtui-d-block"
         style={{ borderBottom: '1px solid var(--vz-header-border)' }}
       >
-        <Link to="/" className="trtui-logo trtui-logo-dark">
-          <span className="trtui-logo-sm">
-            <img
-              src={envData.REACT_APP_THEME_FAVICON}
-              style={{ maxWidth: '36px', maxHeight: '36px' }}
-              alt="logo-sm-dark"
-            />
-          </span>
-          <span className="trtui-logo-lg">
+        <Link
+          to="/"
+          className="trtui-logo trtui-logo-dark"
+          style={{ lineHeight: toggleMenu ? '60px' : '70px' }}
+        >
+          <span className="trtui-logo-lg trtui-d-block">
             <img src={envData.REACT_APP_THEME_LOGO} alt="logo-lg-dark" />
           </span>
         </Link>
-        <Link to="/" className="trtui-logo trtui-logo-light">
-          <span className="trtui-logo-sm">
-            <img
-              src={envData.REACT_APP_THEME_FAVICON}
-              style={{ maxWidth: '36px', maxHeight: '36px' }}
-              alt="logo-sm-light"
-            />
-          </span>
-          <span className="trtui-logo-lg">
+        <Link
+          to="/"
+          className="trtui-logo trtui-logo-light"
+          style={{ lineHeight: toggleMenu ? '60px' : '70px' }}
+        >
+          <span className="trtui-logo-lg trtui-d-block">
             <img src={envData.REACT_APP_THEME_LOGO} alt="logo-lg-light" />
           </span>
         </Link>

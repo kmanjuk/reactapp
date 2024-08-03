@@ -2,8 +2,8 @@ import React from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import PropTypes from 'prop-types'
 
-import { isValidJsonString } from './lib/uiHelper'
 import { useOnClickOutside } from './lib/OnClickOutside'
+import { Loading } from './common/Loading'
 import { Website } from './modules/website/Website'
 import { Landing } from './modules/website/Landing'
 import { Error404 } from './common/Error404'
@@ -81,21 +81,14 @@ function App({ envData, isLocalEnvironment }) {
    */
   if (getAppData.isLoading) {
     return (
-      <div id="preloader" style={{ opacity: '0', visibility: 'hidden' }}>
-        <div id="status">
-          <div className="trtui-spinner-border trtui-text-primary trtui-avatar-sm" role="status">
-            <span className="trtui-visually-hidden">Loading...</span>
-          </div>
-        </div>
+      <div id="layout-wrapper">
+        <Loading envData={envData} />
+        <div className="trtui-vertical-overlay" />
       </div>
     )
   }
   //filter getAppData to seperate routes, site and seo data
   const appDataParsed = appDataProcessor(getAppData)
-
-  const isLoggedIn = isValidJsonString(authDetails)
-    ? authDetails.loggedIn
-    : JSON.parse(JSON.stringify(authDetails)).loggedIn || false
 
   /**
    * Render routes
@@ -137,13 +130,13 @@ function App({ envData, isLocalEnvironment }) {
               <Landing
                 envData={envData}
                 isLocalEnvironment={isLocalEnvironment}
-                authDetails={authDetails}
+                isLoggedIn={authDetails.loggedIn}
               />
             }
           />
         )}
         {/* backend module routes are rendered if user is logged in */}
-        {isLoggedIn &&
+        {authDetails.loggedIn &&
           appDataParsed.routesData.length > 0 &&
           appDataParsed.routesData.map((mod, modInd) => (
             <Route

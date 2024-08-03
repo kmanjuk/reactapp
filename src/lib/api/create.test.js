@@ -1,78 +1,88 @@
-import React from 'react';
-import { renderHook } from '@testing-library/react';
-import { useCreateCall, useCreateImageCall } from './create'; // Adjust import path based on your project structure
-import { axios } from '../axios'; // Mocked Axios instance
-import { queryClient } from '../../lib/reactQueryClient'; // Mocked query client instance
+import { renderHook, act } from '@testing-library/react'
+import { QueryClient, QueryClientProvider } from 'react-query'
+import MockAdapter from 'axios-mock-adapter'
+import { axios } from '../axios'
+import { useCreateCall, useCreateImageCall } from './create'
+import { queryClient } from '../../lib/reactQueryClient'
 
-// Mock Axios module
-jest.mock('../axios', () => ({
-  axios: {
-    post: jest.fn(),
-  },
-}));
+// Create a mock instance of axios
+const mock = new MockAdapter(axios)
+const testQueryClient = new QueryClient()
 
-// Mock query client instance
-jest.mock('../../lib/reactQueryClient', () => ({
-  queryClient: {
-    invalidateQueries: jest.fn(),
-    setQueryData: jest.fn(),
-  },
-}));
+const wrapper = ({ children }) => (
+  <QueryClientProvider client={testQueryClient}>{children}</QueryClientProvider>
+)
 
-// Test useCreateCall hook
-describe('useCreateCall hook', () => {
+describe('useCreateCall', () => {
   afterEach(() => {
-    jest.clearAllMocks();
-  });
+    mock.reset()
+  })
 
-  test('executes mutation and handles onSuccess', async () => {
-    axios.post.mockResolvedValueOnce({ data: { id: 1, name: 'Test' } });
-    const { result, waitForNextUpdate } = renderHook(() => useCreateCall({ url: '/api', apiEndpoint: 'data' }));
-    
-    const mutationResult = await result.current.mutateAsync({ params: '/123', data: { name: 'Updated' } });
-    
-    expect(mutationResult).toEqual({ id: 1, name: 'Test' });
-    expect(queryClient.invalidateQueries).toHaveBeenCalledWith('data');
-  });
+  it('posts data successfully', async () => {
+    const call = { url: 'https://api.example.com', apiEndpoint: 'data', data: { test: 'data' }, params: '' }
+    const responseData = { data: 'Test data' }
+    mock.onPost(`${call.url}/${call.apiEndpoint}${call.params}`).reply(200, responseData)
 
-  test('handles onError and sets previous data', async () => {
-    axios.post.mockRejectedValueOnce(new Error('API Error'));
-    const previousData = { id: 1, name: 'Previous Data' };
-    const { result, waitForNextUpdate } = renderHook(() => useCreateCall({ url: '/api', apiEndpoint: 'data' }));
-    
-    result.current.mutateAsync({ params: '/123', data: { name: 'Updated' }, context: { previousCall: previousData } });
+    const { result, waitFor } = renderHook(() => useCreateCall(call, { config: {} }), { wrapper })
 
-    await waitForNextUpdate();
-    
-    expect(queryClient.setQueryData).toHaveBeenCalledWith('data', previousData);
-  });
-});
+    act(() => {
+      result.current.mutate(call)
+    })
 
-// Test useCreateImageCall hook
-describe('useCreateImageCall hook', () => {
+    await waitFor(() => result.current.isSuccess)
+
+    expect(result.current.data).toEqual(responseData)
+  })
+
+  it('handles error state', async () => {
+    const call = { url: 'https://api.example.com', apiEndpoint: 'data', data: { test: 'data' }, params: '' }
+    mock.onPost(`${call.url}/${call.apiEndpoint}${call.params}`).reply(500)
+
+    const { result, waitFor } = renderHook(() => useCreateCall(call, { config: {} }), { wrapper })
+
+    act(() => {
+      result.current.mutate(call)
+    })
+
+    await waitFor(() => result.current.isError)
+
+    expect(result.current.error).toBeTruthy()
+  })
+})
+
+describe('useCreateImageCall', () => {
   afterEach(() => {
-    jest.clearAllMocks();
-  });
+    mock.reset()
+  })
 
-  test('executes mutation and handles onSuccess for image', async () => {
-    axios.post.mockResolvedValueOnce({ data: { id: 1, name: 'Test Image' } });
-    const { result, waitForNextUpdate } = renderHook(() => useCreateImageCall({ url: '/api', apiEndpoint: 'image' }));
-    
-    const mutationResult = await result.current.mutateAsync({ params: '/456', data: { name: 'Updated Image' } });
-    
-    expect(mutationResult).toEqual({ id: 1, name: 'Test Image' });
-    expect(queryClient.invalidateQueries).toHaveBeenCalledWith('image');
-  });
+  it('posts image data successfully', async () => {
+    const call = { url: 'https://api.example.com', apiEndpoint: 'image', data: { test: 'image data' }, params: '' }
+    const responseData = { data: 'Image data' }
+    mock.onPost(`${call.url}/${call.apiEndpoint}${call.params}`).reply(200, responseData)
 
-  test('handles onError and sets previous data for image', async () => {
-    axios.post.mockRejectedValueOnce(new Error('API Error'));
-    const previousData = { id: 1, name: 'Previous Image' };
-    const { result, waitForNextUpdate } = renderHook(() => useCreateImageCall({ url: '/api', apiEndpoint: 'image' }));
-    
-    result.current.mutateAsync({ params: '/456', data: { name: 'Updated Image' }, context: { previousCall: previousData } });
+    const { result, waitFor } = renderHook(() => useCreateImageCall(call, { config: {} }), { wrapper })
 
-    await waitForNextUpdate();
-    
-    expect(queryClient.setQueryData).toHaveBeenCalledWith('image', previousData);
-  });
-});
+    act(() => {
+      result.current.mutate(call)
+    })
+
+    await waitFor(() => result.current.isSuccess)
+
+    expect(result.current.data).toEqual(responseData)
+  })
+
+  it('handles error state', async () => {
+    const call = { url: 'https://api.example.com', apiEndpoint: 'image', data: { test: 'image data' }, params: '' }
+    mock.onPost(`${call.url}/${call.apiEndpoint}${call.params}`).reply(500)
+
+    const { result, waitFor } = renderHook(() => useCreateImageCall(call, { config: {} }), { wrapper })
+
+    act(() => {
+      result.current.mutate(call)
+    })
+
+    await waitFor(() => result.current.isError)
+
+    expect(result.current.error).toBeTruthy()
+  })
+})

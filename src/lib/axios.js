@@ -25,24 +25,22 @@ axios.interceptors.response.use(
   },
   (error) => {
     //in case of error, return empty object along with error description
-    const resp = { formData: [], error }
-    return resp
+    return Promise.reject(error)
   },
 )
 
 function authRequestInterceptor(config) {
   //get user session object stored in localStorage
-  const authenticate = localStorage.getItem('authenticateSession')
-    ? JSON.parse(localStorage.getItem('authenticateSession'))
+  const authenticate = localStorage.getItem('auth')
+    ? JSON.parse(localStorage.getItem('auth'))
     : null
   const localToken = authenticate !== null ? authenticate.state?.authentication : null
-  const token = localToken !== null ? localToken.tokenObject : null
+  const token = localToken && localToken !== null ? localToken.tokenObject : null
 
   //check if token exists and add auth headers to requests
   if (token !== null) {
     config.headers.authorization = `Bearer ${token}`
-    config.headers.tokenSource =
-      localStorage.getItem('authenticateSession') && authenticate.state?.tokenSource
+    config.headers.tokenSource = localStorage.getItem('auth') && authenticate.state?.tokenSource
   }
 
   //add Accept header
