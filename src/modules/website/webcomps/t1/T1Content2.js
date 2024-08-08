@@ -3,23 +3,27 @@ import { Link } from 'react-router-dom'
 import PropTypes from 'prop-types'
 
 /**
- * @module modules/website/webcomps/t1/T1Content2
- * @description Renders T1Content2 page element
+ * Call-to-action section component for Theme T1.
+ *
+ * This component displays a call-to-action section with a header, text, and optionally a button.
+ * It uses data from `pageData` to populate the content and handle button visibility and link.
+ *
+ * @module ThemeT1/T1Content2
+ * @description This component displays a call-to-action section with a header, text, and optionally a button.
+ * It uses data from `pageData` to populate the content and handle button visibility and link.
  * @author Thulisha Reddy Technologies
- *
- * @component
- * @param {object} pageData page data to be rendered
- *
- * @example
- * <T1Content2 pageData={pageData} />
+ * @param {Object} props - The component props.
+ * @param {Object} props.pageData - Data for rendering the call-to-action section, including header, text, and button details.
+ * @param {Object} props.pageData.content - Content of the section.
+ * @param {Object} props.pageData.content.content - Details of the section content.
+ * @param {string} props.pageData.content.content.header - The header text for the section.
+ * @param {string} props.pageData.content.content.text - The main text content of the section.
+ * @param {boolean} props.pageData.content.content.isButton - Flag indicating whether to display a button.
+ * @param {string} props.pageData.content.content.buttonLink - The URL to navigate to when the button is clicked.
+ * @param {string} props.pageData.content.content.buttonName - The text to display on the button.
+ * @returns {JSX.Element} The rendered component.
  */
 export const T1Content2 = ({ pageData }) => {
-  /**
-   * Render T1Content2 page element
-   * @function T1Content2
-   * @description render T1Content2 page element
-   * @returns html T1Content2 page element is rendered
-   */
   return (
     <section className="t1-call-action t1-overlay" data-stellar-background-ratio="0.5">
       <div className="container">

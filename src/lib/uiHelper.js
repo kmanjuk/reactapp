@@ -1,18 +1,11 @@
 import { convCol } from './css-filter'
 
 /**
- * @class uiHelper
- * @description set of functions used to manipulate UI
- * @author Thulisha Reddy Technologies
- */
-
-/**
- * Set colors
- * @function mainUILoad
- * @description sets colors to the theme being used
- * @param {string} primary primary color to be used by theme
- * @param {string} secondary secondary color to be used by theme
- * @param {string} favicon favicon to be inserted into html head tag
+ * Sets colors for the theme.
+ *
+ * @param {string} primary - The primary color to be used by the theme.
+ * @param {string} secondary - The secondary color to be used by the theme.
+ * @param {string} favicon - The favicon to be inserted into the HTML head tag.
  */
 export const mainUILoad = (primary, secondary, favicon) => {
   const favLink = document.getElementById('faviconLink') || ''
@@ -29,9 +22,7 @@ export const mainUILoad = (primary, secondary, favicon) => {
 }
 
 /**
- * unload css files
- * @function unloadCSS
- * @description css files unloaded from html
+ * Unloads CSS files from the HTML document.
  */
 export function unloadCSS() {
   var links = document.querySelectorAll('link[type="text/css"]')
@@ -42,9 +33,10 @@ export function unloadCSS() {
 }
 
 /**
- * check if json is valid
- * @function isValidJsonString
- * @description verity if json is valid
+ * Checks if a string is a valid JSON string.
+ *
+ * @param {string} str - The string to be checked.
+ * @returns {boolean} True if the string is valid JSON, false otherwise.
  */
 export const isValidJsonString = (str) => {
   try {

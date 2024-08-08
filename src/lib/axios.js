@@ -1,49 +1,68 @@
 import Axios from 'axios'
 
-//Creating new Axios instance with custom config
 /**
- * @class Axios
- * @description An instance of axios
- * @function axios
- * @param {string} baseURL api end point url
- * @param {boolean} withCredentials boolean whether to use creadentials
- * @returns {object} response data object
+ * Creates a new Axios instance with custom configuration for post, put and delete calls.
+ *
+ * @constant {Object} axios
+ * @description An instance of Axios with a base URL and credentials set.
+ * @param {string} baseURL - The base URL for the Axios instance.
+ * @param {boolean} withCredentials - Whether to include credentials with requests.
+ * @returns {Object} The Axios instance with custom configuration.
  */
 export const axios = Axios.create({
   baseURL: '',
   withCredentials: true,
 })
 
-//axios request interceptor uses authRequestInterceptor function to configure requests
+// Axios request interceptor uses authRequestInterceptor function to configure requests
 axios.interceptors.request.use(authRequestInterceptor)
 
-//axios response interceptor
+// Axios response interceptor
 axios.interceptors.response.use(
+  /**
+   * Handles successful responses from the server.
+   *
+   * @function
+   * @param {Object} response - The response object from the server.
+   * @returns {Object} The data from the response.
+   */
   (response) => {
-    //if success, return data
     return response.data
   },
+  /**
+   * Handles errors in responses from the server.
+   *
+   * @function
+   * @param {Object} error - The error object from the server.
+   * @returns {Promise} A promise that is rejected with the error.
+   */
   (error) => {
-    //in case of error, return empty object along with error description
     return Promise.reject(error)
   },
 )
 
+/**
+ * Configures requests by adding authentication headers and other default headers.
+ *
+ * @function
+ * @param {Object} config - The Axios request configuration object.
+ * @returns {Object} The updated Axios request configuration object.
+ */
 function authRequestInterceptor(config) {
-  //get user session object stored in localStorage
+  // Get user session object stored in localStorage
   const authenticate = localStorage.getItem('auth')
     ? JSON.parse(localStorage.getItem('auth'))
     : null
   const localToken = authenticate !== null ? authenticate.state?.authentication : null
   const token = localToken && localToken !== null ? localToken.tokenObject : null
 
-  //check if token exists and add auth headers to requests
+  // Check if token exists and add auth headers to requests
   if (token !== null) {
     config.headers.authorization = `Bearer ${token}`
     config.headers.tokenSource = localStorage.getItem('auth') && authenticate.state?.tokenSource
   }
 
-  //add Accept header
+  // Add Accept header
   config.headers.Accept = 'application/json'
   return config
 }

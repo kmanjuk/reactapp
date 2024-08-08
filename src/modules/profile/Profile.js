@@ -5,7 +5,21 @@ import { ProfileBG } from './ProfileBG'
 import { ProfileRoles } from './ProfileRoles'
 import { ProfileImage } from './ProfileImage'
 import { ProfileUpdate } from './ProfileUpdate'
+import { Settings } from '../settings/Settings'
 
+/**
+ * Profile component renders the user's profile page, including background, image, roles, and update section.
+ *
+ * @module profile/Profile
+ * @description Profile component renders the user's profile page, including background, image, roles, and update section.
+ * @author Thulisha Reddy Technologies
+ * @param {Object} props - Component props.
+ * @param {Object} props.authDetails - Authentication details of the user.
+ * @param {Object} props.routeData - Data related to the current route, including API endpoint schema.
+ * @param {boolean} props.isLocalEnvironment - A flag indicating if the environment is local.
+ * @param {Object} props.envData - An object containing environment data.
+ * @returns {JSX.Element} The rendered component.
+ */
 export const Profile = ({ authDetails, routeData, isLocalEnvironment, envData }) => {
   return (
     <>
@@ -23,6 +37,7 @@ export const Profile = ({ authDetails, routeData, isLocalEnvironment, envData })
             envData={envData}
           />
         </div>
+        <Settings />
       </div>
     </>
   )

@@ -1,7 +1,34 @@
 import React, { useState, Fragment } from 'react'
 import PropTypes from 'prop-types'
-import invalid from '../../assets/images/invalid.svg'
+import invalid from '../../../assets/images/invalid.svg'
 
+/**
+ * InputAutocomplete component provides an input field with autocomplete functionality.
+ *
+ * @module form/InputAutocomplete
+ * @description InputAutocomplete component provides an input field with autocomplete functionality.
+ * @example
+ * const field = { name: 'example' }
+ * const errors = {}
+ * const register = () => {}
+ * const suggestions = [{ id: 1, name: 'Apple' }, { id: 2, name: 'Banana' }]
+ * return (
+ *   <InputAutocomplete
+ *     suggestions={suggestions}
+ *     field={field}
+ *     errors={errors}
+ *     register={register}
+ *   />
+ * )
+ *
+ * @param {Object} props - The properties object.
+ * @param {Array<Object>} [props.suggestions=[]] - The list of suggestions for autocomplete.
+ * @param {Object} props.field - The field configuration object.
+ * @param {Object} props.errors - The errors object for form validation.
+ * @param {function} props.register - The function to register the input field.
+ *
+ * @returns {React.Element} The InputAutocomplete component.
+ */
 export const InputAutocomplete = ({ suggestions = [], field, errors, register }) => {
   const [activeSuggestion, setActiveSuggestion] = useState(0)
   const [filteredSuggestions, setFilteredSuggestions] = useState([])
@@ -11,8 +38,8 @@ export const InputAutocomplete = ({ suggestions = [], field, errors, register })
   const onChange = (e) => {
     const userInput = e.currentTarget.value
 
-    const filteredSuggestions = suggestions.filter(
-      (suggestion) => suggestion['name'].toLowerCase().indexOf(userInput.toLowerCase()) > -1,
+    const filteredSuggestions = suggestions.filter((suggestion) =>
+      suggestion.name.toLowerCase().includes(userInput.toLowerCase()),
     )
 
     setActiveSuggestion(0)
@@ -29,19 +56,15 @@ export const InputAutocomplete = ({ suggestions = [], field, errors, register })
   }
 
   const onKeyDown = (e) => {
-    if (e.keyCode === 13) {
-      setUserInput(filteredSuggestions[activeSuggestion])
+    if (e.key === 'Enter') {
+      setUserInput(filteredSuggestions[activeSuggestion].name)
       setActiveSuggestion(0)
       setShowSuggestions(false)
-    } else if (e.keyCode === 38) {
-      if (activeSuggestion === 0) {
-        return
-      }
+    } else if (e.key === 'ArrowUp') {
+      if (activeSuggestion === 0) return
       setActiveSuggestion(activeSuggestion - 1)
-    } else if (e.keyCode === 40) {
-      if (activeSuggestion - 1 === filteredSuggestions.length) {
-        return
-      }
+    } else if (e.key === 'ArrowDown') {
+      if (activeSuggestion - 1 === filteredSuggestions.length) return
       setActiveSuggestion(activeSuggestion + 1)
     }
   }
@@ -53,12 +76,7 @@ export const InputAutocomplete = ({ suggestions = [], field, errors, register })
       suggestionsListComponent = (
         <ul className="suggestions">
           {filteredSuggestions.map((suggestion, index) => {
-            let className
-
-            if (index === activeSuggestion) {
-              className = 'suggestion-active'
-            }
-
+            let className = index === activeSuggestion ? 'suggestion-active' : ''
             return (
               <li className={className} key={suggestion.id} onClick={onClick}>
                 {suggestion.name}
@@ -100,7 +118,7 @@ export const InputAutocomplete = ({ suggestions = [], field, errors, register })
 }
 
 InputAutocomplete.propTypes = {
-  suggestions: PropTypes.instanceOf(Array),
+  suggestions: PropTypes.arrayOf(PropTypes.object),
   field: PropTypes.object.isRequired,
   errors: PropTypes.object.isRequired,
   register: PropTypes.func.isRequired,

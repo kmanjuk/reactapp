@@ -15,70 +15,29 @@ import { ModuleBuilder } from './modules/ModuleBuilder'
 import { getUser } from './lib/authentication'
 
 /**
+ * Main application component that handles routing and authentication.
  * @module App
- * @description App makes an api call to get all routes and render them.
- *
- * @component
- * @param {object} props.envData Environmental Variables
- *
- * @example
- * <App envData={envData} />
+ * @description Main application component that handles routing and authentication.
  * @author Thulisha Reddy Technologies
+ * @param {Object} props - The component props.
+ * @param {Object} props.envData - Environment-specific data (e.g., API URL, logo).
+ * @param {string} props.isLocalEnvironment - Flag indicating if the environment is local.
+ * @returns {JSX.Element} The rendered component.
  */
-
 function App({ envData, isLocalEnvironment }) {
-  /**
-   * @callback LoginModalToggleStateSetter
-   * @param {LoginModalToggleState} state
-   * @returns {void}
-   */
   const [toggleLoginModal, setToggleLoginModal] = React.useState(false)
-
-  /**
-   * @callback SideLoginRefSetter
-   * @param {SideLoginRefSetter} ref
-   * @returns {boolean}
-   */
   const sideLoginModalRef = React.useRef()
+
   useOnClickOutside(sideLoginModalRef, () => setToggleLoginModal(false))
 
-  //api call to get appData (appData has routes and app data)
-  /**
-   * Get appData by making api call
-   * @function useGetQuery
-   * @param {object} { apiURL: envData.REACT_APP_API_URL_WEB, apiEndpoint: 'appData' }
-   * @returns {object} all required parameters
-   */
   const getAppData = useGetQuery({ apiURL: envData.REACT_APP_API_URL_WEB, apiEndpoint: 'appData' })
-
-  /**
-   * Get authDetails from auth store
-   * @function authDetails
-   * @returns {object} auth details if logged in
-   */
   const authDetails = useAuthStore((state) => state)
   const { setAuthentication } = useAuthStore()
 
-  /**
-   * getUser function checks if user is authorized
-   * @function getUser
-   * @param {string} isLocalEnvironment
-   * @param {func} setAuthentication
-   * @param {string} authDetails
-   * @returns {object} sets session if user is authorized
-   */
   React.useEffect(() => {
     getUser({ isLocalEnvironment, setAuthentication, authDetails })
-  }, [])
+  }, [isLocalEnvironment, setAuthentication, authDetails])
 
-  //render loading screen while appData is fetched
-  /**
-   * Loading screen if api is being fetched
-   * @function Loading
-   * @description renders loading screen while fetching appData
-   * @param {boolean} getAppData.isLoading true render loading screen
-   * @returns loading screen
-   */
   if (getAppData.isLoading) {
     return (
       <div id="layout-wrapper">
@@ -87,21 +46,16 @@ function App({ envData, isLocalEnvironment }) {
       </div>
     )
   }
-  //filter getAppData to seperate routes, site and seo data
+
+  // Filter getAppData to separate routes, site, and SEO data
   const appDataParsed = appDataProcessor(getAppData)
 
-  /**
-   * Render routes
-   * @function Routes
-   * @description render routes
-   * @returns Routes
-   */
   return (
     <BrowserRouter>
       <Routes>
         {appDataParsed.routesData.length > 0 ? (
           appDataParsed.routesData.map((route, routeIndex) => (
-            //public website routes are rendered
+            // Public website routes are rendered
             <Route
               path={route.path}
               key={`${routeIndex}${route.name}`}
@@ -122,7 +76,7 @@ function App({ envData, isLocalEnvironment }) {
             />
           ))
         ) : (
-          //route to landing page when home page is not available
+          // Route to landing page when home page is not available
           <Route
             path="/"
             exact
@@ -135,7 +89,7 @@ function App({ envData, isLocalEnvironment }) {
             }
           />
         )}
-        {/* backend module routes are rendered if user is logged in */}
+        {/* Backend module routes are rendered if user is logged in */}
         {authDetails.loggedIn &&
           appDataParsed.routesData.length > 0 &&
           appDataParsed.routesData.map((mod, modInd) => (
@@ -166,6 +120,7 @@ function App({ envData, isLocalEnvironment }) {
     </BrowserRouter>
   )
 }
+
 export default App
 
 App.propTypes = {

@@ -1,8 +1,49 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 
-import invalid from '../../assets/images/invalid.svg'
+import invalid from '../../../assets/images/invalid.svg'
 
+/**
+ * TextArea component renders a customizable textarea input field.
+ *
+ * @module form/TextArea
+ * @description TextArea component renders a customizable textarea input field.
+ * @example
+ * const field = {
+ *   name: 'description',
+ *   placeholder: 'Enter description',
+ *   size: 6,
+ *   hidden: false,
+ *   type: 'text'
+ * }
+ * const errors = {}
+ * const register = () => {}
+ * const isAdd = true
+ * const defaultData = { description: 'Default text' }
+ * return (
+ *   <TextArea
+ *     field={field}
+ *     errors={errors}
+ *     register={register}
+ *     isAdd={isAdd}
+ *     defaultData={defaultData}
+ *   />
+ * )
+ *
+ * @param {Object} props - The properties object.
+ * @param {Object} props.field - The field configuration object.
+ * @param {string} props.field.name - The name of the field.
+ * @param {string} props.field.placeholder - The placeholder text for the input field.
+ * @param {number} props.field.size - The size of the input field.
+ * @param {boolean} props.field.hidden - Whether the field should be hidden.
+ * @param {string} props.field.type - The type of the input field.
+ * @param {Object} props.errors - The object containing form validation errors.
+ * @param {function} props.register - The function to register the input field.
+ * @param {boolean} props.isAdd - Whether the form is in add mode.
+ * @param {Object} props.defaultData - The default data object.
+ *
+ * @returns {React.Element} The TextArea component.
+ */
 export const TextArea = ({ field, errors, register, isAdd, defaultData }) => {
   try {
     return (

@@ -2,23 +2,20 @@ import React from 'react'
 import PropTypes from 'prop-types'
 
 /**
- * @module modules/website/webcomps/t1/T1Content1
- * @description Renders T1Content1 page element
+ * Content section component for Theme T1.
+ *
+ * This component displays a section with a title and a paragraph of text.
+ * It uses data from `pageData` to populate the header and text content.
+ *
+ * @module ThemeT1/T1Content1
+ * @description This component displays a section with a title and a paragraph of text.
+ * It uses data from `pageData` to populate the header and text content.
  * @author Thulisha Reddy Technologies
- *
- * @component
- * @param {object} pageData page data to be rendered
- *
- * @example
- * <T1Content1 pageData={pageData} />
+ * @param {Object} props - The component props.
+ * @param {Object} props.pageData - Data for rendering the content section, including header and text.
+ * @returns {JSX.Element} The rendered component.
  */
 export const T1Content1 = ({ pageData }) => {
-  /**
-   * Render T1Content1 page element
-   * @function T1Content1
-   * @description render T1Content1 page element
-   * @returns html T1Content1 page element is rendered
-   */
   return (
     <section className="t1-Feautes t1-section mt-5">
       <div className="container">

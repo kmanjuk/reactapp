@@ -3,23 +3,23 @@ import { Link } from 'react-router-dom'
 import PropTypes from 'prop-types'
 
 /**
- * @module modules/website/webcomps/t1/T1Jumbotron
- * @description Renders T1Jumbotron page element
+ * Jumbotron section component displaying a header, text, and a button.
+ *
+ * This component renders a jumbotron section with a header, descriptive text, and a button that links to another page.
+ *
+ * @module ThemeT1/T1Jumbotron
+ * @description This component renders a jumbotron section with a header, descriptive text, and a button that links to another page.
  * @author Thulisha Reddy Technologies
- *
- * @component
- * @param {object} pageData page data to be rendered
- *
- * @example
- * <T1Jumbotron pageData={pageData} />
+ * @param {Object} props - The component props.
+ * @param {Object} props.pageData - Data for rendering the jumbotron section.
+ * @param {Object} props.pageData.content - Content of the jumbotron section.
+ * @param {string} props.pageData.content.content.header - Header text for the jumbotron section.
+ * @param {string} props.pageData.content.content.text - Descriptive text for the jumbotron section.
+ * @param {string} props.pageData.content.content.buttonLink - URL that the button links to.
+ * @param {string} props.pageData.content.content.buttonName - Display name of the button.
+ * @returns {JSX.Element} The rendered jumbotron section component.
  */
 export const T1Jumbotron = ({ pageData }) => {
-  /**
-   * Render T1Jumbotron page element
-   * @function T1Jumbotron
-   * @description render T1Jumbotron page element
-   * @returns html T1Jumbotron page element is rendered
-   */
   return (
     <section className="t1-newsletter t1-section">
       <div className="container">

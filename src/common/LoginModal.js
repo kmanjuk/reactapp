@@ -4,6 +4,20 @@ import PropTypes from 'prop-types'
 import loginBg from '../assets/images/login-bg.png'
 import { Helmet } from 'react-helmet'
 
+/**
+ * LoginModal component renders a modal for user login with various authentication options.
+ *
+ * @module common/LoginModal
+ * @description LoginModal component renders a modal for user login with various authentication options.
+ * @param {Object} props - Component props.
+ * @param {Object} props.sideLoginModalRef - Ref object for the modal to handle outside click events.
+ * @param {boolean} props.toggleLoginModal - Boolean state to toggle the modal visibility.
+ * @param {Object} props.envData - Environmental data for the app, containing feature flags for login methods.
+ * @param {string} props.isLocalEnvironment - URL string for local environment redirection.
+ * @param {Function} props.setToggleLoginModal - Function to set the state of toggleLoginModal.
+ *
+ * @returns {JSX.Element} The rendered component.
+ */
 export const LoginModal = ({
   sideLoginModalRef,
   toggleLoginModal,
@@ -12,9 +26,17 @@ export const LoginModal = ({
   setToggleLoginModal,
 }) => {
   const redirectURL = window.location.origin
+
+  /**
+   * Redirects to email login.
+   */
   const emailLogin = () => {
     window.open(isLocalEnvironment + '/auth/login', '_self')
   }
+
+  /**
+   * Redirects to Google login.
+   */
   const googleLogin = () => {
     window.open(isLocalEnvironment + '/auth/google?url=' + redirectURL, '_self')
   }
@@ -74,9 +96,14 @@ export const LoginModal = ({
 }
 
 LoginModal.propTypes = {
+  /** Ref object for the modal to handle outside click events */
   sideLoginModalRef: PropTypes.object.isRequired,
+  /** Boolean state to toggle the modal visibility */
   toggleLoginModal: PropTypes.bool.isRequired,
+  /** Environmental data for the app, containing feature flags for login methods */
   envData: PropTypes.object.isRequired,
+  /** URL string for local environment redirection */
   isLocalEnvironment: PropTypes.string.isRequired,
+  /** Function to set the state of toggleLoginModal */
   setToggleLoginModal: PropTypes.func.isRequired,
 }

@@ -8,28 +8,23 @@ import { LoginModal } from '../../common/LoginModal'
 import { Helmet } from 'react-helmet'
 
 /**
+ * Landing component displays the landing page with a login modal.
+ * It shows different content based on the user's login status.
+ *
  * @module website/Landing
- * @description A component that is rendered when there are no routes or not page elements in home page
+ * @description Landing component displays the landing page with a login modal.
  * @author Thulisha Reddy Technologies
- *
- * @component
- * @param {object} props.envData Environmental Variables
- *
- * @example
- * <Landing envData={envData}	/>
+ * @param {Object} props - The component props.
+ * @param {Object} props.envData - The environment data, including theme logo URL.
+ * @param {string} props.isLocalEnvironment - Indicates if the environment is local.
+ * @param {boolean} props.isLoggedIn - Indicates if the user is logged in.
+ * @returns {JSX.Element} The rendered landing page component.
  */
-
 export const Landing = ({ envData, isLocalEnvironment, isLoggedIn }) => {
   const [toggleLoginModal, setToggleLoginModal] = React.useState(false)
   const sideLoginModalRef = React.useRef()
   useOnClickOutside(sideLoginModalRef, () => setToggleLoginModal(false))
 
-  /**
-   * Render landing page
-   * @function Landing
-   * @description render landing page
-   * @returns landing page is rendered when there are no pages created or no page elements in default home page
-   */
   return (
     <>
       <Helmet>
@@ -115,9 +110,7 @@ export const Landing = ({ envData, isLocalEnvironment, isLoggedIn }) => {
                 </div>
               </div>
             </div>
-            {/* end row */}
           </div>
-          {/* end container */}
         </section>
         <div style={{ position: 'fixed', bottom: '1rem', right: '1rem' }}>
           <Link to="/" className="trtui-text-decoration-none">

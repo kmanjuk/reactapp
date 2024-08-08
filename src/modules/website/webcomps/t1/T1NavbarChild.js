@@ -3,30 +3,19 @@ import { Link } from 'react-router-dom'
 import PropTypes from 'prop-types'
 
 /**
- * @module modules/website/webcomps/t1/T1NavbarChild
- * @description Renders T1NavbarChild page element
+ * Renders a navigation item with child items for the T1 theme navbar.
+ *
+ * @module ThemeT1/T1NavbarChild
+ * @description Renders a navigation item with child items for the T1 theme navbar.
  * @author Thulisha Reddy Technologies
- *
- * @component
- * @param {object} pageData page data to be rendered
- *
- * @example
- * <T1NavbarChild pageData={pageData} />
+ * @param {Object} props - The component props.
+ * @param {Object} props.nav - Navigation item data.
+ * @param {number} props.navIndex - Index of the navigation item.
+ * @returns {JSX.Element} The rendered navigation item with child items.
  */
 export const T1NavbarChild = ({ nav, navIndex }) => {
-  /**
-   * @callback ChildLinkStateSetter
-   * @param {ChildLinkState} state
-   * @returns {void}
-   */
   const [childLink, setChildLink] = React.useState(false)
 
-  /**
-   * Render T1NavbarChild page
-   * @function T1NavbarChild
-   * @description render T1NavbarChild page
-   * @returns html T1NavbarChild page is rendered
-   */
   return (
     <li
       key={navIndex}
@@ -59,6 +48,12 @@ export const T1NavbarChild = ({ nav, navIndex }) => {
 }
 
 T1NavbarChild.propTypes = {
+  /**
+   * Navigation item data.
+   */
   nav: PropTypes.object.isRequired,
+  /**
+   * Index of the navigation item.
+   */
   navIndex: PropTypes.number.isRequired,
 }

@@ -9,114 +9,49 @@ import { useGetQuery } from '../../lib/api/get'
 import { isValidJsonString } from '../../lib/uiHelper'
 
 import { Profile } from '../profile/Profile'
+import { AppLayoutModuleNotFound } from './AppLayoutModuleNotFound'
 
 /**
- * @module AppLayout
- * @description AppLayout renders layout for backend app
- *
- * @component
- * @param {object} envData Environmental Variables
- * @param {func} setToggleLoginModal Toggle login modal
- * @param {object} authDetails Contains authentication details
- * @param {object} routeData Details of module
- *
- * @example
- * <AppLayout setToggleLoginModal={setToggleLoginModal}
-        toggleLoginModal={toggleLoginModal}
-        sideLoginModalRef={sideLoginModalRef}
-        envData={envData}
-        isLocalEnvironment={isLocalEnvironment}
-        authDetails={authDetails}
-        routeData={routeData} />
+ * AppLayout component
+ * @module appLayout/AppLayout
+ * @description AppLayout component
  * @author Thulisha Reddy Technologies
+ * @param {object} props - Component props
+ * @param {object} props.envData - Environment data
+ * @param {function} props.setToggleLoginModal - Function to toggle login modal
+ * @param {object} props.authDetails - Authentication details
+ * @param {object} props.routeData - Route data
+ * @param {string} props.isLocalEnvironment - Flag for local environment
+ * @returns {JSX.Element} The rendered component
  */
-
 export const AppLayout = ({
   envData,
   setToggleLoginModal,
   authDetails,
   routeData,
   isLocalEnvironment,
+  appDataParsed,
 }) => {
-  /**
-   * @callback ToggleMenuSetter
-   * @param {ToggleMenuSetter} ref
-   * @returns {boolean}
-   */
   const [toggleMenu, setToggleMenu] = React.useState(false)
-
-  /**
-   * @callback SideMenuRefSetter
-   * @param {SideMenuRefSetter} ref
-   * @returns {boolean}
-   */
   const sideMenuRef = React.useRef()
   useOnClickOutside(sideMenuRef, () => setToggleMenu(false))
-
-  /**
-   * @function isValidJsonString
-   * @param {object} routeData
-   * @returns {object}
-   */
 
   const moduleSchema = isValidJsonString(routeData)
     ? routeData.apiEndPointSchema
     : JSON.parse(JSON.stringify(routeData)).apiEndPointSchema
-
-  /**
-   * Get appData by making api call
-   * @function useGetQuery
-   * @param {object} { apiURL: envData.REACT_APP_API_URL_WEB,
-    apiEndpoint: moduleSchema.api,
-    params: moduleSchema.urlParams,
-    enabled: moduleSchema.api ? true : false, }
-   * @returns {object} all required parameters
-   */
   const getData = useGetQuery({
     apiURL: envData.REACT_APP_API_URL_WEB,
     apiEndpoint: moduleSchema.api,
     params: moduleSchema.urlParams,
-    enabled: moduleSchema.api ? true : false,
+    enabled: !!moduleSchema.api,
   })
-
-  /**
-   * Loading screen if api is being fetched
-   * @function Loading
-   * @description renders loading screen while fetching appData
-   * @param {boolean} getData.isLoading true render loading screen
-   * @returns loading screen
-   */
-  if (getData.isLoading) {
-    return (
-      <>
-        <div
-          className="spinner-border"
-          role="status"
-          style={{
-            position: 'fixed',
-            top: '50%',
-            left: '50%',
-            color: envData.REACT_APP_THEME_COLOR,
-          }}
-        >
-          <span className="sr-only">Loading...</span>
-        </div>
-        <span className="sr-only">Loading...</span>
-      </>
-    )
-  }
 
   const Modules = {
     Profile: Profile,
   }
 
-  let ModuleName = Modules[routeData.component]
-  /**
-   * Render app layout
-   * @function return
-   * @description renders application layout
-   * @returns app layout
-   */
+  const ModuleName = Modules[routeData.component]
+
   return (
     <>
       <AppLayoutHeader
@@ -132,16 +67,63 @@ export const AppLayout = ({
         toggleMenu={toggleMenu}
         setToggleMenu={setToggleMenu}
         sideMenuRef={sideMenuRef}
+        authDetails={authDetails}
+        routesData={appDataParsed.routesData}
       />
       <div className="trtui-main-content">
         <div className="trtui-page-content" style={{ minHeight: '100vh' }}>
-          <div className="trtui-container-fluid">
-            <ModuleName
-              authDetails={authDetails}
-              routeData={routeData}
-              isLocalEnvironment={isLocalEnvironment}
-              envData={envData}
-            />
+          <div className="trtui-container-fluid" key={getData}>
+            {getData.isLoading ? (
+              <div>
+                <div
+                  id="status"
+                  className="trtui-align-items-center trtui-d-none trtui-d-md-block trtui-justify-content-center"
+                  style={{
+                    width: '40px',
+                    height: '40px',
+                    position: 'absolute',
+                    left: '50%',
+                    top: '50%',
+                    margin: '-20px 0 0 6.4rem',
+                  }}
+                >
+                  <div
+                    className="trtui-spinner-border trtui-text-primary trtui-avatar-sm"
+                    role="status"
+                  >
+                    <span className="trtui-visually-hidden">Loading...</span>
+                  </div>
+                </div>
+                <div
+                  id="status"
+                  className="trtui-align-items-center trtui-d-block trtui-d-md-none trtui-justify-content-center"
+                  style={{
+                    width: '40px',
+                    height: '40px',
+                    position: 'absolute',
+                    left: '20%',
+                    top: '50%',
+                    margin: '-20px 0 0 6.4rem',
+                  }}
+                >
+                  <div
+                    className="trtui-spinner-border trtui-text-primary trtui-avatar-sm"
+                    role="status"
+                  >
+                    <span className="trtui-visually-hidden">Loading...</span>
+                  </div>
+                </div>
+              </div>
+            ) : ModuleName ? (
+              <ModuleName
+                authDetails={authDetails}
+                routeData={routeData}
+                isLocalEnvironment={isLocalEnvironment}
+                envData={envData}
+              />
+            ) : (
+              <AppLayoutModuleNotFound />
+            )}
           </div>
         </div>
       </div>
@@ -156,4 +138,5 @@ AppLayout.propTypes = {
   authDetails: PropTypes.object.isRequired,
   routeData: PropTypes.object.isRequired,
   isLocalEnvironment: PropTypes.string.isRequired,
+  appDataParsed: PropTypes.object.isRequired,
 }

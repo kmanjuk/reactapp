@@ -10,20 +10,26 @@ import { ThemeHelmet } from './ThemeHelmet'
 import { Loading } from '../../common/Loading'
 
 /**
- * @module modules/Website
- * @description Website renders public webpages
+ * The Website component is responsible for rendering the main content of the website,
+ * including dynamically loaded components based on the route and page data.
+ * It handles both SPA (Single Page Application) and regular page structures.
+ *
+ * @module website/Website
+ * @description The Website component is responsible for rendering the main content of the website,
+ * including dynamically loaded components based on the route and page data.
+ * It handles both SPA (Single Page Application) and regular page structures.
  * @author Thulisha Reddy Technologies
- *
- * @component
- * @param {object} props.envData Environmental Variables
- * @param {object} props.appDataParsed Routes, Site and SEO data
- * @param {object} props.routeData Current route details
- * @param {object} props.isLocalEnvironment environment api calls to be made
- *
- * @example
- * <Website routeData={route} appDataParsed={appDataParsed} envData={envData} />
+ * @param {Object} props - The component props.
+ * @param {Object} props.envData - Environment-specific data such as theme and logo URLs.
+ * @param {Object} props.appDataParsed - Parsed application data used for rendering components.
+ * @param {Object} props.routeData - Data related to the current route, including page ID and name.
+ * @param {string} props.isLocalEnvironment - Indicator of whether the environment is local.
+ * @param {Object} props.authDetails - Authentication details of the user.
+ * @param {Function} props.setToggleLoginModal - Function to toggle the login modal visibility.
+ * @param {boolean} props.toggleLoginModal - State indicating whether the login modal is visible.
+ * @param {Object} props.sideLoginModalRef - Ref object for the login modal component.
+ * @returns {JSX.Element} The rendered Website component.
  */
-
 export const Website = ({
   envData,
   appDataParsed,
@@ -38,28 +44,11 @@ export const Website = ({
     ? authDetails.loggedIn
     : JSON.parse(JSON.stringify(authDetails)).loggedIn || false
 
-  /**
-   * mainLoad function assigns theme colors and favicon
-   * @function mainUILoad
-   * @description Theme colors and favicons are loaded to the page from env
-   * @returns loads theme colors and favicon
-   */
   mainUILoad(
     envData.REACT_APP_PRIMARY_COLOR,
     envData.REACT_APP_SECONDARY_COLOR,
     envData.REACT_APP_THEME_FAVICON,
   )
-
-  /**
-   * Get pageData by making api call
-   * @function useGetPageCall
-   * @param {string} isLocalEnvironment api url
-   * @param {string} apiEndpoint api endpoint name
-   * @param {string} pageId api url
-   * @param {string} name page name
-   * @param {boolean} enabled if true makes api call else doesn't
-   * @returns {object} returns pageData
-   */
   const getPage = useGetPageCall({
     apiURL: isLocalEnvironment,
     apiEndpoint: 'pageData',
@@ -68,38 +57,16 @@ export const Website = ({
     enabled: true,
   })
 
-  /**
-   * Get pageData by making api call
-   * @function useGetSPAPageCall
-   * @param {string} isLocalEnvironment api url
-   * @param {string} apiEndpoint api endpoint name
-   * @param {string} homePage page name
-   * @param {boolean} enabled if true makes api call else doesn't
-   * @returns {object} returns SPA pageData
-   */
   const getSPAPage = useGetSPAPageCall({
     apiURL: isLocalEnvironment,
     apiEndpoint: 'spaPageData',
     homePage: appDataParsed.webSettings['webSettings-defaultSPAPage'],
     enabled: true,
   })
-  /**
-   * Loading screen if api is being fetched
-   * @function Loading
-   * @description renders loading screen while fetching appData
-   * @param {boolean} getPage.isLoading true render loading screen
-   * @returns loading screen
-   */
+
   if (getPage.isLoading || getSPAPage.isLoading || getPage.isRefetching) {
     return <Loading envData={envData} appDataParsed={appDataParsed} />
   }
-
-  /**
-   * Render website pages
-   * @function Website
-   * @description render webpage
-   * @returns html webpage is rendered
-   */
 
   let TagName
 

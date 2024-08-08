@@ -1,8 +1,43 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import { Link } from 'react-router-dom'
+import * as _ from 'lodash'
 
-export const AppLayoutMenubar = ({ toggleMenu, sideMenuRef, envData }) => {
+import { AppLayoutMenuItems } from './AppLayoutMenuItems'
+
+/**
+ * AppLayoutMenubar component renders a sidebar menu for the application's layout.
+ *
+ * @module appLayout/AppLayoutMenubar
+ * @description AppLayoutMenubar component renders a sidebar menu for the application's layout.
+ * @author Thulisha Reddy Technologies
+ * @param {Object} props - Component props.
+ * @param {boolean} props.toggleMenu - A boolean indicating if the menu is toggled open or closed.
+ * @param {Object} props.sideMenuRef - A reference to the side menu DOM element.
+ * @param {Object} props.envData - An object containing environment data.
+ * @returns {JSX.Element} The rendered component.
+ */
+export const AppLayoutMenubar = ({
+  toggleMenu,
+  sideMenuRef,
+  envData,
+  authDetails,
+  routesData,
+  setToggleMenu,
+}) => {
+  const menus = routesData.filter((f) => f.isPrivate === true)
+  let menu = []
+  authDetails?.session?.pages.forEach((p) =>
+    p.roles.filter((f) => f.roleName === authDetails.role && menu.push(p)),
+  )
+  let userMenu = []
+  menu.forEach((m) => menus.forEach((mn) => mn.name === m.pageName && userMenu.push(mn)))
+
+  const userMenuGrouped = _.groupBy(userMenu, 'apiEndPointSchema.group')
+
+  const urlPath = window.location.pathname
+  const urlLink = urlPath.split('/console/')
+
   return (
     <div className="trtui-app-menu trtui-navbar-menu" style={{ marginLeft: toggleMenu ? 0 : '' }}>
       <div
@@ -54,30 +89,29 @@ export const AppLayoutMenubar = ({ toggleMenu, sideMenuRef, envData }) => {
                   >
                     <div id="two-column-menu" />
                     <ul className="trtui-navbar-nav" data-simplebar="init" id="navbar-nav">
-                      {/* {Object.keys(userMenuGrouped)
+                      {Object.keys(userMenuGrouped)
                         .sort((a, b) => a.localeCompare(b))
                         .map((grp, grpInd) => (
                           <React.Fragment key={grpInd}>
                             <li className="trtui-menu-title">
-                              <span data-key="t-menu">{grp}</span>
+                              <span data-key="t-menu">{grp === 'undefined' ? 'Menu' : grp}</span>
                             </li>
                             {userMenuGrouped[grp]
-                              .sort((a, b) =>
-                                a["pageTitle"].localeCompare(b["pageTitle"])
-                            )
-                            .map((menu, menuIndex) => (
-                              <React.Fragment key={menuIndex}>
-                              {!menu.apiEndPointSchema.noMenu &&
-                                <MenuItem
-                                  key={menuIndex}
-                                  setToggleMenu={setToggleMenu}
-                                  menuItem={menu}
-                                  urlLink={urlLink[1]}
-                                  />}
-                                  </React.Fragment>  
+                              .sort((a, b) => a['pageTitle'].localeCompare(b['pageTitle']))
+                              .map((menu, menuIndex) => (
+                                <React.Fragment key={menuIndex}>
+                                  {!menu.apiEndPointSchema.noMenu && (
+                                    <AppLayoutMenuItems
+                                      key={menuIndex}
+                                      setToggleMenu={setToggleMenu}
+                                      menuItem={menu}
+                                      urlLink={urlLink[1]}
+                                    />
+                                  )}
+                                </React.Fragment>
                               ))}
                           </React.Fragment>
-                        ))} */}
+                        ))}
                     </ul>
                   </div>
                 </div>
@@ -96,4 +130,6 @@ AppLayoutMenubar.propTypes = {
   toggleMenu: PropTypes.bool.isRequired,
   setToggleMenu: PropTypes.func.isRequired,
   sideMenuRef: PropTypes.object.isRequired,
+  authDetails: PropTypes.object.isRequired,
+  routesData: PropTypes.array.isRequired,
 }

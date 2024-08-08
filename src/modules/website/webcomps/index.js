@@ -10,6 +10,15 @@ import { T1Contact1 } from './t1/T1Contact1'
 import { T1Text } from './t1/T1Text'
 import { T1Documents } from './t1/T1Documents'
 
+/**
+ * Component exports for Theme T1.
+ * @module ThemeT1
+ * @description Component exports for Theme T1.
+ * @author Thulisha Reddy Technologies
+ * This module exports the various components used in the T1 theme, including
+ * navigation bars, hero sections, content sections, footers, and other UI elements.
+ *
+ */
 export {
   T1Navbar,
   T1Hero,

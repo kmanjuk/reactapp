@@ -1,20 +1,44 @@
 'use strict'
 
+/**
+ * Represents a color in RGB format.
+ * @class Color
+ */
 class Color {
+  /**
+   * Creates an instance of the Color class.
+   * @param {number} r - Red component (0-255).
+   * @param {number} g - Green component (0-255).
+   * @param {number} b - Blue component (0-255).
+   */
   constructor(r, g, b) {
     this.set(r, g, b)
   }
 
+  /**
+   * Returns a string representation of the color in RGB format.
+   * @returns {string} RGB color string.
+   */
   toString() {
     return `rgb(${Math.round(this.r)}, ${Math.round(this.g)}, ${Math.round(this.b)})`
   }
 
+  /**
+   * Sets the color components and clamps their values.
+   * @param {number} r - Red component (0-255).
+   * @param {number} g - Green component (0-255).
+   * @param {number} b - Blue component (0-255).
+   */
   set(r, g, b) {
     this.r = this.clamp(r)
     this.g = this.clamp(g)
     this.b = this.clamp(b)
   }
 
+  /**
+   * Applies a hue rotation to the color.
+   * @param {number} [angle=0] - Angle of rotation in degrees.
+   */
   hueRotate(angle = 0) {
     angle = (angle / 180) * Math.PI
     const sin = Math.sin(angle)
@@ -33,6 +57,10 @@ class Color {
     ])
   }
 
+  /**
+   * Applies a grayscale effect to the color.
+   * @param {number} [value=1] - Grayscale intensity (0 to 1).
+   */
   grayscale(value = 1) {
     this.multiply([
       0.2126 + 0.7874 * (1 - value),
@@ -47,6 +75,10 @@ class Color {
     ])
   }
 
+  /**
+   * Applies a sepia effect to the color.
+   * @param {number} [value=1] - Sepia intensity (0 to 1).
+   */
   sepia(value = 1) {
     this.multiply([
       0.393 + 0.607 * (1 - value),
@@ -61,6 +93,10 @@ class Color {
     ])
   }
 
+  /**
+   * Applies a saturation effect to the color.
+   * @param {number} [value=1] - Saturation intensity (0 to 1).
+   */
   saturate(value = 1) {
     this.multiply([
       0.213 + 0.787 * value,
@@ -75,6 +111,10 @@ class Color {
     ])
   }
 
+  /**
+   * Applies a matrix transformation to the color.
+   * @param {number[]} matrix - A 3x3 matrix for color transformation.
+   */
   multiply(matrix) {
     const newR = this.clamp(this.r * matrix[0] + this.g * matrix[1] + this.b * matrix[2])
     const newG = this.clamp(this.r * matrix[3] + this.g * matrix[4] + this.b * matrix[5])
@@ -84,25 +124,47 @@ class Color {
     this.b = newB
   }
 
+  /**
+   * Adjusts the brightness of the color.
+   * @param {number} [value=1] - Brightness factor (0 to 1).
+   */
   brightness(value = 1) {
     this.linear(value)
   }
+
+  /**
+   * Adjusts the contrast of the color.
+   * @param {number} [value=1] - Contrast factor (0 to 1).
+   */
   contrast(value = 1) {
     this.linear(value, -(0.5 * value) + 0.5)
   }
 
+  /**
+   * Applies a linear transformation to the color.
+   * @param {number} [slope=1] - Slope of the linear transformation.
+   * @param {number} [intercept=0] - Intercept of the linear transformation.
+   */
   linear(slope = 1, intercept = 0) {
     this.r = this.clamp(this.r * slope + intercept * 255)
     this.g = this.clamp(this.g * slope + intercept * 255)
     this.b = this.clamp(this.b * slope + intercept * 255)
   }
 
+  /**
+   * Inverts the color.
+   * @param {number} [value=1] - Inversion intensity (0 to 1).
+   */
   invert(value = 1) {
     this.r = this.clamp((value + (this.r / 255) * (1 - 2 * value)) * 255)
     this.g = this.clamp((value + (this.g / 255) * (1 - 2 * value)) * 255)
     this.b = this.clamp((value + (this.b / 255) * (1 - 2 * value)) * 255)
   }
 
+  /**
+   * Converts the color to HSL format.
+   * @returns {Object} HSL color object with h, s, and l properties in percentages.
+   */
   hsl() {
     const r = this.r / 255
     const g = this.g / 255
@@ -141,6 +203,11 @@ class Color {
     }
   }
 
+  /**
+   * Clamps the value between 0 and 255.
+   * @param {number} value - The value to be clamped.
+   * @returns {number} Clamped value.
+   */
   clamp(value) {
     if (value > 255) {
       value = 255
@@ -151,13 +218,25 @@ class Color {
   }
 }
 
+/**
+ * Solver class for optimizing color adjustments to match a target color.
+ * @class Solver
+ */
 class Solver {
+  /**
+   * Creates an instance of the Solver class.
+   * @param {Color} target - Target color to match.
+   */
   constructor(target) {
     this.target = target
     this.targetHSL = target.hsl()
     this.reusedColor = new Color(0, 0, 0)
   }
 
+  /**
+   * Finds the best color adjustments to match the target color.
+   * @returns {Object} Result object containing the best filter values, loss, and CSS filter string.
+   */
   solve() {
     const result = this.solveNarrow(this.solveWide())
     return {
@@ -167,6 +246,10 @@ class Solver {
     }
   }
 
+  /**
+   * Performs a wide search for optimal color adjustments.
+   * @returns {Object} Best result of the wide search.
+   */
   solveWide() {
     const A = 5
     const c = 15
@@ -183,6 +266,11 @@ class Solver {
     return best
   }
 
+  /**
+   * Performs a narrow search for optimal color adjustments based on initial results.
+   * @param {Object} wide - Result from the wide search.
+   * @returns {Object} Best result of the narrow search.
+   */
   solveNarrow(wide) {
     const A = wide.loss
     const c = 2
@@ -191,6 +279,15 @@ class Solver {
     return this.spsa(A, a, c, wide.values, 500)
   }
 
+  /**
+   * Performs Simultaneous Perturbation Stochastic Approximation (SPSA) optimization.
+   * @param {number} A - Initial value for perturbation.
+   * @param {number[]} a - Array of perturbation scales.
+   * @param {number} c - Perturbation scaling factor.
+   * @param {number[]} values - Initial filter values.
+   * @param {number} iters - Number of iterations for optimization.
+   * @returns {Object} Best result containing optimized values and loss.
+   */
   spsa(A, a, c, values, iters) {
     const alpha = 1
     const gamma = 0.16666666666666666
@@ -247,8 +344,12 @@ class Solver {
     }
   }
 
+  /**
+   * Calculates the loss between the adjusted color and the target color.
+   * @param {number[]} filters - Array of filter values.
+   * @returns {number} Loss value.
+   */
   loss(filters) {
-    // Argument is array of percentages.
     const color = this.reusedColor
     color.set(0, 0, 0)
 
@@ -270,6 +371,11 @@ class Solver {
     )
   }
 
+  /**
+   * Generates a CSS filter string based on the filter values.
+   * @param {number[]} filters - Array of filter values.
+   * @returns {string} CSS filter string.
+   */
   css(filters) {
     function fmt(idx, multiplier = 1) {
       return Math.round(filters[idx] * multiplier)
@@ -280,23 +386,10 @@ class Solver {
   }
 }
 
-function hexToRgb(hex) {
-  // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
-  const shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i
-  hex = hex.replace(shorthandRegex, (m, r, g, b) => {
-    return r + r + g + g + b + b
-  })
-
-  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
-  return result ? [parseInt(result[1], 16), parseInt(result[2], 16), parseInt(result[3], 16)] : null
-}
-
 /**
- * @class css-filter
- * @description set of functions to help with css color conversion
- * @function convCol
- * @param {string} val color values as input for conversion
- * @returns {object} coverted color value
+ * Converts a hex color value to a CSS filter string that approximates the given hex color.
+ * @param {string} val - Hex color value (e.g., "#ff0000").
+ * @returns {string} CSS filter string that approximates the hex color.
  */
 export function convCol(val) {
   const rgb = hexToRgb(val)
@@ -310,4 +403,20 @@ export function convCol(val) {
   const myres = JSON.stringify(result.filter).split(':')
   let str = myres[1].slice(0, -2)
   return str
+}
+
+/**
+ * Converts a hex color value to an RGB array.
+ * @param {string} hex - Hex color value (e.g., "#ff0000").
+ * @returns {number[]} Array of RGB values or null if invalid hex value.
+ */
+function hexToRgb(hex) {
+  // Expand shorthand form (e.g. "03F") to full form (e.g. "0033FF")
+  const shorthandRegex = /^#?([a-f\d])([a-f\d])([a-f\d])$/i
+  hex = hex.replace(shorthandRegex, (m, r, g, b) => {
+    return r + r + g + g + b + b
+  })
+
+  const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
+  return result ? [parseInt(result[1], 16), parseInt(result[2], 16), parseInt(result[3], 16)] : null
 }

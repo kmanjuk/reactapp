@@ -2,32 +2,31 @@ import { useMutation } from 'react-query'
 import { axios } from '../axios'
 import { queryClient } from '../../lib/reactQueryClient'
 
-/**
- * @class api/create
- * @description Crete hook allows to make post api call across the app
- * @author Thulisha Reddy Technologies
- */
+let callData
 
 /**
- * Post api call
- * @function createCall
- * @description makes post api call
- * @param {object} call object with details of api call
- * @param {string} params query parameters for making post api call
- * @returns response object.
+ * Creates a call to the specified API endpoint.
+ *
+ * @function
+ * @param {Object} call - The call object containing the API endpoint and data.
+ * @param {string} call.url - The base URL for the API.
+ * @param {string} call.apiEndpoint - The specific API endpoint.
+ * @param {Object} call.data - The data to be sent with the request.
+ * @param {string} params - Additional parameters to append to the API endpoint.
+ * @returns {Promise} The Axios promise for the POST request.
  */
-let callData
 export const createCall = (call, params) => {
   callData = call
   return axios.post(call.url + `/${call.apiEndpoint}` + params, call.data)
 }
 
 /**
- * Post call hook
- * @function useCreateCall
- * @description mutated hook used to post data to api
- * @param {object} call object with details to make api call
- * @returns response object.
+ * Custom hook to create a call mutation using react-query.
+ *
+ * @function
+ * @param {Object} call - The call object containing the API endpoint and data.
+ * @param {Object} [config] - Optional configuration for the mutation.
+ * @returns {Object} The mutation object from react-query.
  */
 export const useCreateCall = (call, { config } = {}) => {
   return useMutation(async (call) => await createCall(call, call.params), {
@@ -61,11 +60,12 @@ export const useCreateCall = (call, { config } = {}) => {
 }
 
 /**
- * Post image hook
- * @function useCreateImageCall
- * @description mutated hook used to post image data to api
- * @param {object} call object with details to make api call and upload image
- * @returns response object.
+ * Custom hook to create an image call mutation using react-query.
+ *
+ * @function
+ * @param {Object} call - The call object containing the API endpoint and data.
+ * @param {Object} [config] - Optional configuration for the mutation.
+ * @returns {Object} The mutation object from react-query.
  */
 export const useCreateImageCall = (call, { config } = {}) => {
   //const { addNotification } = useNotificationStore();

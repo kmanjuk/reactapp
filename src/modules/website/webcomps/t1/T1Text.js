@@ -3,23 +3,20 @@ import PropTypes from 'prop-types'
 import parse from 'html-react-parser'
 
 /**
- * @module modules/website/webcomps/t1/T1Text
- * @description Renders T1Text page element
+ * Renders a text section for the T1 theme.
+ *
+ * @module ThemeT1/T1Text
+ * @description Renders a text section for the T1 theme.
  * @author Thulisha Reddy Technologies
- *
- * @component
- * @param {object} pageData page data to be rendered
- *
- * @example
- * <T1Text pageData={pageData} />
+ * @param {Object} props - The component props.
+ * @param {Object} props.pageData - Data for rendering the text section.
+ * @param {Object} props.pageData.content - Content data for the page.
+ * @param {Object} props.pageData.content.content - Content data for the text section.
+ * @param {string} props.pageData.content.content.header - Header for the text section.
+ * @param {string} props.pageData.content.content.text - HTML text for the text section.
+ * @returns {JSX.Element} The rendered text section.
  */
 export const T1Text = ({ pageData }) => {
-  /**
-   * Render T1Text page element
-   * @function T1Text
-   * @description render T1Text page element
-   * @returns html T1Text page element is rendered
-   */
   return (
     <section className="t1-news-single section">
       <div className="container">
@@ -41,5 +38,15 @@ export const T1Text = ({ pageData }) => {
 }
 
 T1Text.propTypes = {
-  pageData: PropTypes.object.isRequired,
+  /**
+   * Data for rendering the text section.
+   */
+  pageData: PropTypes.shape({
+    content: PropTypes.shape({
+      content: PropTypes.shape({
+        header: PropTypes.string.isRequired,
+        text: PropTypes.string.isRequired,
+      }).isRequired,
+    }).isRequired,
+  }).isRequired,
 }

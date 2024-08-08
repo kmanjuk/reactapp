@@ -4,6 +4,17 @@ import { Helmet } from 'react-helmet'
 import '../../assets/css/custom.min.css'
 import '../../assets/css/icons.min.css'
 
+/**
+ * ThemeHelmet component dynamically loads stylesheets based on the provided theme.
+ * Currently, it supports the "T1" theme by loading the respective stylesheets.
+ *
+ * @module website/ThemeHelmet
+ * @description ThemeHelmet component dynamically loads stylesheets based on the provided theme.
+ * @author Thulisha Reddy Technologies
+ * @param {Object} props - The component props.
+ * @param {string} props.defaultTheme - The default theme identifier.
+ * @returns {JSX.Element} The Helmet component with theme-specific stylesheets.
+ */
 export const ThemeHelmet = ({ defaultTheme }) => {
   if (defaultTheme === 'T1') {
     return (

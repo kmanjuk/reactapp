@@ -1,25 +1,20 @@
 import React from 'react'
 import { Helmet } from 'react-helmet'
-
 import errorImg from '../assets/images/error400-cover.png'
 
 /**
  * @module common/Error404
- * @description A component that is rendered when there are not routes matching
- * @author Thulisha Reddy Technologies
- *
+ * @description A component that renders a 404 error page when no routes match the requested URL.
  * @component
  *
  * @example
- * <Error404 />
+ * return <Error404 />
  */
-
 export const Error404 = () => {
   /**
    * Render 404 error page
-   * @function Error404
-   * @description render 404 error page
-   * @returns 404 error page is rendered when there is no matching route
+   * @function
+   * @returns {React.Element} 404 error page is rendered when there is no matching route
    */
   return (
     <>
@@ -35,14 +30,14 @@ export const Error404 = () => {
                 <div className="trtui-error-500 trtui-position-relative">
                   <img
                     src={errorImg}
-                    alt
+                    alt="Error 404"
                     className="trtui-img-fluid trtui-error-500-img trtui-error-img"
                   />
                   <h1 className="trtui-title trtui-text-muted">&nbsp;</h1>
                 </div>
                 <div>
                   <h4>SORRY, PAGE NOT FOUND 😭</h4>
-                  <p>The page you are looking for not available!</p>
+                  <p>The page you are looking for is not available!</p>
                   <a href="/" className="trtui-btn trtui-btn-secondary trtui-text-white">
                     <i className="mdi mdi-home trtui-me-1" /> Back To Home
                   </a>

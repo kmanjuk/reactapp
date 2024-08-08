@@ -1,9 +1,49 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 import { default as dayjs } from 'dayjs'
-
 import invalid from '../../../assets/images/invalid.svg'
 
+/**
+ * InputField component renders an input field with various configurations.
+ * @module form/InputField
+ * @description InputField component renders an input field with various configurations.
+ * @example
+ * const field = { name: 'example', type: 'text', placeholder: 'Enter text' }
+ * const errors = {}
+ * const register = () => {}
+ * const isAdd = true
+ * const defaultData = {}
+ * return (
+ *   <InputField
+ *     field={field}
+ *     errors={errors}
+ *     register={register}
+ *     isAdd={isAdd}
+ *     defaultData={defaultData}
+ *   />
+ * )
+ *
+ * @param {Object} props - The properties object.
+ * @param {Object} field - The field configuration object.
+ * @param {string} field.name - The name of the field.
+ * @param {string} field.type - The type of the input field.
+ * @param {string} field.placeholder - The placeholder text for the input field.
+ * @param {boolean} field.hidden - Whether the field should be hidden.
+ * @param {boolean} field.disabled - Whether the field should be disabled.
+ * @param {boolean} field.defaultValue - The default value of the field.
+ * @param {boolean} field.hasPrefix - Whether the field has a prefix.
+ * @param {string} field.prefixKey - The key for the prefix value in defaultData.
+ * @param {number} field.size - The size of the input field.
+ * @param {boolean} field.noValueDisplay - Whether to display no value.
+ * @param {boolean} field.noAutocomplete - Whether to disable autocomplete.
+ * @param {Array} field.obj - Array of keys to access nested values in defaultData.
+ * @param {Object} defaultData - The default data object.
+ * @param {Object} errors - The errors object for form validation.
+ * @param {boolean} isAdd - Flag indicating if the form is in add mode.
+ * @param {function} register - The function to register the input field.
+ *
+ * @returns {React.Element} The InputField component.
+ */
 export const InputField = ({ field, errors, register, isAdd, defaultData }) => {
   let defDate = !isAdd && defaultData[field.name]
   let defVal

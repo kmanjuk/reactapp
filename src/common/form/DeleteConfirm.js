@@ -1,6 +1,34 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 
+/**
+ * DeleteConfirm component renders a confirmation modal for delete actions.
+ *
+ * @module form/DeleteConfirm
+ * @description DeleteConfirm component renders a confirmation modal for delete actions.
+ * @example
+ * const setDeleteId = () => {}
+ * const setDeleteConfirm = () => {}
+ * const deleteCallMutation = { isLoading: false }
+ * const onDelete = () => {}
+ * return (
+ *   <DeleteConfirm
+ *     setDeleteId={setDeleteId}
+ *     setDeleteConfirm={setDeleteConfirm}
+ *     deleteCallMutation={deleteCallMutation}
+ *     onDelete={onDelete}
+ *   />
+ * )
+ *
+ * @param {Object} props - The properties object.
+ * @param {function} props.setDeleteId - Function to reset the delete ID.
+ * @param {function} props.setDeleteConfirm - Function to toggle delete confirmation state.
+ * @param {Object} props.deleteCallMutation - The mutation object containing the delete call state.
+ * @param {boolean} props.deleteCallMutation.isLoading - Indicates if the delete call is loading.
+ * @param {function} props.onDelete - Function to execute the delete action.
+ *
+ * @returns {React.Element} The DeleteConfirm component.
+ */
 export const DeleteConfirm = ({ setDeleteId, setDeleteConfirm, deleteCallMutation, onDelete }) => {
   return (
     <div
@@ -49,7 +77,7 @@ export const DeleteConfirm = ({ setDeleteId, setDeleteConfirm, deleteCallMutatio
               </button>
               <button
                 type="button"
-                className="trtui-btn trtui-w-sm trtui-btn-danger "
+                className="trtui-btn trtui-w-sm trtui-btn-danger"
                 onClick={onDelete}
                 disabled={deleteCallMutation.isLoading}
               >
@@ -75,6 +103,8 @@ export const DeleteConfirm = ({ setDeleteId, setDeleteConfirm, deleteCallMutatio
 DeleteConfirm.propTypes = {
   setDeleteId: PropTypes.func.isRequired,
   setDeleteConfirm: PropTypes.func.isRequired,
-  deleteCallMutation: PropTypes.func.isRequired,
+  deleteCallMutation: PropTypes.shape({
+    isLoading: PropTypes.bool.isRequired,
+  }).isRequired,
   onDelete: PropTypes.func.isRequired,
 }

@@ -11,6 +11,56 @@ import { FormButtons } from './FormButtons'
 import { DeleteConfirm } from './DeleteConfirm'
 import { useUpdateCall } from '../../lib/api/update'
 
+/**
+ * Form component renders a dynamic form based on the provided schema.
+ *
+ * @module form/Form
+ * @description Form component renders a dynamic form based on the provided schema.
+ * @example
+ * const isViewOnly = false;
+ * const defaultData = {};
+ * const formSchema = { schema: [], buildValidation: [] };
+ * const moduleSchema = {};
+ * const isAdd = true;
+ * const isRowForm = false;
+ * const setOpenFormModal = () => {};
+ * const isUpdate = false;
+ * const envData = {};
+ * const addUserObject = false;
+ * const authDetails = {};
+ * return (
+ *   <Form
+ *     isViewOnly={isViewOnly}
+ *     defaultData={defaultData}
+ *     formSchema={formSchema}
+ *     moduleSchema={moduleSchema}
+ *     isAdd={isAdd}
+ *     isRowForm={isRowForm}
+ *     setOpenFormModal={setOpenFormModal}
+ *     isUpdate={isUpdate}
+ *     envData={envData}
+ *     addUserObject={addUserObject}
+ *     authDetails={authDetails}
+ *   />
+ * )
+ *
+ * @param {Object} props - The properties object.
+ * @param {boolean} props.isViewOnly - Indicates if the form is view only.
+ * @param {Object} props.defaultData - The default data for the form.
+ * @param {Object} props.formSchema - The schema defining the form structure.
+ * @param {Array} props.formSchema.schema - Array of form field schemas.
+ * @param {Array} props.formSchema.buildValidation - Array of validation rules.
+ * @param {Object} props.moduleSchema - The schema for the module.
+ * @param {boolean} props.isAdd - Indicates if the form is for adding a new item.
+ * @param {boolean} props.isRowForm - Indicates if the form is a row form.
+ * @param {function} props.setOpenFormModal - Function to open the form modal.
+ * @param {boolean} props.isUpdate - Indicates if the form is for updating an item.
+ * @param {boolean} props.addUserObject - Indicates if a user object should be added.
+ * @param {Object} props.authDetails - Authentication details.
+ * @param {string} props.isLocalEnvironment - Environment string.
+ *
+ * @returns {React.Element} The Form component.
+ */
 export const Form = ({
   isViewOnly,
   defaultData,
@@ -20,9 +70,9 @@ export const Form = ({
   isRowForm,
   setOpenFormModal,
   isUpdate,
-  envData,
   addUserObject,
   authDetails,
+  isLocalEnvironment,
 }) => {
   const validation = Y.object().shape({
     ...formSchema.buildValidation.reduce(createYupSchema, {}),
@@ -82,9 +132,9 @@ export const Form = ({
 
       const isUpdateEndpoint =
         moduleSchema && moduleSchema.updateLocal && moduleSchema.updateLocal === true
-          ? { url: envData.REACT_APP_API_URL_LOCAL, endPoint: moduleSchema.updateLocalEndpoint }
+          ? { url: isLocalEnvironment, endPoint: moduleSchema.updateLocalEndpoint }
           : {
-              url: envData.REACT_APP_API_URL_LOCAL,
+              url: isLocalEnvironment,
               endPoint: formSchema.formAPI,
             }
 
@@ -102,7 +152,7 @@ export const Form = ({
         }`,
       })
       if (formSchema.refreshAppData) {
-        axios.get(envData.REACT_APP_API_URL_LOCAL + '/updateAppData')
+        axios.get(isLocalEnvironment + '/updateAppData')
       }
     } else {
       if (formSchema.captureFingerPrint) {
@@ -112,9 +162,9 @@ export const Form = ({
 
       const isUpdateEndpoint =
         moduleSchema && moduleSchema.updateLocal && moduleSchema.updateLocal
-          ? { url: envData.REACT_APP_API_URL_LOCAL, endPoint: moduleSchema.updateLocalEndpoint }
+          ? { url: isLocalEnvironment, endPoint: moduleSchema.updateLocalEndpoint }
           : {
-              url: envData.REACT_APP_API_URL_LOCAL,
+              url: isLocalEnvironment,
               endPoint: formSchema.formAPI,
             }
 
@@ -132,7 +182,7 @@ export const Form = ({
         }`,
       })
       if (formSchema.refreshAppData) {
-        axios.get(envData.REACT_APP_API_URL_LOCAL + '/updateAppData')
+        axios.get(isLocalEnvironment + '/updateAppData')
       }
     }
   }
@@ -196,7 +246,7 @@ Form.propTypes = {
   isRowForm: PropTypes.bool,
   setOpenFormModal: PropTypes.func,
   isUpdate: PropTypes.bool.isRequired,
-  envData: PropTypes.object.isRequired,
   addUserObject: PropTypes.bool,
   authDetails: PropTypes.object,
+  isLocalEnvironment: PropTypes.string,
 }

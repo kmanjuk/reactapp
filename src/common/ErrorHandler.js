@@ -1,52 +1,30 @@
 import React from 'react'
 import PropTypes from 'prop-types'
-import log from 'loglevel'
-import remote from 'loglevel-plugin-remote'
-
 import errorImg from '../assets/images/error.png'
 import { Helmet } from 'react-helmet'
+import axios from 'axios'
 
 /**
  * @module common/ErrorHandler
- * @description A component that catches errors anywhere in their child component tree
- * @author Thulisha Reddy Technologies
+ * @description A component that renders an error page when an error occurs.
+ * It also logs the error to a remote logging service.
  *
  * @component
- * @param {object} props.error error object
- * @param {func} props.resetErrorBoundary resets the error boundry
- *
  * @example
- * <ErrorBoundary FallbackComponent={ErrorHandler}>
-      ...children
-   </ErrorBoundary>
+ * return <ErrorHandler error={new Error("Something went wrong!")} />
  */
-
 export const ErrorHandler = ({ error }) => {
-  /**
-   * customJSON function formats error message
-   * @function customJSON
-   * @description error message is formatted
-   * @returns return a json
-   */
   const customJSON = {
     msg: error.message,
-    level: error.label,
-    stacktrace: error.stacktrace,
+    error: error,
   }
 
-  /**
-   * Post error to server
-   * @function remote
-   * @param {object} format error data in json format
-   * @param {string} url api endpoint name
-   */
-  remote.apply(log, { format: customJSON, url: '/logger' })
-  /**
-   * Error handler page
-   * @function ErrorHandler
-   * @description render error page
-   * @returns error page is rendered when something goes wrong
-   */
+  const isLocalEnvironment =
+    process.env.REACT_APP_USE_API_URL_LOCAL === '1' ? '' : process.env.REACT_APP_API_URL_LOCAL
+
+  React.useEffect(() => {
+    axios.post(isLocalEnvironment + '/logger', customJSON)
+  })
   try {
     return (
       <>
@@ -55,7 +33,7 @@ export const ErrorHandler = ({ error }) => {
           <link rel="stylesheet" href="/css/app.min.css" />
         </Helmet>
         <div className="trtui-auth-page-wrapper trtui-pb-5 trtui-d-flex trtui-justify-content-center trtui-align-items-center trtui-min-vh-100">
-          <div className="trtui-auth-page-content trtui-verflow-hidden trtui-p-0">
+          <div className="trtui-auth-page-content trtui-overflow-hidden trtui-p-0">
             <div className="trtui-container-fluid">
               <div className="trtui-row trtui-justify-content-center">
                 <div className="trtui-col-xl-6 trtui-text-center">
@@ -66,7 +44,7 @@ export const ErrorHandler = ({ error }) => {
                       style={{ height: '85%' }}
                       className="trtui-img-fluid trtui-error-500-img trtui-error-img"
                     />
-                    <br className="" />
+                    <br />
                     <h1 className="trtui-title trtui-text-muted">&nbsp;</h1>
                   </div>
                   <div>
@@ -95,7 +73,7 @@ export const ErrorHandler = ({ error }) => {
           <link rel="stylesheet" href="/css/app.min.css" />
         </Helmet>
         <div className="trtui-auth-page-wrapper trtui-pb-5 trtui-d-flex trtui-justify-content-center trtui-align-items-center trtui-min-vh-100">
-          <div className="trtui-auth-page-content trtui-verflow-hidden trtui-p-0">
+          <div className="trtui-auth-page-content trtui-overflow-hidden trtui-p-0">
             <div className="trtui-container-fluid">
               <div className="trtui-row trtui-justify-content-center">
                 <div className="trtui-col-xl-6 trtui-text-center">
@@ -106,7 +84,7 @@ export const ErrorHandler = ({ error }) => {
                       style={{ height: '85%' }}
                       className="trtui-img-fluid trtui-error-500-img trtui-error-img"
                     />
-                    <br className="" />
+                    <br />
                     <h1 className="trtui-title trtui-text-muted">&nbsp;</h1>
                   </div>
                   <div>
@@ -131,5 +109,12 @@ export const ErrorHandler = ({ error }) => {
 }
 
 ErrorHandler.propTypes = {
-  error: PropTypes.object.isRequired,
+  /**
+   * The error object to display.
+   */
+  error: PropTypes.shape({
+    message: PropTypes.string.isRequired,
+    label: PropTypes.string,
+    stacktrace: PropTypes.string,
+  }).isRequired,
 }

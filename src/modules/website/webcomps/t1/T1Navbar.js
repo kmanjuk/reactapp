@@ -4,55 +4,40 @@ import PropTypes from 'prop-types'
 import { T1NavbarChild } from './T1NavbarChild'
 
 /**
- * @module modules/website/webcomps/t1/T1Navbar
- * @description Renders T1Navbar page element
+ * Navbar component for the T1 theme, includes top bar, logo, navigation links, and login/logout functionality.
+ *
+ * @module ThemeT1/T1Navbar
+ * @description Navbar component for the T1 theme, includes top bar, logo, navigation links, and login/logout functionality.
  * @author Thulisha Reddy Technologies
- *
- * @component
- * @param {object} pageData page data to be rendered
- *
- * @example
- * <T1Navbar pageData={pageData} />
+ * @param {Object} props - The component props.
+ * @param {boolean} props.isLoggedIn - Indicates if the user is logged in.
+ * @param {function} props.setLoginModal - Function to show the login modal.
+ * @param {Object} props.pageData - Data for rendering the navbar.
+ * @param {Object} props.pageData.content - Content for the navbar.
+ * @param {boolean} props.pageData.content.content.isTopBar - Indicates if the top bar should be displayed.
+ * @param {string} props.pageData.content.content.topBarPhone - Phone number displayed in the top bar.
+ * @param {string} props.pageData.content.content.topBarEmail - Email address displayed in the top bar.
+ * @param {Array} props.pageData.content.content.topBarLinks - Links displayed in the top bar.
+ * @param {string} props.pageData.content.content.logo - Logo image source URL.
+ * @param {string} props.pageData.content.content.logoTitle - Alt text for the logo image.
+ * @param {Array} props.pageData.content.content.navLinks - Navigation links displayed in the navbar.
+ * @returns {JSX.Element} The rendered navbar component.
  */
 export const T1Navbar = ({ isLoggedIn, setLoginModal, pageData }) => {
-  /**
-   * @callback OpenNavsStateSetter
-   * @param {OpenNavsState} state
-   * @returns {void}
-   */
   const [openNavs, setOpenNavs] = React.useState(false)
-  /**
-   * @callback WindowWidthStateSetter
-   * @param {WindowWidthState} state
-   * @returns {void}
-   */
   const [windowWidth, setWindowWidth] = React.useState(0)
 
-  /**
-   * resizeWindow function sets window width
-   * @function resizeWindow
-   * @description On scroll window width is captured
-   */
   const resizeWindow = () => {
     setWindowWidth(window.scrollY)
   }
 
-  /**
-   * On load function captures window size
-   * @function useEffect
-   * @description Capture window size on load
-   * @returns window size
-   */
   React.useEffect(() => {
     window.addEventListener('scroll', resizeWindow)
+    return () => {
+      window.removeEventListener('scroll', resizeWindow)
+    }
   }, [])
 
-  /**
-   * Render T1Navbar page
-   * @function T1Navbar
-   * @description render T1Navbar page
-   * @returns html T1Navbar page is rendered
-   */
   return (
     <header className={`t1-header ${windowWidth > 50 ? 't1-sticky' : ''}`}>
       {pageData.content.content.isTopBar && (

@@ -2,23 +2,25 @@ import React from 'react'
 import PropTypes from 'prop-types'
 
 /**
- * @module modules/website/webcomps/t1/T1Team
- * @description Renders T1Team page element
+ * Renders a team section for the T1 theme.
+ *
+ * @module ThemeT1/T1Team
+ * @description Renders a team section for the T1 theme.
  * @author Thulisha Reddy Technologies
- *
- * @component
- * @param {object} pageData page data to be rendered
- *
- * @example
- * <T1Team pageData={pageData} />
+ * @param {Object} props - The component props.
+ * @param {Object} props.pageData - Data for rendering the team section.
+ * @param {Object} props.pageData.content - Content data for the page.
+ * @param {Object} props.pageData.content.content - Content data for the team section.
+ * @param {string} props.pageData.content.content.header - Header for the team section.
+ * @param {string} props.pageData.content.content.text - Text description for the team section.
+ * @param {Array} props.pageData.content.content.team - Array of team member objects.
+ * @param {string} props.pageData.content.content.team[].size - CSS class for team member column size.
+ * @param {string} props.pageData.content.content.team[].image - URL of the team member's image.
+ * @param {string} props.pageData.content.content.team[].name - Name of the team member.
+ * @param {string} props.pageData.content.content.team[].designation - Designation of the team member.
+ * @returns {JSX.Element} The rendered team section.
  */
 export const T1Team = ({ pageData }) => {
-  /**
-   * Render T1Team page element
-   * @function T1Team
-   * @description render T1Team page element
-   * @returns html T1Team page element is rendered
-   */
   return (
     <section className="t1-pricing-table t1-section">
       <div className="container">
@@ -51,5 +53,23 @@ export const T1Team = ({ pageData }) => {
 }
 
 T1Team.propTypes = {
-  pageData: PropTypes.object.isRequired,
+  /**
+   * Data for rendering the team section.
+   */
+  pageData: PropTypes.shape({
+    content: PropTypes.shape({
+      content: PropTypes.shape({
+        header: PropTypes.string.isRequired,
+        text: PropTypes.string.isRequired,
+        team: PropTypes.arrayOf(
+          PropTypes.shape({
+            size: PropTypes.string.isRequired,
+            image: PropTypes.string.isRequired,
+            name: PropTypes.string.isRequired,
+            designation: PropTypes.string.isRequired,
+          }),
+        ).isRequired,
+      }).isRequired,
+    }).isRequired,
+  }).isRequired,
 }

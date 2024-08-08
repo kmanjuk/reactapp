@@ -2,10 +2,24 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import { Link } from 'react-router-dom'
 
+import { useAuthStore } from '../../store/auth'
 import { useOnClickOutside } from '../../lib/OnClickOutside'
 import { isValidJsonString } from '../../lib/uiHelper'
 import defaultAvatar from '../../assets/images/default-avatar.png'
 
+/**
+ * AppLayoutHeader component
+ * @module appLayout/AppLayoutHeader
+ * @description AppLayoutHeader component
+ * @author Thulisha Reddy Technologies
+ * @param {Object} props - Component props
+ * @param {Object} props.envData - Environment data
+ * @param {Object} props.authDetails - Authentication details
+ * @param {Function} props.setToggleLoginModal - Function to toggle login modal
+ * @param {Function} props.setToggleMenu - Function to toggle the side menu
+ * @param {boolean} props.toggleMenu - State of the side menu
+ * @returns {JSX.Element} The rendered header component
+ */
 export const AppLayoutHeader = ({
   envData,
   authDetails,
@@ -16,10 +30,7 @@ export const AppLayoutHeader = ({
   const isLoggedIn = isValidJsonString(authDetails)
     ? authDetails.loggedIn
     : JSON.parse(JSON.stringify(authDetails)).loggedIn || false
-  const authSession = isValidJsonString(authDetails)
-    ? authDetails
-    : JSON.parse(JSON.stringify(authDetails))
-  const usersRoles = authDetails.session?.data?.formData?.user?.userRoles
+  const usersRoles = authDetails.session?.user?.userRoles
   const [userDropDown, setUserDropDown] = React.useState(false)
   const userDropDownRef = React.useRef()
   useOnClickOutside(userDropDownRef, () => setUserDropDown(false))
@@ -102,7 +113,11 @@ export const AppLayoutHeader = ({
     setHamburger(!hamburger)
   }
 
-  const invalidateCache = () => {}
+  const { setRole } = useAuthStore()
+  const changeRole = (roleName, roleId) => {
+    setRole(roleId, roleName)
+    window.location.reload()
+  }
 
   return (
     <header id="page-topbar">
@@ -201,13 +216,13 @@ export const AppLayoutHeader = ({
                           style={{
                             '--vz-bg-opacity': 1,
                             backgroundColor:
-                              authSession.role === role.roleName
+                              authDetails.role === role.roleName
                                 ? 'rgba(var(--vz-light-rgb),var(--vz-bg-opacity))'
                                 : '',
                             cursor: 'pointer',
                           }}
                           onClick={() => {
-                            invalidateCache(role.roleName, role.roleId)
+                            changeRole(role.roleId, role.roleName)
                           }}
                         >
                           <span className="trtui-dropdown-icon-item" href="#!">

@@ -1,5 +1,15 @@
 import axios from 'axios'
 
+/**
+ * Fetches user authentication status and updates authentication state.
+ *
+ * @function
+ * @param {Object} params - The parameters for the function.
+ * @param {string} params.isLocalEnvironment - The base URL for the local environment.
+ * @param {Function} params.setAuthentication - Function to update authentication state.
+ * @param {Object} params.authDetails - Current authentication details.
+ * @returns {Promise<void>}
+ */
 export const getUser = async ({ isLocalEnvironment, setAuthentication, authDetails }) => {
   await fetch(isLocalEnvironment + '/auth/login/success', {
     method: 'GET',
@@ -12,10 +22,10 @@ export const getUser = async ({ isLocalEnvironment, setAuthentication, authDetai
   })
     .then((response) => {
       if (response.status === 200) return response.json()
-      throw new Error('authentication has been failed!')
+      throw new Error('Authentication has failed!')
     })
     .then(async (resObject) => {
-      //localStorage.setItem('loggedIn', true)
+      // If user profile ID is present and no authentication details are set, fetch user session
       if (
         resObject.user?.profile?.id &&
         !authDetails.roleId &&
@@ -29,6 +39,17 @@ export const getUser = async ({ isLocalEnvironment, setAuthentication, authDetai
       console.log(err)
     })
 }
+
+/**
+ * Fetches user session data and updates authentication state.
+ *
+ * @function
+ * @param {Object} params - The parameters for the function.
+ * @param {string} params.isLocalEnvironment - The base URL for the local environment.
+ * @param {Object} params.resObject - The response object from the authentication check.
+ * @param {Function} params.setAuthentication - Function to update authentication state.
+ * @returns {Promise<void>}
+ */
 const getUserSession = async ({ isLocalEnvironment, resObject, setAuthentication }) => {
   await axios
     .get(isLocalEnvironment + '/authenticateSession', {
@@ -41,6 +62,7 @@ const getUserSession = async ({ isLocalEnvironment, resObject, setAuthentication
       },
     })
     .then(async (tres) => {
+      // Extract the default user role from the session data
       const defaultRole = tres.data.formData.user.userRoles.filter((f) => f.roleName === 'AppUser')
       await setAuthentication({
         resObject: resObject,

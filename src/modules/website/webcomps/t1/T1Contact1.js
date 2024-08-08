@@ -3,29 +3,24 @@ import PropTypes from 'prop-types'
 import { useCreateCall } from '../../../../lib/api/create'
 
 /**
- * @module modules/website/webcomps/t1/T1Contact1
- * @description Renders T1Contact1 page element
+ * Contact section component for Theme T1.
+ *
+ * This component renders a contact form with a map, contact information, and a login button for non-logged-in users.
+ * It handles form submissions by sending a message through an API call.
+ *
+ * @module ThemeT1/T1Contact1
+ * @description This component renders a contact form with a map, contact information, and a login button for non-logged-in users.
+ * It handles form submissions by sending a message through an API call.
  * @author Thulisha Reddy Technologies
- *
- * @component
- * @param {object} pageData page data to be rendered
- *
- * @example
- * <T1Contact1 pageData={pageData} />
+ * @param {Object} props - The component props.
+ * @param {boolean} props.isLoggedIn - Indicates whether the user is logged in.
+ * @param {Function} props.setLoginModal - Function to open the login modal.
+ * @param {Object} props.pageData - Data for rendering the contact section, including map URL, contact info, and form text.
+ * @param {Object} props.envData - Environment data containing API URL for submitting messages.
+ * @returns {JSX.Element} The rendered component.
  */
 export const T1Contact1 = ({ isLoggedIn, setLoginModal, pageData, envData }) => {
-  /**
-   * @callback SuccessMessageStateSetter
-   * @param {SuccessMessageState} state
-   * @returns {void}
-   */
   const [successMsg, setSuccessMsg] = React.useState(false)
-
-  /**
-   * @callback ErrorMessageStateSetter
-   * @param {ErrorMessageState} state
-   * @returns {void}
-   */
   const [errorMsg, setErrorMsg] = React.useState(false)
   const createCallMutation = useCreateCall()
   const authSess = localStorage.getItem('authenticateSession')
@@ -33,9 +28,9 @@ export const T1Contact1 = ({ isLoggedIn, setLoginModal, pageData, envData }) => 
     : null
 
   /**
-   * sendMessage function posts data to messages
-   * @function sendMessage
-   * @description Post message to messages api
+   * Handles form submission by sending the message to the API.
+   *
+   * @param {React.FormEvent<HTMLFormElement>} e - The form submit event.
    */
   const sendMessage = async (e) => {
     e.preventDefault()
@@ -48,7 +43,7 @@ export const T1Contact1 = ({ isLoggedIn, setLoginModal, pageData, envData }) => 
       .mutateAsync({
         url: envData.REACT_APP_API_URL_WEB,
         apiEndpoint: 'usermessage',
-        data: data, //data,
+        data: data,
         messageTitle: 'modSchema.message.title',
         message: 'modSchema.message.message',
         noConfirmation: true,
@@ -59,12 +54,6 @@ export const T1Contact1 = ({ isLoggedIn, setLoginModal, pageData, envData }) => 
       .catch(() => setErrorMsg(true))
   }
 
-  /**
-   * Render T1Contact1 page
-   * @function T1Contact1
-   * @description render T1Contact1 page
-   * @returns html T1Contact1 page is rendered
-   */
   return (
     <section className="t1-contact-us t1-section">
       <div className="container">
@@ -87,7 +76,7 @@ export const T1Contact1 = ({ isLoggedIn, setLoginModal, pageData, envData }) => 
                 <h2>{pageData.content.content.header}</h2>
                 <p>
                   {pageData.content.content.text}
-                  {/* If you have any questions please fell free to contact with us. */}
+                  {/* If you have any questions please feel free to contact us. */}
                 </p>
                 {!isLoggedIn && (
                   <div

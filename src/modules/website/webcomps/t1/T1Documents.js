@@ -3,30 +3,26 @@ import { Link } from 'react-router-dom'
 import PropTypes from 'prop-types'
 
 /**
- * @module modules/website/webcomps/t1/T1Documents
- * @description Renders T1Documents page element
+ * Document section displaying a list of document categories and their downloadable files.
+ *
+ * This component allows users to view and download documents by selecting a category from the sidebar.
+ *
+ * @module ThemeT1/T1Documents
+ * @description This component allows users to view and download documents by selecting a category from the sidebar.
  * @author Thulisha Reddy Technologies
- *
- * @component
- * @param {object} pageData page data to be rendered
- *
- * @example
- * <T1Documents pageData={pageData} />
+ * @param {Object} props - The component props.
+ * @param {Object} props.pageData - Data for rendering the document section.
+ * @param {Object} props.pageData.content - Content of the section.
+ * @param {Object[]} props.pageData.content.content.documents - List of document categories and their files.
+ * @param {Object} props.pageData.content.content.documents[].files - List of files for each document category.
+ * @param {string} props.pageData.content.content.documents[].files[].name - The name of the file.
+ * @param {string} props.pageData.content.content.documents[].files[].link - The URL link to download the file.
+ * @param {string} props.pageData.content.content.documents[].name - The name of the document category.
+ * @returns {JSX.Element} The rendered component.
  */
 export const T1Documents = ({ pageData }) => {
-  /**
-   * @callback DocCategoryStateSetter
-   * @param {DocCategoryState} state
-   * @returns {void}
-   */
   const [docCategory, setDocCategory] = React.useState(0)
 
-  /**
-   * Render T1Documents page element
-   * @function T1Documents
-   * @description render T1Documents page element
-   * @returns html T1Documents page element is rendered
-   */
   return (
     <section className="t1-news-single t1-section">
       <div className="container">

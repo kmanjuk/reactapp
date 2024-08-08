@@ -2,6 +2,20 @@ import React from 'react'
 import PropTypes from 'prop-types'
 import { Form } from '../../common/form/Form'
 
+/**
+ * ProfileUpdate component allows the user to edit their profile details.
+ * It uses a Form component to render the form based on the provided schema.
+ *
+ * @module profile/ProfileUpdate
+ * @description ProfileUpdate component allows the user to edit their profile details.
+ * @author Thulisha Reddy Technologies
+ * @param {Object} props - The component props.
+ * @param {Object} props.authDetails - The authentication details of the user.
+ * @param {Object} props.moduleSchema - The schema for the module, including form configuration.
+ * @param {string} props.isLocalEnvironment - Indicates if the environment is local.
+ * @param {Object} props.envData - The environment data.
+ * @returns {JSX.Element} The rendered component for updating the profile.
+ */
 export const ProfileUpdate = ({ authDetails, moduleSchema, isLocalEnvironment, envData }) => {
   return (
     <div className="trtui-card trtui-mt-xxl-n5">

@@ -3,9 +3,67 @@ import PropTypes from 'prop-types'
 import Select from 'react-select'
 import { useController } from 'react-hook-form'
 
-import invalid from '../../assets/images/invalid.svg'
+import invalid from '../../../assets/images/invalid.svg'
 import InputAutocomplete from './inputAutocomplete'
 
+/**
+ * InputSelect component renders a select input field with optional autocomplete functionality.
+ * It supports both standard and asynchronous loading of options.
+ *
+ * @module form/InputSelect
+ * @description InputSelect component renders a select input field with optional autocomplete functionality.
+ * @example
+ * const field = {
+ *   name: 'selectField',
+ *   placeholder: 'Choose an option',
+ *   size: 6,
+ *   hidden: false,
+ *   isAutocomplete: false,
+ *   optionArrayDependency: [],
+ *   valFromObjOfParentData: false,
+ *   valFromObj: false,
+ *   optionAPIDependencyChild: false,
+ *   optionAPIDependency: false
+ * }
+ * const errors = {}
+ * const register = () => {}
+ * const control = {}
+ * const mainData = {}
+ * const defaultData = {}
+ * const parentData = {}
+ * return (
+ *   <InputSelect
+ *     field={field}
+ *     errors={errors}
+ *     register={register}
+ *     control={control}
+ *     mainData={mainData}
+ *     defaultData={defaultData}
+ *     parentData={parentData}
+ *   />
+ * )
+ *
+ * @param {Object} props - The properties object.
+ * @param {Object} props.field - The field configuration object.
+ * @param {string} props.field.name - The name of the field.
+ * @param {string} props.field.placeholder - The placeholder text for the input field.
+ * @param {number} props.field.size - The size of the input field.
+ * @param {boolean} props.field.hidden - Whether the field should be hidden.
+ * @param {boolean} props.field.isAutocomplete - Whether the field should use autocomplete.
+ * @param {Array} props.field.optionArrayDependency - Array of options for the select field.
+ * @param {boolean} props.field.valFromObjOfParentData - Whether to get values from parent data.
+ * @param {boolean} props.field.valFromObj - Whether to get values from main data.
+ * @param {boolean} props.field.optionAPIDependencyChild - API dependency for child options.
+ * @param {boolean} props.field.optionAPIDependency - API dependency for options.
+ * @param {Object} props.errors - The errors object for form validation.
+ * @param {function} props.register - The function to register the input field.
+ * @param {Object} props.control - The control object from react-hook-form.
+ * @param {Object} props.mainData - The main data object.
+ * @param {Object} props.defaultData - The default data object.
+ * @param {Object} props.parentData - The parent data object.
+ *
+ * @returns {React.Element} The InputSelect component.
+ */
 export const InputSelect = ({
   field,
   errors,
@@ -16,7 +74,7 @@ export const InputSelect = ({
   parentData,
 }) => {
   const {
-    field: { value: fieldValue, onChange: fieldOnChange, ...restfField },
+    field: { value: fieldValue, onChange: fieldOnChange, ...restField },
   } = useController({ name: field.name, control })
 
   const options = [
@@ -24,6 +82,7 @@ export const InputSelect = ({
     { id: 2, value: 'strawberry', name: 'Strawberry' },
     { id: 3, value: 'vanilla', name: 'Vanilla' },
   ]
+
   try {
     if (field.isAutocomplete) {
       const searchOptions = []
@@ -49,7 +108,7 @@ export const InputSelect = ({
             options={searchOptions}
             value={fieldValue ? searchOptions.find((x) => x.value === fieldValue) : fieldValue}
             onChange={(option) => fieldOnChange(option ? option.value : option)}
-            {...restfField}
+            {...restField}
           />
           {errors[field.name] && (
             <div className="trtui-invalid-feedback">{errors[field.name].message}</div>
@@ -139,6 +198,6 @@ InputSelect.propTypes = {
   parentData: PropTypes.object.isRequired,
   mainData: PropTypes.object.isRequired,
   errors: PropTypes.object.isRequired,
-  control: PropTypes.bool.isRequired,
+  control: PropTypes.object.isRequired,
   register: PropTypes.func.isRequired,
 }

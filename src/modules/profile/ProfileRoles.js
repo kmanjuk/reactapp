@@ -1,6 +1,17 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 
+/**
+ * ProfileRoles component displays the roles associated with the user's profile.
+ * It allows the roles list to be expanded or collapsed.
+ *
+ * @module profile/ProfileRoles
+ * @description ProfileRoles component displays the roles associated with the user's profile.
+ * @author Thulisha Reddy Technologies
+ * @param {Object} props - The component props.
+ * @param {Object} props.authDetails - The authentication details of the user.
+ * @returns {JSX.Element} The rendered component with the user's roles.
+ */
 export const ProfileRoles = ({ authDetails }) => {
   const [roleExpand, setRoleExpand] = React.useState(false)
   return (

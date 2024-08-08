@@ -2,62 +2,47 @@ import React from 'react'
 import { render, screen, fireEvent } from '@testing-library/react'
 import '@testing-library/jest-dom/extend-expect'
 import { ErrorHandler } from './ErrorHandler'
-import log from 'loglevel'
-import remote from 'loglevel-plugin-remote'
+import axios from 'axios'
 
-jest.mock('../assets/images/error.png', () => 'mocked-error-img.png')
+// Mock axios post method
+jest.mock('axios')
 
-// Mock the loglevel plugin remote
-jest.mock('loglevel-plugin-remote', () => ({
-  apply: jest.fn(),
-}))
-
-describe('ErrorHandler component', () => {
-  const error = {
-    message: 'Test error message',
-    label: 'error',
-    stacktrace: 'Test stacktrace',
-  }
+describe('ErrorHandler', () => {
+  const error = new Error('Something went wrong!')
 
   beforeEach(() => {
-    Object.defineProperty(window, 'location', {
-        configurable: true,
-        value: { reload: jest.fn() },
-      });
-    jest.resetModules()
+    axios.post.mockResolvedValue({})
   })
 
-  test('renders ErrorHandler component correctly', () => {
+  test('renders the error message', () => {
     render(<ErrorHandler error={error} />)
-
     expect(screen.getByText('Something Went Wrong!')).toBeInTheDocument()
-    expect(screen.getByText(error.message)).toBeInTheDocument()
-    expect(screen.getByRole('img', { name: /error-500 image/i })).toBeInTheDocument()
-    expect(screen.getByRole('button', { name: /Try Again/i })).toBeInTheDocument()
+    expect(screen.getByText('Something went wrong!')).toBeInTheDocument()
   })
 
-  test('logs error correctly', () => {
+  test('renders the error image', () => {
     render(<ErrorHandler error={error} />)
+    const imgElement = screen.getByAltText('error-500 image')
+    expect(imgElement).toBeInTheDocument()
+    expect(imgElement).toHaveAttribute('src', 'errorImg')
+  })
 
-    const customJSON = {
-      msg: error.message,
-      level: error.label,
-      stacktrace: error.stacktrace,
-    }
-
-    expect(remote.apply).toHaveBeenCalledWith(log, {
-      format: customJSON,
-      url: '/logger',
+  test('reloads the page on button click', () => {
+    render(<ErrorHandler error={error} />)
+    const reloadButton = screen.getByTestId('reload-button')
+    Object.defineProperty(window, 'location', {
+      value: { reload: jest.fn() },
+      writable: true,
     })
+    fireEvent.click(reloadButton)
+    expect(window.location.reload).toHaveBeenCalled()
   })
 
-  test('mocks reload function onclick', async () => {
-    const handleOnClick = jest.fn()
-    const { getByTestId } = render(<ErrorHandler error={error} />)
-    const button = getByTestId("reload-button");
-    fireEvent.click(button)
-    expect(handleOnClick).toBeTruthy()
-    expect(button).toHaveClass("trtui-btn-secondary")
+  test('logs the error to the remote logging service', () => {
+    render(<ErrorHandler error={error} />)
+    expect(axios.post).toHaveBeenCalledWith(
+      `${process.env.REACT_APP_USE_API_URL_LOCAL === '1' ? '' : process.env.REACT_APP_API_URL_LOCAL}/logger`,
+      { msg: error.message, error: error }
+    )
   })
-  
 })

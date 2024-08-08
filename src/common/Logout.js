@@ -1,6 +1,16 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 
+/**
+ * Logout component handles the user logout process.
+ *
+ * @module Common/Logout
+ * @description InputSelect component renders a select input field with optional autocomplete functionality.
+ * @param {Object} props - Component props.
+ * @param {string} props.isLocalEnvironment - URL string for local environment redirection.
+ *
+ * @returns {JSX.Element} The rendered component.
+ */
 export const Logout = ({ isLocalEnvironment }) => {
   React.useEffect(() => {
     const redirectURL = window.location.origin
@@ -32,5 +42,6 @@ export const Logout = ({ isLocalEnvironment }) => {
 }
 
 Logout.propTypes = {
+  /** URL string for local environment redirection */
   isLocalEnvironment: PropTypes.string.isRequired,
 }
