@@ -5,7 +5,6 @@ import { ProfileBG } from './ProfileBG'
 import { ProfileRoles } from './ProfileRoles'
 import { ProfileImage } from './ProfileImage'
 import { ProfileUpdate } from './ProfileUpdate'
-import { Settings } from '../settings/Settings'
 
 /**
  * Profile component renders the user's profile page, including background, image, roles, and update section.
@@ -37,7 +36,6 @@ export const Profile = ({ authDetails, routeData, isLocalEnvironment, envData })
             envData={envData}
           />
         </div>
-        <Settings />
       </div>
     </>
   )
