@@ -189,6 +189,7 @@ export const AppLayoutHeader = ({
                 type="button"
                 className="trtui-btn trtui-btn-sm trtui-px-3 trtui-fs-16 trtui-header-item trtui-vertical-menu-btn trtui-topnav-hamburger trtui-d-block trtui-d-md-none"
                 onClick={minSideMenu}
+                data-testid="alhToggleSidebar"
               >
                 <span className={`trtui-hamburger-icon`}>
                   <span />
@@ -275,6 +276,7 @@ export const AppLayoutHeader = ({
                   type="button"
                   onClick={() => themeLayout(!isDark)}
                   className="trtui-btn trtui-btn-icon trtui-btn-topbar trtui-btn-ghost-secondary trtui-rounded-circle trtui-light-dark-mode"
+                  data-testid="alh-dl-mode"
                 >
                   <i className={`bx bx-${isDark ? 'sun' : 'moon'} trtui-fs-22`} />
                 </button>
@@ -370,6 +372,7 @@ export const AppLayoutHeader = ({
             data-bs-target="#theme-settings-offcanvas"
             aria-controls="theme-settings-offcanvas"
             onClick={handleInstallClick}
+            data-testid="alh-installable-button"
           >
             <i className="mdi mdi-open-in-app trtui-fs-22"></i>
           </div>

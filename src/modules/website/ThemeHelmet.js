@@ -20,19 +20,27 @@ export const ThemeHelmet = ({ defaultTheme }) => {
     return (
       <Helmet>
         <link
-          rel="stylesheet"
+          rel="preload"
+          as="style"
+          onLoad="this.rel='stylesheet'"
           href="https://thulishacdnstorage.blob.core.windows.net/resources/custom-assets/t1/bootstrap.min.css"
         />
         <link
-          rel="stylesheet"
+          rel="preload"
+          as="style"
+          onLoad="this.rel='stylesheet'"
           href="https://thulishacdnstorage.blob.core.windows.net/resources/custom-assets/t1/css/normalize.css"
         />
         <link
-          rel="stylesheet"
+          rel="preload"
+          as="style"
+          onLoad="this.rel='stylesheet'"
           href="https://thulishacdnstorage.blob.core.windows.net/resources/custom-assets/t1/style.css"
         />
         <link
-          rel="stylesheet"
+          rel="preload"
+          as="style"
+          onLoad="this.rel='stylesheet'"
           href="https://thulishacdnstorage.blob.core.windows.net/resources/custom-assets/t1/css/responsive.css"
         />
       </Helmet>

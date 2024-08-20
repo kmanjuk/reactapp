@@ -31,7 +31,7 @@ export const Profile = ({ authDetails, routeData, isLocalEnvironment, envData })
         <div className="trtui-col-xxl-9">
           <ProfileUpdate
             authDetails={authDetails}
-            moduleSchema={routeData.apiEndPointSchema}
+            moduleSchema={JSON.parse(routeData.apiEndPointSchema)}
             isLocalEnvironment={isLocalEnvironment}
             envData={envData}
           />

@@ -1,65 +1,132 @@
 import React from 'react'
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen } from '@testing-library/react'
 import '@testing-library/jest-dom/extend-expect'
-import { BrowserRouter as Router } from 'react-router-dom'
 import { AppLayoutMenubar } from './AppLayoutMenubar'
 
+const mockRoutesData = [
+  {
+    name: 'Dashboard',
+    path: 'dashboard',
+    isPrivate: true,
+    pageTitle: 'Dashboard',
+    apiEndPointSchema: {
+      icon: 'dashboard',
+      group: 'Main',
+      noMenu: false,
+    },
+  },
+  {
+    name: 'Settings',
+    path: 'settings',
+    isPrivate: true,
+    pageTitle: 'Settings',
+    apiEndPointSchema: {
+      icon: 'settings',
+      group: 'User',
+      noMenu: false,
+    },
+  },
+]
+
+const mockAuthDetails = {
+  role: 'admin',
+  session: {
+    pages: [
+      {
+        pageName: 'Dashboard',
+        roles: [{ roleName: 'admin' }],
+      },
+      {
+        pageName: 'Settings',
+        roles: [{ roleName: 'admin' }],
+      },
+    ],
+  },
+}
+
+const mockEnvData = {
+  REACT_APP_THEME_LOGO: 'mockLogo.png',
+}
+
+const mockSideMenuRef = {
+  current: null,
+}
+
+const mockSetToggleMenu = jest.fn()
+
 describe('AppLayoutMenubar', () => {
-  const mockEnvData = {
-    REACT_APP_THEME_FAVICON: 'favicon.png',
-    REACT_APP_THEME_LOGO: 'logo.png',
-  }
-  const mockSideMenuRef = { current: null }
-  const mockSetToggleMenu = jest.fn()
-
-  it('renders the menubar component', () => {
+  test('renders menu items based on user role and route configuration', () => {
     render(
-      <Router>
-        <AppLayoutMenubar
-          envData={mockEnvData}
-          toggleMenu={false}
-          setToggleMenu={mockSetToggleMenu}
-          sideMenuRef={mockSideMenuRef}
-        />
-      </Router>
+      <AppLayoutMenubar
+        envData={mockEnvData}
+        toggleMenu={true}
+        setToggleMenu={mockSetToggleMenu}
+        sideMenuRef={mockSideMenuRef}
+        authDetails={mockAuthDetails}
+        routesData={mockRoutesData}
+      />
     )
 
-    expect(screen.getByRole('navigation')).toBeInTheDocument()
+    // Check that the menu items are rendered
+    expect(screen.getByText('Dashboard')).toBeInTheDocument()
+    expect(screen.getByText('Settings')).toBeInTheDocument()
   })
 
-  it('displays the logos', () => {
+  test('groups and sorts menu items correctly', () => {
     render(
-      <Router>
-        <AppLayoutMenubar
-          envData={mockEnvData}
-          toggleMenu={false}
-          setToggleMenu={mockSetToggleMenu}
-          sideMenuRef={mockSideMenuRef}
-        />
-      </Router>
+      <AppLayoutMenubar
+        envData={mockEnvData}
+        toggleMenu={true}
+        setToggleMenu={mockSetToggleMenu}
+        sideMenuRef={mockSideMenuRef}
+        authDetails={mockAuthDetails}
+        routesData={mockRoutesData}
+      />
     )
 
-    expect(screen.getAllByAltText('logo-sm-dark')[0]).toBeInTheDocument()
-    expect(screen.getAllByAltText('logo-lg-dark')[0]).toBeInTheDocument()
-    expect(screen.getAllByAltText('logo-sm-light')[0]).toBeInTheDocument()
-    expect(screen.getAllByAltText('logo-lg-light')[0]).toBeInTheDocument()
+    // Check that the menu group titles are rendered
+    expect(screen.getByText('Main')).toBeInTheDocument()
+    expect(screen.getByText('User')).toBeInTheDocument()
+
+    // Ensure the menu items are sorted within their groups
+    const menuItems = screen.getAllByRole('link')
+    expect(menuItems[0]).toHaveTextContent('Dashboard')
+    expect(menuItems[1]).toHaveTextContent('Settings')
   })
 
-  it('has a clickable vertical hover button', () => {
+  test('renders logo correctly based on environment data', () => {
     render(
-      <Router>
-        <AppLayoutMenubar
-          envData={mockEnvData}
-          toggleMenu={false}
-          setToggleMenu={mockSetToggleMenu}
-          sideMenuRef={mockSideMenuRef}
-        />
-      </Router>
+      <AppLayoutMenubar
+        envData={mockEnvData}
+        toggleMenu={true}
+        setToggleMenu={mockSetToggleMenu}
+        sideMenuRef={mockSideMenuRef}
+        authDetails={mockAuthDetails}
+        routesData={mockRoutesData}
+      />
     )
 
-    const hoverButton = screen.getByRole('button', { name: /vertical-hover/i })
-    expect(hoverButton).toBeInTheDocument()
-    fireEvent.click(hoverButton)
-    // Since we don't have a specific function for the hover button, we just check that it is clickable
+    const logos = screen.getAllByRole('img')
+    logos.forEach((logo) => {
+      expect(logo).toHaveAttribute('src', 'mockLogo.png')
+    })
+  })
+
+  test('calls setToggleMenu when a menu item is clicked', () => {
+    render(
+      <AppLayoutMenubar
+        envData={mockEnvData}
+        toggleMenu={true}
+        setToggleMenu={mockSetToggleMenu}
+        sideMenuRef={mockSideMenuRef}
+        authDetails={mockAuthDetails}
+        routesData={mockRoutesData}
+      />
+    )
+
+    const dashboardLink = screen.getByText('Dashboard')
+    dashboardLink.click()
+
+    expect(mockSetToggleMenu).toHaveBeenCalledWith(false)
   })
 })

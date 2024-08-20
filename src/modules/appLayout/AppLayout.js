@@ -1,15 +1,17 @@
 import React from 'react'
 import PropTypes from 'prop-types'
+import { ErrorBoundary } from 'react-error-boundary'
 
 import { AppLayoutHeader } from './AppLayoutHeader'
 import { AppLayoutMenubar } from './AppLayoutMenubar'
 import { AppLayoutFooter } from './AppLayoutFooter'
 import { useOnClickOutside } from '../../lib/OnClickOutside'
 import { useGetQuery } from '../../lib/api/get'
-import { isValidJsonString } from '../../lib/uiHelper'
 
 import { Profile } from '../profile/Profile'
+import { Messages } from '../messages/Messages'
 import { AppLayoutModuleNotFound } from './AppLayoutModuleNotFound'
+import { AppLayoutError } from './AppLayoutError'
 
 /**
  * AppLayout component
@@ -36,9 +38,7 @@ export const AppLayout = ({
   const sideMenuRef = React.useRef()
   useOnClickOutside(sideMenuRef, () => setToggleMenu(false))
 
-  const moduleSchema = isValidJsonString(routeData)
-    ? routeData.apiEndPointSchema
-    : JSON.parse(JSON.stringify(routeData)).apiEndPointSchema
+  const moduleSchema = JSON.parse(routeData.apiEndPointSchema)
   const getData = useGetQuery({
     apiURL: envData.REACT_APP_API_URL_WEB,
     apiEndpoint: moduleSchema.api,
@@ -48,6 +48,7 @@ export const AppLayout = ({
 
   const Modules = {
     Profile: Profile,
+    Messages: Messages,
   }
 
   const ModuleName = Modules[routeData.component]
@@ -115,12 +116,15 @@ export const AppLayout = ({
                 </div>
               </div>
             ) : ModuleName ? (
-              <ModuleName
-                authDetails={authDetails}
-                routeData={routeData}
-                isLocalEnvironment={isLocalEnvironment}
-                envData={envData}
-              />
+              <ErrorBoundary FallbackComponent={AppLayoutError}>
+                <ModuleName
+                  authDetails={authDetails}
+                  routeData={routeData}
+                  isLocalEnvironment={isLocalEnvironment}
+                  envData={envData}
+                  defaultData={getData.data}
+                />
+              </ErrorBoundary>
             ) : (
               <AppLayoutModuleNotFound />
             )}

@@ -42,8 +42,13 @@ export const ModuleBuilder = ({
   return (
     <div id="layout-wrapper">
       <Helmet>
-        <link rel="stylesheet" href="/css/bootstrap.min.css" />
-        <link rel="stylesheet" href="/css/app.min.css" />
+        <link
+          rel="preload"
+          as="style"
+          onLoad="this.rel='stylesheet'"
+          href="/css/bootstrap.min.css"
+        />
+        <link rel="preload" as="style" onLoad="this.rel='stylesheet'" href="/css/app.min.css" />
       </Helmet>
       <Notifications />
       <AppLayout

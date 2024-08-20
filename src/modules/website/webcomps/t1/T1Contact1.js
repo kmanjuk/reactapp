@@ -19,13 +19,16 @@ import { useCreateCall } from '../../../../lib/api/create'
  * @param {Object} props.envData - Environment data containing API URL for submitting messages.
  * @returns {JSX.Element} The rendered component.
  */
-export const T1Contact1 = ({ isLoggedIn, setLoginModal, pageData, envData }) => {
+export const T1Contact1 = ({
+  isLoggedIn,
+  setLoginModal,
+  pageData,
+  authDetails,
+  isLocalEnvironment,
+}) => {
   const [successMsg, setSuccessMsg] = React.useState(false)
   const [errorMsg, setErrorMsg] = React.useState(false)
   const createCallMutation = useCreateCall()
-  const authSess = localStorage.getItem('authenticateSession')
-    ? JSON.parse(localStorage.getItem('authenticateSession'))
-    : null
 
   /**
    * Handles form submission by sending the message to the API.
@@ -37,15 +40,16 @@ export const T1Contact1 = ({ isLoggedIn, setLoginModal, pageData, envData }) => 
     let formData = new FormData(e.currentTarget)
     const data = Object.fromEntries(formData)
 
-    data['userId'] = authSess.session.user.userId
+    data['userId'] = authDetails.session.user.userId
 
     await createCallMutation
       .mutateAsync({
-        url: envData.REACT_APP_API_URL_WEB,
-        apiEndpoint: 'usermessage',
+        url: isLocalEnvironment,
+        apiEndpoint: 'userMessage',
         data: data,
         messageTitle: 'modSchema.message.title',
         message: 'modSchema.message.message',
+        params: '',
         noConfirmation: true,
       })
       .then(() => {
@@ -63,7 +67,7 @@ export const T1Contact1 = ({ isLoggedIn, setLoginModal, pageData, envData }) => 
               <div className="t1-contact-us-left">
                 <iframe
                   title="contactMap"
-                  src={pageData.content.content.mapUrl}
+                  src={pageDataooo.content.content.mapUrl}
                   width="100%"
                   height={pageData.content.content.mapHeight}
                   frameBorder={0}
@@ -105,7 +109,7 @@ export const T1Contact1 = ({ isLoggedIn, setLoginModal, pageData, envData }) => 
                       aria-label="Close"
                       onClick={() => setSuccessMsg(false)}
                     >
-                      <span aria-hidden="false">&times</span>
+                      <span aria-hidden="false">&times;</span>
                     </button>
                   </div>
                 )}
@@ -119,7 +123,7 @@ export const T1Contact1 = ({ isLoggedIn, setLoginModal, pageData, envData }) => 
                       aria-label="Close"
                       onClick={() => setErrorMsg(false)}
                     >
-                      <span aria-hidden="true">&times</span>
+                      <span aria-hidden="true">&times;</span>
                     </button>
                   </div>
                 )}
@@ -200,4 +204,6 @@ T1Contact1.propTypes = {
   pageData: PropTypes.object.isRequired,
   isLoggedIn: PropTypes.bool.isRequired,
   envData: PropTypes.object.isRequired,
+  authDetails: PropTypes.object.isRequired,
+  isLocalEnvironment: PropTypes.string.isRequired,
 }

@@ -25,19 +25,18 @@ export const AppLayoutMenubar = ({
   routesData,
   setToggleMenu,
 }) => {
-  const menus = routesData.filter((f) => f.isPrivate === true)
+  const menus = routesData.filter((f) => f.isPrivate === 1)
   let menu = []
   authDetails?.session?.pages.forEach((p) =>
-    p.roles.filter((f) => f.roleName === authDetails.role && menu.push(p)),
+    p.pageViewRoles.filter((f) => f.roleName === authDetails.role && menu.push(p)),
   )
   let userMenu = []
-  menu.forEach((m) => menus.forEach((mn) => mn.name === m.pageName && userMenu.push(mn)))
+  menu.forEach((m) => menus.forEach((mn) => mn.pageName === m.pageName && userMenu.push(mn)))
 
   const userMenuGrouped = _.groupBy(userMenu, 'apiEndPointSchema.group')
 
   const urlPath = window.location.pathname
   const urlLink = urlPath.split('/console/')
-
   return (
     <div className="trtui-app-menu trtui-navbar-menu" style={{ marginLeft: toggleMenu ? 0 : '' }}>
       <div

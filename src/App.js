@@ -9,7 +9,6 @@ import { Landing } from './modules/website/Landing'
 import { Error404 } from './common/Error404'
 import { Logout } from './common/Logout'
 import { useGetQuery } from './lib/api/get'
-import { appDataProcessor } from './lib/appDataProcessor'
 import { useAuthStore } from './store/auth'
 import { ModuleBuilder } from './modules/ModuleBuilder'
 import { getUser } from './lib/authentication'
@@ -47,8 +46,7 @@ function App({ envData, isLocalEnvironment }) {
     )
   }
 
-  // Filter getAppData to separate routes, site, and SEO data
-  const appDataParsed = appDataProcessor(getAppData)
+  const appDataParsed = getAppData.data
 
   return (
     <>
@@ -58,12 +56,12 @@ function App({ envData, isLocalEnvironment }) {
             appDataParsed.routesData.map((route, routeIndex) => (
               // Public website routes are rendered
               <Route
-                path={route.path}
-                key={`${routeIndex}${route.name}`}
+                path={route.routePath}
+                key={`${routeIndex}${route.pageName}`}
                 exact
                 element={
                   <Website
-                    key={route.path}
+                    key={route.routePath}
                     routeData={route}
                     appDataParsed={appDataParsed}
                     envData={envData}
@@ -95,8 +93,8 @@ function App({ envData, isLocalEnvironment }) {
             appDataParsed.routesData.length > 0 &&
             appDataParsed.routesData.map((mod, modInd) => (
               <Route
-                key={`${modInd}${mod.component}${mod.name}`}
-                path={`console/${mod.path}`}
+                key={`${modInd}${mod.component}${mod.pageName}`}
+                path={`console/${mod.routePath}`}
                 element={
                   <ModuleBuilder
                     routeData={mod}

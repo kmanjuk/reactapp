@@ -8,6 +8,8 @@ import { mainUILoad, isValidJsonString } from '../../lib/uiHelper'
 import { LoginModal } from '../../common/LoginModal'
 import { ThemeHelmet } from './ThemeHelmet'
 import { Loading } from '../../common/Loading'
+import { ErrorBoundary } from 'react-error-boundary'
+import { WebError } from './WebError'
 
 /**
  * The Website component is responsible for rendering the main content of the website,
@@ -53,7 +55,7 @@ export const Website = ({
     apiURL: isLocalEnvironment,
     apiEndpoint: 'pageData',
     id: routeData.pageId,
-    pageName: routeData.name,
+    pageName: routeData.pageName,
     enabled: true,
   })
 
@@ -73,7 +75,7 @@ export const Website = ({
   return (
     <>
       <ThemeHelmet defaultTheme={appDataParsed.webSettings['webSettings-defaultTheme'] || 'T1'} />
-      {routeData.isSPA &&
+      {routeData.isSPA === 1 &&
         JSON.parse(getSPAPage.data?.formData.pageData).length > 0 &&
         JSON.parse(getSPAPage.data?.formData.pageData).map(
           (row) =>
@@ -90,15 +92,17 @@ export const Website = ({
                         <div key={compIndex}>
                           {(TagName = Web[comp.className.className])}
                           {TagName ? (
-                            <TagName
-                              setLoginModal={setToggleLoginModal}
-                              pageData={comp}
-                              toggleLoginModal={toggleLoginModal}
-                              sideLoginModalRef={sideLoginModalRef}
-                              envData={envData}
-                              isLocalEnvironment={isLocalEnvironment}
-                              isLoggedIn={isLoggedIn}
-                            />
+                            <ErrorBoundary FallbackComponent={WebError}>
+                              <TagName
+                                setLoginModal={setToggleLoginModal}
+                                pageData={comp}
+                                toggleLoginModal={toggleLoginModal}
+                                sideLoginModalRef={sideLoginModalRef}
+                                envData={envData}
+                                isLocalEnvironment={isLocalEnvironment}
+                                isLoggedIn={isLoggedIn}
+                              />
+                            </ErrorBoundary>
                           ) : (
                             <div>Something Went Wrong!</div>
                           )}
@@ -120,15 +124,18 @@ export const Website = ({
                     <div key={compIndex}>
                       {(TagName = Web[comp.className.className])}
                       {TagName ? (
-                        <TagName
-                          setLoginModal={setToggleLoginModal}
-                          pageData={comp}
-                          toggleLoginModal={toggleLoginModal}
-                          sideLoginModalRef={sideLoginModalRef}
-                          envData={envData}
-                          isLocalEnvironment={isLocalEnvironment}
-                          isLoggedIn={isLoggedIn}
-                        />
+                        <ErrorBoundary FallbackComponent={WebError}>
+                          <TagName
+                            setLoginModal={setToggleLoginModal}
+                            pageData={comp}
+                            toggleLoginModal={toggleLoginModal}
+                            sideLoginModalRef={sideLoginModalRef}
+                            envData={envData}
+                            isLocalEnvironment={isLocalEnvironment}
+                            isLoggedIn={isLoggedIn}
+                            authDetails={authDetails}
+                          />
+                        </ErrorBoundary>
                       ) : (
                         <div>Something Went Wrong!</div>
                       )}
@@ -136,7 +143,7 @@ export const Website = ({
                   )),
             ),
         )}
-      {routeData.isSPA &&
+      {routeData.isSPA === 1 &&
         JSON.parse(getSPAPage.data?.formData.pageData).length > 0 &&
         JSON.parse(getSPAPage.data?.formData.pageData).map(
           (row) =>
@@ -153,15 +160,17 @@ export const Website = ({
                         <div key={compIndex}>
                           {(TagName = Web[comp.className.className])}
                           {TagName ? (
-                            <TagName
-                              setLoginModal={setToggleLoginModal}
-                              pageData={comp}
-                              toggleLoginModal={toggleLoginModal}
-                              sideLoginModalRef={sideLoginModalRef}
-                              envData={envData}
-                              isLocalEnvironment={isLocalEnvironment}
-                              isLoggedIn={isLoggedIn}
-                            />
+                            <ErrorBoundary FallbackComponent={WebError}>
+                              <TagName
+                                setLoginModal={setToggleLoginModal}
+                                pageData={comp}
+                                toggleLoginModal={toggleLoginModal}
+                                sideLoginModalRef={sideLoginModalRef}
+                                envData={envData}
+                                isLocalEnvironment={isLocalEnvironment}
+                                isLoggedIn={isLoggedIn}
+                              />
+                            </ErrorBoundary>
                           ) : (
                             <div>Something Went Wrong!</div>
                           )}

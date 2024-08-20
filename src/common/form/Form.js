@@ -70,6 +70,7 @@ export const Form = ({
   isRowForm,
   setOpenFormModal,
   isUpdate,
+  isProfile,
   addUserObject,
   authDetails,
   isLocalEnvironment,
@@ -140,7 +141,7 @@ export const Form = ({
 
       await updateCallMutation.mutateAsync({
         url: isUpdateEndpoint.url,
-        apiEndpoint: isUpdateEndpoint.endPoint,
+        apiEndpoint: isProfile ? 'userProfile' : isUpdateEndpoint.endPoint,
         data: plData, // data,
         id: plData.userId,
         messageTitle: formSchema.message.title,
@@ -170,7 +171,7 @@ export const Form = ({
 
       await updateCallMutation.mutateAsync({
         url: isUpdateEndpoint.url,
-        apiEndpoint: isUpdateEndpoint.endPoint,
+        apiEndpoint: isProfile ? 'userProfile' : isUpdateEndpoint.endPoint,
         data: payload, // data,
         id: payload[formSchema.id],
         messageTitle: formSchema.message.title,
@@ -246,6 +247,7 @@ Form.propTypes = {
   isRowForm: PropTypes.bool,
   setOpenFormModal: PropTypes.func,
   isUpdate: PropTypes.bool.isRequired,
+  isProfile: PropTypes.bool.isRequired,
   addUserObject: PropTypes.bool,
   authDetails: PropTypes.object,
   isLocalEnvironment: PropTypes.string,

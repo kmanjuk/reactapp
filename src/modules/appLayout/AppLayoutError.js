@@ -1,23 +1,7 @@
 import React from 'react'
-
 import { Link } from 'react-router-dom'
 
-/**
- * AppLayoutModuleNotFound component renders a message indicating that the requested module was not found.
- *
- * This component displays a card with a message and two buttons that allow the user to navigate back home or to their profile.
- *
- * @module appLayout/AppLayoutModuleNotFound
- * @description AppLayoutModuleNotFound component renders a message indicating that the requested module was not found.
- * @example
- * return (
- *   <AppLayoutModuleNotFound />
- * )
- * Functional React component for rendering the "Module Not Found" message.
- * @returns {JSX.Element} The rendered component.
- */
-
-export const AppLayoutModuleNotFound = () => {
+export const AppLayoutError = () => {
   return (
     <div className="trtui-row trtui-mt-5 trtui-justify-content-center">
       <div className=" trtui-mt-5 trtui-col-10">
@@ -32,8 +16,8 @@ export const AppLayoutModuleNotFound = () => {
             </div>
             <div className="trtui-p-2 trtui-mt-4">
               <div className="trtui-text-muted trtui-text-center trtui-mb-4 trtui-mx-lg-3">
-                <h4>Sorry, Module not Found</h4>
-                <p>The module you are looking for is not available!</p>
+                <h4>An Error Occured!</h4>
+                <p>Something went wrong and an error occured!</p>
               </div>
 
               <div className="trtui-mt-3 trtui-text-center">

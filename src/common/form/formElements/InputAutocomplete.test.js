@@ -1,67 +1,76 @@
-import React from 'react';
-import { render, fireEvent, screen } from '@testing-library/react';
-import '@testing-library/jest-dom/extend-expect';
-import { InputAutocomplete } from './InputAutocomplete';
+import React from 'react'
+import { render, screen, fireEvent } from '@testing-library/react'
+import '@testing-library/jest-dom/extend-expect'
+import { InputAutocomplete } from './inputAutocomplete'
 
-describe('InputAutocomplete component', () => {
+describe('InputAutocomplete Component', () => {
+  const field = { name: 'example' }
+  const errors = {}
+  const register = jest.fn()
   const suggestions = [
-    { id: '1', name: 'Apple' },
-    { id: '2', name: 'Banana' },
-    { id: '3', name: 'Cherry' },
-  ];
-  const defaultProps = {
-    suggestions: suggestions,
-    field: { name: 'fruit' },
-    errors: {},
-    register: jest.fn(),
-  };
+    { id: 1, name: 'Apple' },
+    { id: 2, name: 'Banana' },
+    { id: 3, name: 'Cherry' },
+  ]
 
-  test('renders correctly', () => {
-    render(<InputAutocomplete {...defaultProps} />);
-    expect(screen.getByRole('textbox')).toBeInTheDocument();
-  });
+  test('renders input field correctly', () => {
+    render(<InputAutocomplete suggestions={suggestions} field={field} errors={errors} register={register} />)
 
-  test('typing in the input field filters suggestions correctly', () => {
-    render(<InputAutocomplete {...defaultProps} />);
-    const input = screen.getByRole('textbox');
-    fireEvent.change(input, { target: { value: 'a' } });
-    expect(screen.getByText('Apple')).toBeInTheDocument();
-    expect(screen.getByText('Banana')).toBeInTheDocument();
-    expect(screen.queryByText('Cherry')).not.toBeInTheDocument();
-  });
+    const inputElement = screen.getByRole('textbox')
+    expect(inputElement).toBeInTheDocument()
+    expect(inputElement).toHaveValue('')
+  })
 
-  test('clicking on a suggestion sets the input value correctly', () => {
-    render(<InputAutocomplete {...defaultProps} />);
-    const input = screen.getByRole('textbox');
-    fireEvent.change(input, { target: { value: 'a' } });
-    fireEvent.click(screen.getByText('Apple'));
-    expect(input.value).toBe('Apple');
-  });
+  test('filters suggestions based on user input', () => {
+    render(<InputAutocomplete suggestions={suggestions} field={field} errors={errors} register={register} />)
 
-  test('navigating suggestions with the keyboard works correctly', () => {
-    render(<InputAutocomplete {...defaultProps} />);
-    const input = screen.getByRole('textbox');
-    fireEvent.change(input, { target: { value: 'a' } });
-    fireEvent.keyDown(input, { keyCode: 40 }); // ArrowDown
-    fireEvent.keyDown(input, { keyCode: 13 }); // Enter
-    expect(input.value).toBe('Apple');
-  });
+    const inputElement = screen.getByRole('textbox')
+    fireEvent.change(inputElement, { target: { value: 'a' } })
 
-  test('displays "No suggestions" message when there are no matching suggestions', () => {
-    render(<InputAutocomplete {...defaultProps} />);
-    const input = screen.getByRole('textbox');
-    fireEvent.change(input, { target: { value: 'xyz' } });
-    expect(screen.getByText("No suggestions, you're on your own!")).toBeInTheDocument();
-  });
+    expect(screen.getByText('Apple')).toBeInTheDocument()
+    expect(screen.getByText('Banana')).toBeInTheDocument()
+    expect(screen.queryByText('Cherry')).not.toBeInTheDocument()
+  })
 
-  test('error styling is applied correctly when there are errors', () => {
-    const props = {
-      ...defaultProps,
-      errors: { fruit: true },
-    };
-    const { container } = render(<InputAutocomplete {...props} />);
-    const input = screen.getByRole('textbox');
-    expect(input).toHaveClass('trtui-is-invalid');
-    expect(container.querySelector('input').style.backgroundImage).toContain('invalid.svg');
-  });
-});
+  test('shows no suggestions when input does not match', () => {
+    render(<InputAutocomplete suggestions={suggestions} field={field} errors={errors} register={register} />)
+
+    const inputElement = screen.getByRole('textbox')
+    fireEvent.change(inputElement, { target: { value: 'z' } })
+
+    expect(screen.getByText(/No suggestions/i)).toBeInTheDocument()
+  })
+
+  test('selects a suggestion when clicked', () => {
+    render(<InputAutocomplete suggestions={suggestions} field={field} errors={errors} register={register} />)
+
+    const inputElement = screen.getByRole('textbox')
+    fireEvent.change(inputElement, { target: { value: 'a' } })
+    fireEvent.click(screen.getByText('Apple'))
+
+    expect(inputElement).toHaveValue('Apple')
+    expect(screen.queryByText('Apple')).not.toBeInTheDocument()
+  })
+
+  test('navigates suggestions with keyboard and selects on enter', () => {
+    render(<InputAutocomplete suggestions={suggestions} field={field} errors={errors} register={register} />)
+
+    const inputElement = screen.getByRole('textbox')
+    fireEvent.change(inputElement, { target: { value: 'a' } })
+    
+    fireEvent.keyDown(inputElement, { key: 'ArrowDown' })
+    fireEvent.keyDown(inputElement, { key: 'ArrowDown' })
+    fireEvent.keyDown(inputElement, { key: 'Enter' })
+
+    expect(inputElement).toHaveValue('Banana')
+  })
+
+  test('displays error when validation fails', () => {
+    const errors = { example: { message: 'This field is required' } }
+
+    render(<InputAutocomplete suggestions={suggestions} field={field} errors={errors} register={register} />)
+
+    const inputElement = screen.getByRole('textbox')
+    expect(inputElement).toHaveClass('trtui-is-invalid')
+  })
+})

@@ -1,103 +1,161 @@
-import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react';
-import '@testing-library/jest-dom/extend-expect';
-import { InputSelect } from './InputSelect';
-import { useForm, Controller } from 'react-hook-form';
+import React from 'react'
+import { render, screen, fireEvent } from '@testing-library/react'
+import '@testing-library/jest-dom/extend-expect'
+import { InputSelect } from './InputSelect'
+import { useController } from 'react-hook-form'
 
-jest.mock('react-select', () => ({ options, value, onChange, ...props }) => {
-  const handleChange = (event) => {
-    const selectedOption = options.find(option => option.value === event.target.value);
-    onChange(selectedOption);
-  };
-  return (
-    <select data-testid="react-select" value={value?.value} onChange={handleChange} {...props}>
-      {options.map(option => (
-        <option key={option.value} value={option.value}>
-          {option.label}
-        </option>
-      ))}
-    </select>
-  );
-});
+// Mock useController hook from react-hook-form
+jest.mock('react-hook-form', () => ({
+  useController: jest.fn(),
+}))
+ 
+describe('InputSelect Component', () => {
+  const field = {
+    name: 'selectField',
+    placeholder: 'an option',
+    size: 6,
+    hidden: false,
+    isAutocomplete: false,
+    optionArrayDependency: [],
+    valFromObjOfParentData: false,
+    valFromObj: false,
+    optionAPIDependencyChild: false,
+    optionAPIDependency: false,
+  }
 
-const defaultProps = {
-  field: { name: 'testField', placeholder: 'Select an option', size: 12, isAutocomplete: false },
-  errors: {},
-  register: jest.fn(),
-  control: jest.fn(),
-  mainData: {},
-  defaultData: {},
-  parentData: {},
-};
+  const errors = {}
+  const register = jest.fn()
+  const control = {}
+  const mainData = {}
+  const defaultData = {}
+  const parentData = {}
 
-const renderComponent = (props = {}) => {
-  const utils = render(
-    <InputSelect {...defaultProps} {...props} />
-  );
-  return { ...utils };
-};
+  beforeEach(() => {
+    useController.mockReturnValue({
+      field: {
+        value: '',
+        onChange: jest.fn(),
+      },
+    })
+  })
 
-describe('InputSelect component', () => {
-  test('renders correctly', () => {
-    renderComponent();
-    expect(screen.getByLabelText(/select an option/i)).toBeInTheDocument();
-  });
+  test('renders select input field', () => {
+    render(
+      <InputSelect
+        field={field}
+        errors={errors}
+        register={register}
+        control={control}
+        mainData={mainData}
+        defaultData={defaultData}
+        parentData={parentData}
+      />
+    )
 
-  test('select dropdown displays options correctly', () => {
-    const field = {
-      ...defaultProps.field,
-      optionArrayDependency: true,
-      compOptionArrayDependency: [{ id: '1', name: 'Option 1' }, { id: '2', name: 'Option 2' }],
-    };
-    renderComponent({ field });
-    fireEvent.click(screen.getByRole('combobox'));
-    expect(screen.getByText('Option 1')).toBeInTheDocument();
-    expect(screen.getByText('Option 2')).toBeInTheDocument();
-  });
+    expect(screen.getByLabelText(/Select an option.../i)).toBeInTheDocument()
+  })
 
-  test('select dropdown handles selection correctly', () => {
-    const field = {
-      ...defaultProps.field,
-      optionArrayDependency: true,
-      compOptionArrayDependency: [{ id: '1', name: 'Option 1' }, { id: '2', name: 'Option 2' }],
-    };
-    renderComponent({ field });
-    fireEvent.change(screen.getByRole('combobox'), { target: { value: '1' } });
-    expect(screen.getByRole('combobox').value).toBe('1');
-  });
+  test('renders autocomplete select input field when isAutocomplete is true', () => {
+    render(
+      <InputSelect
+        field={{ ...field, isAutocomplete: true }}
+        errors={errors}
+        register={register}
+        control={control}
+        mainData={mainData}
+        defaultData={defaultData}
+        parentData={parentData}
+      />
+    )
 
-  test('autocomplete displays suggestions correctly', () => {
-    const field = {
-      ...defaultProps.field,
-      isAutocomplete: true,
-      optionArrayDependency: true,
-      compOptionArrayDependency: [{ id: '1', name: 'Option 1' }, { id: '2', name: 'Option 2' }],
-    };
-    renderComponent({ field });
-    const input = screen.getByRole('textbox');
-    fireEvent.change(input, { target: { value: 'Option' } });
-    expect(screen.getByText('Option 1')).toBeInTheDocument();
-    expect(screen.getByText('Option 2')).toBeInTheDocument();
-  });
+    expect(screen.getByLabelText(/Select an option.../i)).toBeInTheDocument()
+    expect(screen.getByRole('combobox')).toBeInTheDocument()
+  })
 
-  test('autocomplete handles selection correctly', () => {
-    const field = {
-      ...defaultProps.field,
-      isAutocomplete: true,
-      optionArrayDependency: true,
-      compOptionArrayDependency: [{ id: '1', name: 'Option 1' }, { id: '2', name: 'Option 2' }],
-    };
-    renderComponent({ field });
-    const input = screen.getByRole('textbox');
-    fireEvent.change(input, { target: { value: 'Option' } });
-    fireEvent.click(screen.getByText('Option 1'));
-    expect(input.value).toBe('Option 1');
-  });
+  test('renders hidden field when hidden is true', () => {
+    render(
+      <InputSelect
+        field={{ ...field, hidden: true }}
+        errors={errors}
+        register={register}
+        control={control}
+        mainData={mainData}
+        defaultData={defaultData}
+        parentData={parentData}
+      />
+    )
 
-  test('error styling is applied correctly when there are errors', () => {
-    const errors = { testField: { message: 'Error message' } };
-    renderComponent({ errors });
-    expect(screen.getByRole('combobox')).toHaveClass('trtui-is-invalid');
-    expect(screen.getByText('Error message')).toBeInTheDocument();
-  });
-});
+    expect(screen.queryByLabelText(/Select an option.../i)).not.toBeVisible()
+  })
+
+  test('displays error message when there is a validation error', () => {
+    const errors = {
+      selectField: {
+        message: 'This field is required',
+      },
+    }
+
+    render(
+      <InputSelect
+        field={field}
+        errors={errors}
+        register={register}
+        control={control}
+        mainData={mainData}
+        defaultData={defaultData}
+        parentData={parentData}
+      />
+    )
+
+    expect(screen.getByText(/This field is required/i)).toBeInTheDocument()
+  })
+
+  test('calls onChange when selecting an option', () => {
+    const mockOnChange = jest.fn()
+
+    useController.mockReturnValue({
+      field: {
+        value: '',
+        onChange: mockOnChange,
+      },
+    })
+
+    render(
+      <InputSelect
+        field={field}
+        errors={errors}
+        register={register}
+        control={control}
+        mainData={mainData}
+        defaultData={defaultData}
+        parentData={parentData}
+      />
+    )
+
+    fireEvent.change(screen.getByRole('combobox'), {
+      target: { value: 'chocolate' },
+    })
+
+    expect(mockOnChange).toHaveBeenCalledWith('chocolate')
+  })
+
+  test('handles errors gracefully', () => {
+    useController.mockImplementation(() => {
+      throw new Error('Test error')
+    })
+
+    render(
+      <InputSelect
+        field={field}
+        errors={errors}
+        register={register}
+        control={control}
+        mainData={mainData}
+        defaultData={defaultData}
+        parentData={parentData}
+      />
+    )
+
+    expect(screen.getByText(/Error/i)).toBeInTheDocument()
+  })
+})

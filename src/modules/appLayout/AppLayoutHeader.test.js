@@ -1,110 +1,156 @@
-import { render } from '@testing-library/react';
-import AppLayoutHeader from './AppLayoutHeader';
-
-test('renders AppLayoutHeader without crashing', () => {
-  render(
-    <AppLayoutHeader
-      envData={{ REACT_APP_THEME_FAVICON: '', REACT_APP_THEME_LOGO: '' }}
-      authDetails={{}}
-      setToggleLoginModal={() => {}}
-      setToggleMenu={() => {}}
-      toggleMenu={false}
-    />
-  );
-});
-
-test('renders the logo correctly', () => {
-  const { getByAltText } = render(
-    <AppLayoutHeader
-      envData={{ REACT_APP_THEME_FAVICON: 'favicon.png', REACT_APP_THEME_LOGO: 'logo.png' }}
-      authDetails={{}}
-      setToggleLoginModal={() => {}}
-      setToggleMenu={() => {}}
-      toggleMenu={false}
-    />
-  );
-
-  expect(getByAltText('logo-sm-dark')).toHaveAttribute('src', 'favicon.png');
-  expect(getByAltText('logo-lg-dark')).toHaveAttribute('src', 'logo.png');
-});
-
-test('toggles dark mode correctly', () => {
-  const { getByRole } = render(
-    <AppLayoutHeader
-      envData={{ REACT_APP_THEME_FAVICON: '', REACT_APP_THEME_LOGO: '' }}
-      authDetails={{}}
-      setToggleLoginModal={() => {}}
-      setToggleMenu={() => {}}
-      toggleMenu={false}
-    />
-  );
-
-  const button = getByRole('button', { name: /toggle dark mode/i });
-  expect(document.documentElement).not.toHaveAttribute('data-bs-theme', 'dark');
-
-  button.click();
-
-  expect(document.documentElement).toHaveAttribute('data-bs-theme', 'dark');
-});
-
-test('shows login button when not logged in', () => {
-  const { getByRole } = render(
-    <AppLayoutHeader
-      envData={{ REACT_APP_THEME_FAVICON: '', REACT_APP_THEME_LOGO: '' }}
-      authDetails={{ loggedIn: false }}
-      setToggleLoginModal={() => {}}
-      setToggleMenu={() => {}}
-      toggleMenu={false}
-    />
-  );
-
-  expect(getByRole('button', { name: /login/i })).toBeInTheDocument();
-});
-
-test('shows user dropdown when logged in', () => {
-  const authDetails = {
-    loggedIn: true,
-    session: {
-      user: {
-        userFullName: 'John Doe',
-        profile: { photos: [{ value: 'avatar.png' }] },
+import React from 'react';
+import { render, screen, fireEvent } from '@testing-library/react';
+import '@testing-library/jest-dom/extend-expect';
+import { AppLayoutHeader } from './AppLayoutHeader';
+import { BrowserRouter as Router } from 'react-router-dom';
+ 
+// Mock necessary data and functions
+const mockSetToggleLoginModal = jest.fn();
+const mockSetToggleMenu = jest.fn();
+const mockAuthDetails = {
+  loggedIn: true,
+  session: {
+    user: {
+      userFullName: 'John Doe',
+      userRoles: [
+        { roleId: '1', roleName: 'Admin' },
+        { roleId: '2', roleName: 'User' },
+      ],
+    },
+  },
+  role: 'Admins',
+  authentication: {
+    user: {
+      profile: {
+        photos: [{ value: 'profile-pic-url' }],
       },
     },
-    role: 'Admin',
-  };
+  },
+};
 
-  const { getByText } = render(
-    <AppLayoutHeader
-      envData={{ REACT_APP_THEME_FAVICON: '', REACT_APP_THEME_LOGO: '' }}
-      authDetails={authDetails}
-      setToggleLoginModal={() => {}}
-      setToggleMenu={() => {}}
-      toggleMenu={false}
-    />
-  );
+const mockEnvData = {
+  REACT_APP_THEME_FAVICON: 'favicon-url',
+  REACT_APP_THEME_LOGO: 'logo-url',
+};
 
-  expect(getByText(/John Doe/i)).toBeInTheDocument();
-  expect(getByText(/Admin/i)).toBeInTheDocument();
-});
+describe('AppLayoutHeader', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
 
-test('shows and hides logo based on window width', () => {
-  // Initial render with desktop width
-  global.innerWidth = 1024;
-  const { getById } = render(
-    <AppLayoutHeader
-      envData={{ REACT_APP_THEME_FAVICON: '', REACT_APP_THEME_LOGO: '' }}
-      authDetails={{}}
-      setToggleLoginModal={() => {}}
-      setToggleMenu={() => {}}
-      toggleMenu={false}
-    />
-  );
+  test('renders the component with the logo and user profile image', () => {
+    render(
+      <Router>
+        <AppLayoutHeader
+          envData={mockEnvData}
+          authDetails={mockAuthDetails}
+          setToggleLoginModal={mockSetToggleLoginModal}
+          setToggleMenu={mockSetToggleMenu}
+          toggleMenu={false}
+        />
+      </Router>
+    );
 
-  expect(getById('brandLogo')).not.toHaveStyle('display: block');
+    // Check for the logo image
+    const logoImage = screen.getByAltText('logo-lg-dark');
+    expect(logoImage).toHaveAttribute('src', 'logo-url');
 
-  // Change window width to mobile size
-  global.innerWidth = 500;
-  global.dispatchEvent(new Event('resize'));
+    // Check for the user profile image
+    const profileImage = screen.getByAltText('Header Avatar');
+    expect(profileImage).toHaveAttribute('src', 'profile-pic-url');
 
-  expect(getById('brandLogo')).toHaveStyle('display: block');
+    // Check if the user name is displayed
+    const userName = screen.getByText('John Doe');
+    expect(userName).toBeInTheDocument();
+
+    // Check if the role is displayed
+    const userRole = screen.getByText('Admin');
+    expect(userRole).toBeInTheDocument();
+  });
+
+  test('toggles the user dropdown when logged in and user avatar is clicked', () => {
+    render(
+      <Router>
+        <AppLayoutHeader
+          envData={mockEnvData}
+          authDetails={mockAuthDetails}
+          setToggleLoginModal={mockSetToggleLoginModal}
+          setToggleMenu={mockSetToggleMenu}
+          toggleMenu={false}
+        />
+      </Router>
+    );
+
+    const avatarButton = screen.getByAltText('Header Avatar');
+    fireEvent.click(avatarButton);
+
+    // Check if the dropdown appears with the "Logout" link
+    const logoutLink = screen.getByText(/logout/i);
+    expect(logoutLink).toBeInTheDocument();
+  });
+
+  test('toggles the side menu when the hamburger icon is clicked', () => {
+    const { getByTestId } = render(
+      <Router>
+        <AppLayoutHeader
+          envData={mockEnvData}
+          authDetails={mockAuthDetails}
+          setToggleLoginModal={mockSetToggleLoginModal}
+          setToggleMenu={mockSetToggleMenu}
+          toggleMenu={false}
+        />
+      </Router>
+    );
+
+    const hamburgerButton = getByTestId('alhToggleSidebar');
+    fireEvent.click(hamburgerButton);
+
+    expect(mockSetToggleMenu).toHaveBeenCalledWith(true);
+  });
+
+  test('toggles the dark mode when the sun/moon icon is clicked', () => {
+    const { getByTestId } = render(
+      <Router>
+        <AppLayoutHeader
+          envData={mockEnvData}
+          authDetails={mockAuthDetails}
+          setToggleLoginModal={mockSetToggleLoginModal}
+          setToggleMenu={mockSetToggleMenu}
+          toggleMenu={false}
+        />
+      </Router>
+    );
+
+    const darkModeButton = getByTestId('alh-dl-mode');
+    fireEvent.click(darkModeButton);
+
+    // After clicking, it should switch to the opposite icon (sun)
+    expect(screen.getByRole('button', { name: /sun/i })).toBeInTheDocument();
+  });
+
+  test('displays install button when app is installable', () => {
+    // Mock the installable state
+    Object.defineProperty(window, 'beforeinstallprompt', {
+      writable: true,
+      value: jest.fn().mockImplementation((e) => {
+        e.preventDefault();
+        return e;
+      }),
+    });
+
+    render(
+      <Router>
+        <AppLayoutHeader
+          envData={mockEnvData}
+          authDetails={mockAuthDetails}
+          setToggleLoginModal={mockSetToggleLoginModal}
+          setToggleMenu={mockSetToggleMenu}
+          toggleMenu={false}
+        />
+      </Router>
+    );
+
+    const installButton = screen.getByTestId('alh-installable-button');
+    expect(installButton).toBeInTheDocument();
+  });
 });

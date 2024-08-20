@@ -1,103 +1,149 @@
-import { renderHook, act } from '@testing-library/react-hooks'
+import { renderHook, act } from '@testing-library/react'
 import { useMutation } from 'react-query'
-import axios from '../axios'
+import { axios } from '../axios'
+import { updateCall, useUpdateCall } from './update'
 import { useNotificationStore } from '../../store/notifications'
-import { useUpdateCall, updateCall } from './update'
 import { queryClient } from '../../lib/reactQueryClient'
 
+jest.mock('../axios')
+jest.mock('../../store/notifications')
 jest.mock('react-query', () => ({
   useMutation: jest.fn(),
+}))
+jest.mock('../../lib/reactQueryClient', () => ({
   queryClient: {
     setQueryData: jest.fn(),
     invalidateQueries: jest.fn(),
   },
 }))
 
-jest.mock('../axios')
-jest.mock('../../store/notifications')
+describe('updateCall', () => {
+  it('should make a PUT request with the correct URL and data', async () => {
+    const call = {
+      url: 'https://example.com/api',
+      apiEndpoint: 'resource',
+      id: '123',
+      params: '?param=value',
+      data: { name: 'test' },
+    }
+
+    axios.put.mockResolvedValue({ data: { success: true } })
+
+    const response = await updateCall(call)
+
+    expect(axios.put).toHaveBeenCalledWith(
+      'https://example.com/api/resource/123?param=value',
+      { name: 'test' }
+    )
+    expect(response.data).toEqual({ success: true })
+  })
+
+  it('should log the call object to the console', () => {
+    const consoleSpy = jest.spyOn(console, 'log')
+    const call = {
+      url: 'https://example.com/api',
+      apiEndpoint: 'resource',
+      id: '123',
+      params: '?param=value',
+      data: { name: 'test' },
+    }
+
+    updateCall(call)
+
+    expect(consoleSpy).toHaveBeenCalledWith(call)
+
+    consoleSpy.mockRestore()
+  })
+})
 
 describe('useUpdateCall', () => {
-  const call = {
-    url: 'http://example.com',
-    apiEndpoint: 'update',
-    id: '123',
-    params: '?test=true',
-    data: { key: 'value' },
-    messageTitle: 'Update Call',
-    message: 'Call was successful',
-  }
-
   beforeEach(() => {
+    useMutation.mockImplementation((fn, config) => ({
+      mutate: fn,
+      ...config,
+    }))
+
     useNotificationStore.mockReturnValue({
       addNotification: jest.fn(),
     })
-    useMutation.mockImplementation((mutationFn, options) => ({
-      mutate: jest.fn(() => mutationFn(call)),
-      ...options,
-    }))
   })
 
-  it('should call updateCall function and handle success', async () => {
-    axios.put.mockResolvedValue({ data: { success: true } })
-    const { result, waitForNextUpdate } = renderHook(() =>
-      useUpdateCall(call, { config: { onSuccess: jest.fn() } }),
-    )
+  it('should call the updateCall function when the mutation is invoked', async () => {
+    const call = {
+      url: 'https://example.com/api',
+      apiEndpoint: 'resource',
+      id: '123',
+      params: '?param=value',
+      data: { name: 'test' },
+    }
+    const { result } = renderHook(() => useUpdateCall(call))
 
     await act(async () => {
-      result.current.mutate(call)
-      await waitForNextUpdate()
+      await result.current.mutate(call)
     })
 
     expect(axios.put).toHaveBeenCalledWith(
-      `${call.url}/${call.apiEndpoint}/${call.id}${call.params}`,
-      call.data,
+      'https://example.com/api/resource/123?param=value',
+      { name: 'test' }
     )
-    expect(queryClient.invalidateQueries).toHaveBeenCalledWith(
-      call.parentAPI ? call.parentAPI : call.apiEndpoint,
-    )
-    expect(result.current.onSuccess).toHaveBeenCalled()
-    expect(useNotificationStore().addNotification).toHaveBeenCalledWith({
-      type: 'success',
-      title: call.messageTitle,
-      message: call.message,
-    })
   })
 
-  it('should handle error', async () => {
-    const errorMessage = 'Network Error'
+  it('should handle errors correctly', async () => {
+    const call = {
+      url: 'https://example.com/api',
+      apiEndpoint: 'resource',
+      id: '123',
+      params: '?param=value',
+      data: { name: 'test' },
+      messageTitle: 'Error Title',
+    }
+    const errorMessage = 'Request failed'
+
     axios.put.mockRejectedValue(new Error(errorMessage))
-    const { result, waitForNextUpdate } = renderHook(() =>
-      useUpdateCall(call, { config: { onError: jest.fn() } }),
-    )
+
+    const addNotification = jest.fn()
+    useNotificationStore.mockReturnValue({ addNotification })
+
+    const { result } = renderHook(() => useUpdateCall(call))
 
     await act(async () => {
-      result.current.mutate(call)
-      await waitForNextUpdate()
+      await result.current.mutate(call)
     })
 
-    expect(useNotificationStore().addNotification).toHaveBeenCalledWith({
+    expect(addNotification).toHaveBeenCalledWith({
       type: 'error',
-      title: call.messageTitle,
+      title: 'Error Title',
       message: errorMessage,
     })
-    expect(result.current.onError).toHaveBeenCalled()
   })
 
-  it('should rollback on error', async () => {
-    const errorMessage = 'Network Error'
-    axios.put.mockRejectedValue(new Error(errorMessage))
-    const previousCall = { key: 'previousValue' }
-    queryClient.setQueryData.mockImplementationOnce(() => previousCall)
+  it('should invalidate queries on success', async () => {
+    const call = {
+      url: 'https://example.com/api',
+      apiEndpoint: 'resource',
+      id: '123',
+      params: '?param=value',
+      data: { name: 'test' },
+      messageTitle: 'Success Title',
+      message: 'Update successful',
+    }
 
-    const { result, waitForNextUpdate } = renderHook(() =>
-      useUpdateCall(call, { config: { onError: jest.fn() } }),
-    )
+    axios.put.mockResolvedValue({ data: { success: true } })
+
+    const addNotification = jest.fn()
+    useNotificationStore.mockReturnValue({ addNotification })
+
+    const { result } = renderHook(() => useUpdateCall(call))
 
     await act(async () => {
-      result.current.mutate(call)
-      await waitForNextUpdate()
+      await result.current.mutate(call)
     })
 
-    expect(queryClient.setQueryData).toHaveBeenCalledWith(call.apiEndpoint, previousCall)
+    expect(queryClient.invalidateQueries).toHaveBeenCalledWith('resource')
+    expect(addNotification).toHaveBeenCalledWith({
+      type: 'success',
+      title: 'Success Title',
+      message: 'Update successful',
+    })
   })
 })

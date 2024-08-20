@@ -29,6 +29,7 @@ export const ProfileUpdate = ({ authDetails, moduleSchema, isLocalEnvironment, e
               formSchema={moduleSchema.form.update}
               addUserObject={true}
               isUpdate={true}
+              isProfile={true}
               moduleSchema={moduleSchema}
               isLocalEnvironment={isLocalEnvironment}
               envData={envData}
