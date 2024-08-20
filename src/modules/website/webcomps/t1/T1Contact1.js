@@ -67,7 +67,7 @@ export const T1Contact1 = ({
               <div className="t1-contact-us-left">
                 <iframe
                   title="contactMap"
-                  src={pageDataooo.content.content.mapUrl}
+                  src={pageData.content.content.mapUrl}
                   width="100%"
                   height={pageData.content.content.mapHeight}
                   frameBorder={0}
