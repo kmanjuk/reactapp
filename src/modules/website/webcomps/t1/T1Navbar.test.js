@@ -43,8 +43,30 @@ describe('T1Navbar Component', () => {
     expect(screen.getByAltText('Logo Title')).toBeInTheDocument()
 
     // Test navigation links
-    expect(screen.getByText('Nav 1')).toBeInTheDocument()
-    expect(screen.getByText('Nav 2')).toBeInTheDocument()
+    expect(screen.getAllByText('Nav 1')[0]).toBeInTheDocument()
+    expect(screen.getAllByText('Nav 2')[0]).toBeInTheDocument()
+  })
+
+  it('should render the component with initial props in mobile view', () => {
+    render(
+      <Router>
+        <T1Navbar isLoggedIn={false} setLoginModal={jest.fn()} pageData={pageData} />
+      </Router>
+    )
+// Change the viewport to 500px.
+global.innerWidth = 500;
+    // Test top bar visibility
+    expect(screen.getByText('Link 1')).toBeInTheDocument()
+    expect(screen.getByText('Link 2')).toBeInTheDocument()
+    expect(screen.getByText('123-456-7890')).toBeInTheDocument()
+    expect(screen.getByText('example@example.com')).toBeInTheDocument()
+
+    // Test logo
+    expect(screen.getByAltText('Logo Title')).toBeInTheDocument()
+
+    // Test navigation links
+    expect(screen.getAllByText('Nav 1')[1]).toBeInTheDocument()
+    expect(screen.getAllByText('Nav 2')[1]).toBeInTheDocument()
   })
 
   it('should toggle mobile menu visibility', () => {
@@ -53,6 +75,8 @@ describe('T1Navbar Component', () => {
         <T1Navbar isLoggedIn={false} setLoginModal={jest.fn()} pageData={pageData} />
       </Router>
     )
+// Change the viewport to 500px.
+global.innerWidth = 500;
 
     // Check initial state of mobile menu
     const mobileMenuButton = screen.getByRole('button')
@@ -67,6 +91,10 @@ describe('T1Navbar Component', () => {
     // Click to close mobile menu
     fireEvent.click(mobileMenuButton)
     expect(mobileMenu).toHaveClass('t1-slicknav_hidden')
+
+    //click menu
+    const menubtn = screen.getByTestId('mobileMenuBtn')
+    fireEvent.click(menubtn)
   })
 
   it('should show login link when not logged in', () => {

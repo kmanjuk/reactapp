@@ -24,11 +24,11 @@ describe('InputAutocomplete Component', () => {
   test('filters suggestions based on user input', () => {
     render(<InputAutocomplete suggestions={suggestions} field={field} errors={errors} register={register} />)
 
-    const inputElement = screen.getByRole('textbox')
+    const inputElement = screen.getByTestId('inputAutocomplete')
     fireEvent.change(inputElement, { target: { value: 'a' } })
 
-    expect(screen.getByText('Apple')).toBeInTheDocument()
-    expect(screen.getByText('Banana')).toBeInTheDocument()
+    expect(screen.getAllByText('Apple')[0]).toBeInTheDocument()
+    expect(screen.getAllByText('Banana')[0]).toBeInTheDocument()
     expect(screen.queryByText('Cherry')).not.toBeInTheDocument()
   })
 
@@ -38,7 +38,7 @@ describe('InputAutocomplete Component', () => {
     const inputElement = screen.getByRole('textbox')
     fireEvent.change(inputElement, { target: { value: 'z' } })
 
-    expect(screen.getByText(/No suggestions/i)).toBeInTheDocument()
+    expect(screen.getAllByText(/No suggestions/i)[0]).toBeInTheDocument()
   })
 
   test('selects a suggestion when clicked', () => {

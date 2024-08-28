@@ -39,7 +39,7 @@ function App({ envData, isLocalEnvironment }) {
 
   if (getAppData.isLoading) {
     return (
-      <div id="layout-wrapper">
+      <div id="layout-wrapper" data-testid="appLoading">
         <Loading envData={envData} />
         <div className="trtui-vertical-overlay" />
       </div>

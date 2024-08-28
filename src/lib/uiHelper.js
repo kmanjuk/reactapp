@@ -8,8 +8,10 @@ import { convCol } from './css-filter'
  * @param {string} favicon - The favicon to be inserted into the HTML head tag.
  */
 export const mainUILoad = (primary, secondary, favicon) => {
-  const favLink = document.getElementById('faviconLink') || ''
-  favLink.setAttribute('href', favicon)
+  const favLink = document.getElementById('faviconLink') || null
+  if (favLink !== null) {
+    favLink.setAttribute('href', favicon)
+  }
   document.body.classList.add('vertical-layout')
   const col1 = convCol(secondary)
   const col2 = convCol(primary)

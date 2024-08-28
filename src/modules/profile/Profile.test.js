@@ -35,27 +35,34 @@ describe('Profile Component', () => {
     },
   }
 
+  const routeData = {
+    apiEndPointSchema: JSON.stringify({
+      api: 'testApi',
+      urlParams: '?test=true',
+    }),
+  }
+
   test('renders without crashing', () => {
-    render(<Profile authDetails={authDetails} />)
+    render(<Profile authDetails={authDetails} routeData={routeData} />)
   })
 
   test('renders ProfileBG component', () => {
-    const { getByText } = render(<Profile authDetails={authDetails} />)
+    const { getByText } = render(<Profile authDetails={authDetails} routeData={routeData} />)
     expect(getByText('ProfileBG Component')).toBeInTheDocument()
   })
 
   test('renders ProfileImage component', () => {
-    const { getByText } = render(<Profile authDetails={authDetails} />)
+    const { getByText } = render(<Profile authDetails={authDetails} routeData={routeData} />)
     expect(getByText('ProfileImage Component')).toBeInTheDocument()
   })
 
   test('renders ProfileRoles component', () => {
-    const { getByText } = render(<Profile authDetails={authDetails} />)
+    const { getByText } = render(<Profile authDetails={authDetails} routeData={routeData} />)
     expect(getByText('ProfileRoles Component')).toBeInTheDocument()
   })
 
   test('renders ProfileUpdate component', () => {
-    const { getByText } = render(<Profile authDetails={authDetails} />)
+    const { getByText } = render(<Profile authDetails={authDetails} routeData={routeData} />)
     expect(getByText('ProfileUpdate Component')).toBeInTheDocument()
   })
 })

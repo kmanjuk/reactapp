@@ -107,6 +107,7 @@ export const T1Navbar = ({ isLoggedIn, setLoginModal, pageData }) => {
                       <span
                         className="navbtnmobile t1-slicknav_icon t1-slicknav_no-text"
                         onClick={() => setOpenNavs(!openNavs)}
+                        data-testid="mobileMenuBtn"
                       >
                         <span className="t1-slicknav_icon-bar" />
                         <span className="t1-slicknav_icon-bar" />
@@ -147,9 +148,14 @@ export const T1Navbar = ({ isLoggedIn, setLoginModal, pageData }) => {
                           </li>
                         </>
                       ) : (
-                        <li>
-                          <Link to="#!" title="Login" onClick={() => setLoginModal(true)}>
-                            <i style={{ fontSize: '1.5rem' }} className="fa fa-user-o" />
+                        <li className="pb-2">
+                          <Link
+                            to="#!"
+                            role="menuitem"
+                            title="Login"
+                            onClick={() => setLoginModal(true)}
+                          >
+                            Login
                           </Link>
                         </li>
                       )}
@@ -182,22 +188,26 @@ export const T1Navbar = ({ isLoggedIn, setLoginModal, pageData }) => {
                         ),
                       )}
                       {isLoggedIn ? (
-                        <li>
-                          <Link
-                            to="/console/my-profile"
-                            title="My Profile"
-                            style={{ position: 'relative' }}
-                          >
-                            <i style={{ fontSize: '1.5rem' }} className="fa fa-user" />
-                          </Link>
-                          <Link
-                            to="/console/logout"
-                            title="Logout"
-                            style={{ position: 'relative' }}
-                          >
-                            <i style={{ fontSize: '1.5rem' }} className="fa fa-sign-out" />
-                          </Link>
-                        </li>
+                        <>
+                          <li>
+                            <Link
+                              to="/console/my-profile"
+                              title="My Profile"
+                              style={{ position: 'relative' }}
+                            >
+                              <i style={{ fontSize: '1.5rem' }} className="fa fa-user" />
+                            </Link>
+                          </li>
+                          <li>
+                            <Link
+                              to="/console/logout"
+                              title="Logout"
+                              style={{ position: 'relative' }}
+                            >
+                              <i style={{ fontSize: '1.5rem' }} className="fa fa-sign-out" />
+                            </Link>
+                          </li>
+                        </>
                       ) : (
                         <li>
                           <Link to="#!" title="Login" onClick={() => setLoginModal(true)}>

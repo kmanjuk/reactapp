@@ -30,7 +30,7 @@ describe('FormButtons component', () => {
       createCallMutation: { isLoading: true },
     };
     render(<FormButtons {...props} />);
-    expect(screen.getByText('Adding...')).toBeInTheDocument();
+    expect(screen.getAllByText('Adding...')[0]).toBeInTheDocument();
   });
 
   test('Update button shows loading state correctly', () => {
@@ -40,7 +40,7 @@ describe('FormButtons component', () => {
       updateCallMutation: { isLoading: true },
     };
     render(<FormButtons {...props} />);
-    expect(screen.getByText('Updating...')).toBeInTheDocument();
+    expect(screen.getAllByText('Updating...')[0]).toBeInTheDocument();
   });
 
   test('Delete button shows loading state correctly', () => {
@@ -51,7 +51,7 @@ describe('FormButtons component', () => {
       deleteCallMutation: { isLoading: true },
     };
     render(<FormButtons {...props} />);
-    expect(screen.getByText('Deleting...')).toBeInTheDocument();
+    expect(screen.getAllByText('Deleting...')[0]).toBeInTheDocument();
   });
 
   test('Close button works correctly', () => {
@@ -78,5 +78,70 @@ describe('FormButtons component', () => {
     };
     const { container } = render(<FormButtons {...props} />);
     expect(container).toBeEmptyDOMElement();
+  });
+
+  test('renders button when isRowForm is true', () => {
+    const props = {
+      ...defaultProps,
+      isRowForm: true,
+    };
+    const { container } = render(<FormButtons {...props} />);
+    const rowFormButton = container.querySelector('.trtui-btn-icon');
+    expect(container).toBeInTheDocument();
+  });
+
+  test('Add button shows loading state correctly when isRowForm is true', () => {
+    const props = {
+      ...defaultProps,
+      createCallMutation: { isLoading: true },
+      isRowForm: true,
+    };
+    render(<FormButtons {...props} />);
+    expect(screen.getAllByText('...')[0]).toBeInTheDocument();
+  });
+
+  test('Update button shows loading state correctly when isRowForm is true', () => {
+    const props = {
+      ...defaultProps,
+      isAdd: false,
+      updateCallMutation: { isLoading: true },
+      isRowForm: true,
+    };
+    render(<FormButtons {...props} />);
+    expect(screen.getAllByText('...')[0]).toBeInTheDocument();
+  });
+
+  test('Delete button shows loading state correctly when isRowForm is true', () => {
+    const props = {
+      ...defaultProps,
+      isAdd: false,
+      isUpdate: true,
+      deleteCallMutation: { isLoading: true },
+      isRowForm: true,
+    };
+    render(<FormButtons {...props} />);
+    expect(screen.getAllByText('...')[0]).toBeInTheDocument();
+  });
+  test('Delete button shows loading state correctly when isRowForm is true', () => {
+    const props = {
+      ...defaultProps,
+      isAdd: false,
+      isUpdate: true,
+      isRowForm: true,
+    };
+    const {container} = render(<FormButtons {...props} />);
+    const deleteIcon = container.querySelector('.ri-delete-bin-line');
+    expect(deleteIcon).toBeInTheDocument()
+  });
+
+  test('Close confirmation works correctly', () => {
+    const props = {
+      ...defaultProps,
+      isAdd: false,
+      isUpdate: false,
+    };
+    render(<FormButtons {...props} />);
+    fireEvent.click(screen.getByText('Close'));
+    expect(defaultProps.setOpenFormModal).toHaveBeenCalledWith(false);
   });
 });

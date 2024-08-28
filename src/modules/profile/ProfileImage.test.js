@@ -7,7 +7,15 @@ import defaultAvatar from '../../assets/images/default-avatar.png'
 describe('ProfileImage Component', () => {
   const mockAuthDetails = {
     authentication: {
-      profileImg: 'http://example.com/user-profile.jpg'
+      user:{
+        profile:{
+          photos:[
+            {
+              value:''
+            }
+          ]
+        }
+      }
     },
     session: {
       user: {
@@ -19,7 +27,15 @@ describe('ProfileImage Component', () => {
 
   const mockAuthDetailsWithDefaultImg = {
     authentication: {
-      profileImg: null
+      user:{
+        profile:{
+          photos:[
+            {
+              value:''
+            }
+          ]
+        }
+      }
     },
     session: {
       user: {

@@ -58,11 +58,13 @@ describe('T1Footer1 component', () => {
       </BrowserRouter>
     );
 
-    const facebookLink = screen.getByRole('link', { name: '' }).parentElement;
-    const twitterLink = screen.getByRole('link', { name: '' }).parentElement.nextSibling;
+    // const facebookLink = screen.getByText('https://facebook.com');
+    // const twitterLink = screen.getByText('https://twitter.com');
 
-    expect(facebookLink).toHaveAttribute('href', 'https://facebook.com');
-    expect(twitterLink).toHaveAttribute('href', 'https://twitter.com');
+    // expect(facebookLink).toBeInTheDocument();
+    // expect(twitterLink).toBeInTheDocument();
+    expect(screen.getAllByRole('link',{class:'fa fa-facebook'})[0]).toHaveAttribute('href', 'https://facebook.com')
+    expect(screen.getAllByRole('link',{class:'fa fa-twitter'})[1]).toHaveAttribute('href', 'https://twitter.com')
   });
 
   it('renders the footer links correctly', () => {

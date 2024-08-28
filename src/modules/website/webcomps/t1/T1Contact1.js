@@ -108,6 +108,7 @@ export const T1Contact1 = ({
                       data-dismiss="alert"
                       aria-label="Close"
                       onClick={() => setSuccessMsg(false)}
+                      data-testid="closeSuccesMsg"
                     >
                       <span aria-hidden="false">&times;</span>
                     </button>
@@ -122,6 +123,7 @@ export const T1Contact1 = ({
                       data-dismiss="alert"
                       aria-label="Close"
                       onClick={() => setErrorMsg(false)}
+                      data-testid="closeErrorMsg"
                     >
                       <span aria-hidden="true">&times;</span>
                     </button>
@@ -137,6 +139,7 @@ export const T1Contact1 = ({
                     WebkitFilter: isLoggedIn ? '' : 'blur(2px)',
                     pointerEvents: isLoggedIn ? '' : 'none',
                   }}
+                  data-testid="contactForm"
                 >
                   <div className="row">
                     <div className="col-md-12">

@@ -44,6 +44,7 @@ export const T1Content3 = ({ pageData }) => {
           <div className="col-lg-6 col-12">
             <div
               className="t1-choose-right"
+              data-testid="backgroundImage"
               style={{
                 backgroundImage: `url(${pageData.content.content.image})`,
               }}

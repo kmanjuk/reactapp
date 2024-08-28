@@ -204,6 +204,7 @@ export const Form = ({
           formSchema.schema.map((field, fieldIndex) =>
             field.element === 'InputField' ? (
               <InputField
+                data-testid="inputFieldForm"
                 key={`${fieldIndex}${field}${isAdd}`}
                 field={field}
                 errors={errors}

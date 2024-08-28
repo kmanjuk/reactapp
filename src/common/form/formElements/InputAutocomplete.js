@@ -111,6 +111,7 @@ export const InputAutocomplete = ({ suggestions = [], field, errors, register })
         {...register(field.name, { onChange: onChange })}
         className={`trtui-form-control ${errors[field.name] && 'trtui-is-invalid'}`}
         autoComplete="off"
+        data-testid="inputAutocomplete"
       />
       {suggestionsListComponent}
     </Fragment>

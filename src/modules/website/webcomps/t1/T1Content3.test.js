@@ -35,7 +35,7 @@ describe('T1Content3 component', () => {
   it('renders the background image correctly', () => {
     render(<T1Content3 pageData={mockPageData} />);
 
-    const backgroundImageElement = screen.getByRole('img', { hidden: true });
+    const backgroundImageElement = screen.getByTestId('backgroundImage');
     
     expect(backgroundImageElement).toHaveStyle(`background-image: url(${mockPageData.content.content.image})`);
   });

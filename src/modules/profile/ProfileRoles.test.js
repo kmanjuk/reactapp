@@ -1,5 +1,5 @@
 import React from 'react'
-import { render, fireEvent } from '@testing-library/react'
+import { render, fireEvent, screen } from '@testing-library/react'
 import '@testing-library/jest-dom/extend-expect'
 import { ProfileRoles } from './ProfileRoles'
 
@@ -36,19 +36,19 @@ describe('ProfileRoles Component', () => {
   })
 
   test('toggles role list visibility when expand button is clicked', () => {
-    const { getByRole, container } = render(<ProfileRoles authDetails={mockAuthDetails} />)
-    const expandButton = getByRole('button', { name: /arrow-down/i })
+    const { getByTestId, container } = render(<ProfileRoles authDetails={mockAuthDetails} />)
+    const expandButton = getByTestId('roleButton')
     
     // Initially the roles list should be hidden
-    expect(container.querySelector('.trtui-card-body div[style="display: none;"]')).toBeTruthy()
+    expect(screen.getByTestId('roleExpanded')).toBeTruthy()
     
     // Click to expand
     fireEvent.click(expandButton)
-    expect(container.querySelector('.trtui-card-body div[style="display: block;"]')).toBeTruthy()
+    expect(screen.getByTestId('roleExpanded')).toBeTruthy()
 
     // Click to collapse
     fireEvent.click(expandButton)
-    expect(container.querySelector('.trtui-card-body div[style="display: none;"]')).toBeTruthy()
+    expect(screen.getByTestId('roleExpanded')).toBeTruthy()
   })
 
   test('handles no roles gracefully', () => {

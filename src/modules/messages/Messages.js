@@ -98,6 +98,7 @@ export const Messages = ({ envData, defaultData, routeData, authDetails, isLocal
                     type="button"
                     className="trtui-btn trtui-btn-soft-primary trtui-btn-sm"
                     onClick={() => setNewMessageModal(true)}
+                    data-testid="newMessageModal"
                   >
                     <i className="ri-add-line trtui-align-bottom" />
                   </button>
@@ -519,6 +520,7 @@ export const Messages = ({ envData, defaultData, routeData, authDetails, isLocal
                             <button
                               type="submit"
                               className="trtui-btn trtui-btn-success trtui-chat-send trtui-waves-effect trtui-waves-light"
+                              data-testid="sendMessage"
                             >
                               <i className="ri-send-plane-2-fill trtui-align-bottom" />
                             </button>

@@ -1,5 +1,5 @@
 import * as Yup from 'yup';
-import { createYupSchema } from './path-to-your-function'; // update with the correct path
+import { createYupSchema } from './createYUPSchema'; // update with the correct path
 
 describe('createYupSchema', () => {
   test('should create a Yup string schema with required and email validations', () => {

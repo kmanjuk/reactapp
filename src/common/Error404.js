@@ -32,6 +32,7 @@ export const Error404 = () => {
                     src={errorImg}
                     alt="Error 404"
                     className="trtui-img-fluid trtui-error-500-img trtui-error-img"
+                    data-testid="error404image"
                   />
                   <h1 className="trtui-title trtui-text-muted">&nbsp;</h1>
                 </div>

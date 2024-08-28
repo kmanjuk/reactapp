@@ -1,37 +1,46 @@
-import React from 'react';
-import { render } from '@testing-library/react';
-import { QueryClientProvider } from 'react-query';
-import { AppProvider } from './AppProvider';
-import { queryClient } from './lib/reactQueryClient';
+import React from 'react'
+import { render, screen } from '@testing-library/react'
+import { QueryClient, QueryClientProvider } from 'react-query'
+import { AppProvider } from './AppProvider'
 
-describe('AppProvider Component', () => {
-  it('renders children and loading indicator correctly', () => {
-    const { getByText, getByTestId } = render(
+// Create a custom QueryClient for testing
+const testQueryClient = new QueryClient()
+
+describe('AppProvider', () => {
+  it('renders children correctly', () => {
+    render(
       <AppProvider>
-        <div>Child Component</div>
+        <div>Test Child Component</div>
       </AppProvider>
-    );
+    )
 
-    // Ensure children are rendered
-    expect(getByText('Child Component')).toBeInTheDocument();
+    expect(screen.getByText('Test Child Component')).toBeInTheDocument()
+  })
 
-    // Ensure loading indicator is rendered
-    expect(getByTestId('global-loader')).toBeInTheDocument();
-    expect(getByTestId('global-loader')).toHaveTextContent('LOADING.........');
-  });
+  it('displays fallback loading indicator when suspense is triggered', () => {
+    // Simulate a Suspense scenario with a Promise that never resolves
+    const TestSuspenseComponent = () => {
+      throw new Promise(() => {})
+    }
 
-  it('provides QueryClientProvider with queryClient', () => {
-    const { container } = render(
+    render(
       <AppProvider>
-        <div>Child Component</div>
+        <TestSuspenseComponent />
       </AppProvider>
-    );
+    )
 
-    // Ensure QueryClientProvider is rendered and has the queryClient prop
-    const queryClientProvider = container.querySelector('QueryClientProvider');
-    expect(queryClientProvider).toBeInTheDocument();
-    expect(queryClientProvider).toHaveAttribute('client', queryClient);
-  });
+    expect(screen.getByText('LOADING.........')).toBeInTheDocument()
+  })
 
-  // Add more test cases for edge cases, prop types, etc.
-});
+  it('provides the correct React Query client', () => {
+    render(
+      <QueryClientProvider client={testQueryClient}>
+        <AppProvider>
+          <div>Test Query Client Context</div>
+        </AppProvider>
+      </QueryClientProvider>
+    )
+
+    expect(screen.getByText('Test Query Client Context')).toBeInTheDocument()
+  })
+})

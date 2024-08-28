@@ -1,87 +1,130 @@
 import React from 'react'
-import { render, screen, fireEvent } from '@testing-library/react'
-import '@testing-library/jest-dom/extend-expect'
+import { render, screen } from '@testing-library/react'
 import { AppLayout } from './AppLayout'
 import { useGetQuery } from '../../lib/api/get'
+import { Profile } from '../profile/Profile'
+import { Messages } from '../messages/Messages'
 
-jest.mock('../../lib/api/get')
-jest.mock('../../lib/OnClickOutside', () => ({
-  useOnClickOutside: jest.fn(),
+// Mock the useGetQuery hook
+jest.mock('../../lib/api/get', () => ({
+  useGetQuery: jest.fn(),
 }))
 
-const mockEnvData = {
-  REACT_APP_API_URL_WEB: 'http://api.example.com',
-  REACT_APP_THEME_COLOR: 'blue',
-}
+// Mock the Profile and Messages components
+jest.mock('../profile/Profile', () => ({
+  Profile: jest.fn(() => <div>Profile Component</div>),
+}))
 
-const mockAuthDetails = {
-  user: 'testUser',
-}
-
-const mockRouteData = {
-  apiEndPointSchema: {
-    api: 'testApi',
-    urlParams: '?test=true',
-  },
-}
-
-const mockSetToggleLoginModal = jest.fn()
+jest.mock('../messages/Messages', () => ({
+  Messages: jest.fn(() => <div>Messages Component</div>),
+}))
 
 describe('AppLayout', () => {
+  const mockEnvData = {
+    REACT_APP_API_URL_WEB: 'https://api.example.com',
+  }
+  
+  const mockRouteData = {
+    component: 'Profile',
+    apiEndPointSchema: JSON.stringify({
+      api: 'profileData',
+      urlParams: {},
+    }),
+  }
+  
+  const mockAuthDetails = {
+    loggedIn: true,
+    session: { pages: [], user:{userFullName:"K",} },
+    authentication: {
+      user:{
+        profile:{
+          photos:[
+            {
+              value:''
+            }
+          ]
+        }
+      }
+    }
+  }
+  
+  const mockAppDataParsed = {
+    routesData: [
+      { pageName: 'Profile', isPrivate: 1 },
+      { pageName: 'Messages', isPrivate: 1 },
+    ],
+  }
+
   beforeEach(() => {
-    jest.clearAllMocks()
+    useGetQuery.mockReturnValue({
+      isLoading: false,
+      data: { some: 'data' },
+    })
   })
 
-  it('renders loading spinner when data is loading', () => {
-    useGetQuery.mockReturnValue({ isLoading: true })
+  it('renders the loading spinner when data is loading', () => {
+    useGetQuery.mockReturnValueOnce({
+      isLoading: true,
+      data: null,
+    })
 
     render(
       <AppLayout
         envData={mockEnvData}
-        setToggleLoginModal={mockSetToggleLoginModal}
+        setToggleLoginModal={jest.fn()}
         authDetails={mockAuthDetails}
         routeData={mockRouteData}
+        isLocalEnvironment="true"
+        appDataParsed={mockAppDataParsed}
       />
     )
 
-    expect(screen.getByRole('status')).toBeInTheDocument()
-    expect(screen.getByText('Loading...')).toBeInTheDocument()
+    const loadingSpinner = screen.getAllByRole('status')
+    expect(loadingSpinner).toHaveLength(2) // Expecting two loading spinners (one for desktop, one for mobile)
   })
 
-  it('renders child components when data is loaded', () => {
-    useGetQuery.mockReturnValue({ isLoading: false, data: {} })
-
+  it('renders the Profile component if routeData.component is Profile', () => {
     render(
       <AppLayout
         envData={mockEnvData}
-        setToggleLoginModal={mockSetToggleLoginModal}
+        setToggleLoginModal={jest.fn()}
         authDetails={mockAuthDetails}
         routeData={mockRouteData}
+        isLocalEnvironment="true"
+        appDataParsed={mockAppDataParsed}
       />
     )
 
-    expect(screen.getByText('Header Component')).toBeInTheDocument()
-    expect(screen.getByText('Menubar Component')).toBeInTheDocument()
-    expect(screen.getByText('Footer Component')).toBeInTheDocument()
+    expect(screen.getByText('Profile Component')).toBeInTheDocument()
   })
 
-  it('toggles side menu when toggleMenu state changes', () => {
-    useGetQuery.mockReturnValue({ isLoading: false, data: {} })
+  it('renders the Messages component if routeData.component is Messages', () => {
     render(
       <AppLayout
         envData={mockEnvData}
-        setToggleLoginModal={mockSetToggleLoginModal}
+        setToggleLoginModal={jest.fn()}
         authDetails={mockAuthDetails}
-        routeData={mockRouteData}
+        routeData={{ ...mockRouteData, component: 'Messages' }}
+        isLocalEnvironment="true"
+        appDataParsed={mockAppDataParsed}
       />
     )
 
-    const toggleButton = screen.getByText('Toggle Menu')
+    expect(screen.getByText('Messages Component')).toBeInTheDocument()
+  })
 
-    fireEvent.click(toggleButton)
-    expect(screen.getByText('Menubar Open')).toBeInTheDocument()
+  it('renders the AppLayoutModuleNotFound component if routeData.component is invalid', () => {
+    render(
+      <AppLayout
+        envData={mockEnvData}
+        setToggleLoginModal={jest.fn()}
+        authDetails={mockAuthDetails}
+        routeData={{ ...mockRouteData, component: 'InvalidComponent' }}
+        isLocalEnvironment="true"
+        appDataParsed={mockAppDataParsed} 
+      />
+    )
 
-    fireEvent.click(toggleButton)
-    expect(screen.getByText('Menubar Closed')).toBeInTheDocument()
+    expect(screen.getByText('Module Not Found')).toBeInTheDocument()
   })
 })

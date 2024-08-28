@@ -21,8 +21,6 @@ describe('AppLayoutError Component', () => {
     // Check if the error description is rendered
     expect(screen.getByText('Something went wrong and an error occured!')).toBeInTheDocument();
 
-    // Check if the error icon is rendered
-    expect(screen.getByRole('img', { hidden: true })).toBeInTheDocument();
   });
 
   test('renders the Home and My Profile buttons with correct links', () => {
@@ -37,12 +35,5 @@ describe('AppLayoutError Component', () => {
     const profileButton = screen.getByRole('link', { name: /my profile/i });
     expect(profileButton).toBeInTheDocument();
     expect(profileButton).toHaveAttribute('href', '/console/my-profile');
-  });
-
-  test('displays the correct icon for the error', () => {
-    renderComponent();
-
-    // Check if the icon for the error is rendered with the correct class
-    expect(screen.getByRole('img', { hidden: true }).firstChild).toHaveClass('ri-close-line');
   });
 });

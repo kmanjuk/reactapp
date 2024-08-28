@@ -14,18 +14,22 @@ import axios from 'axios'
  * return <ErrorHandler error={new Error("Something went wrong!")} />
  */
 export const ErrorHandler = ({ error }) => {
-  const customJSON = {
-    msg: error.message,
-    error: error,
-  }
-
-  const isLocalEnvironment =
-    process.env.REACT_APP_USE_API_URL_LOCAL === '1' ? '' : process.env.REACT_APP_API_URL_LOCAL
-
-  React.useEffect(() => {
-    axios.post(isLocalEnvironment + '/logger', customJSON)
-  })
   try {
+    if (error.throw) {
+      throw new Error('Error')
+    }
+
+    const customJSON = {
+      msg: error.message,
+      error: error,
+    }
+
+    const isLocalEnvironment =
+      process.env.REACT_APP_USE_API_URL_LOCAL === '1' ? '' : process.env.REACT_APP_API_URL_LOCAL
+
+    React.useEffect(() => {
+      axios.post(isLocalEnvironment + '/logger', customJSON)
+    })
     return (
       <>
         <Helmet>

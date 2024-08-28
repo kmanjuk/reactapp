@@ -24,7 +24,7 @@ describe('ErrorHandler', () => {
     render(<ErrorHandler error={error} />)
     const imgElement = screen.getByAltText('error-500 image')
     expect(imgElement).toBeInTheDocument()
-    expect(imgElement).toHaveAttribute('src', 'errorImg')
+    expect(imgElement).toHaveAttribute('src', 'error.png')
   })
 
   test('reloads the page on button click', () => {
@@ -44,5 +44,28 @@ describe('ErrorHandler', () => {
       `${process.env.REACT_APP_USE_API_URL_LOCAL === '1' ? '' : process.env.REACT_APP_API_URL_LOCAL}/logger`,
       { msg: error.message, error: error }
     )
+  })
+
+  test('renders the with isLocalEnvironment 1', () => {
+    process.env.LOCAL_ENVIRONMENT = '1';
+    render(<ErrorHandler error={error} />)
+    expect(axios.post).toHaveBeenCalledWith(
+      `${process.env.REACT_APP_USE_API_URL_LOCAL === '1' ? '' : process.env.REACT_APP_API_URL_LOCAL}/logger`,
+      { msg: error.message, error: error }
+    )
+  })
+
+  test('renders the with isLocalEnvironment 0', () => {
+    process.env.LOCAL_ENVIRONMENT = '0';
+    render(<ErrorHandler error={error} />)
+    expect(axios.post).toHaveBeenCalledWith(
+      `${process.env.REACT_APP_USE_API_URL_LOCAL === '1' ? '' : process.env.REACT_APP_API_URL_LOCAL}/logger`,
+      { msg: error.message, error: error }
+    )
+  })
+
+  test('should throw error and return catch block', () => {
+    render(<ErrorHandler error={{throw:true}} />)
+    expect(screen.getByText('Error')).toBeInTheDocument()
   })
 })

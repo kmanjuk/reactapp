@@ -12,15 +12,31 @@ jest.mock('react-hook-form', () => ({
 describe('InputSelect Component', () => {
   const field = {
     name: 'selectField',
-    placeholder: 'an option',
+    placeholder: 'option',
     size: 6,
     hidden: false,
     isAutocomplete: false,
-    optionArrayDependency: [],
+    optionArrayDependency: true,
+    compOptionArrayDependency:[],
     valFromObjOfParentData: false,
     valFromObj: false,
     optionAPIDependencyChild: false,
     optionAPIDependency: false,
+  }
+
+  const fieldAutoComplete = {
+    name: 'selectField',
+    placeholder: 'Search Option',
+    size: 6,
+    hidden: false,
+    isAutocomplete: true,
+    optionArrayDependency: true,
+    compOptionArrayDependency:[],
+    valFromObjOfParentData: false,
+    valFromObj: false,
+    optionAPIDependencyChild: false,
+    optionAPIDependency: true,
+    compOptionAPIDependency:[],
   }
 
   const errors = {}
@@ -52,13 +68,14 @@ describe('InputSelect Component', () => {
       />
     )
 
-    expect(screen.getByLabelText(/Select an option.../i)).toBeInTheDocument()
+    //userEvent.selectOptions(getByLabelText('<your select label text>'), '<value>');
+    expect(screen.getByText(/Select option.../i)).toBeInTheDocument()
   })
 
   test('renders autocomplete select input field when isAutocomplete is true', () => {
     render(
       <InputSelect
-        field={{ ...field, isAutocomplete: true }}
+        field={fieldAutoComplete}
         errors={errors}
         register={register}
         control={control}
@@ -68,7 +85,7 @@ describe('InputSelect Component', () => {
       />
     )
 
-    expect(screen.getByLabelText(/Select an option.../i)).toBeInTheDocument()
+    expect(screen.getByText(/Search Option/i)).toBeInTheDocument()
     expect(screen.getByRole('combobox')).toBeInTheDocument()
   })
 
@@ -85,14 +102,14 @@ describe('InputSelect Component', () => {
       />
     )
 
-    expect(screen.queryByLabelText(/Select an option.../i)).not.toBeVisible()
+    expect(screen.queryByText(/Select option.../i)).not.toBeVisible()
   })
 
   test('displays error message when there is a validation error', () => {
     const errors = {
       selectField: {
         message: 'This field is required',
-      },
+      }, 
     }
 
     render(
@@ -122,7 +139,7 @@ describe('InputSelect Component', () => {
 
     render(
       <InputSelect
-        field={field}
+        field={{...field, compOptionArrayDependency:[{id:1,name:'chocolate'}]}}
         errors={errors}
         register={register}
         control={control}

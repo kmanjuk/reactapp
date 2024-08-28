@@ -5,7 +5,9 @@ import { Messages } from './Messages';
 import { useCreateCall } from '../../lib/api/create';
 
 // Mock the `useCreateCall` hook
-jest.mock('../../lib/api/create');
+jest.mock('../../lib/api/create', () => ({
+  useCreateCall: jest.fn(),
+}));
 
 describe('Messages Component', () => {
   const mockData = {
@@ -17,6 +19,15 @@ describe('Messages Component', () => {
           subject: 'Test Subject',
           message: 'Test Message',
           createdDateTime: '2024-08-19T10:00:00Z',
+          userId: 2,
+          User: { userFullName: 'John Doe', email: 'johndoe@example.com' },
+          childMessages: [],
+        },
+        {
+          UserMessageId: 1,
+          subject: 'Test Subject 1',
+          message: 'Test Message 1',
+          createdDateTime: '2024-08-20T10:00:00Z',
           userId: 2,
           User: { userFullName: 'John Doe', email: 'johndoe@example.com' },
           childMessages: [],
@@ -33,7 +44,10 @@ describe('Messages Component', () => {
     isLocalEnvironment: true,
   };
 
-  const mockCreateCall = jest.fn();
+  const mockCreateCall = jest.fn({
+    isLoading:false,
+  });
+
   useCreateCall.mockReturnValue({
     mutateAsync: mockCreateCall,
   });
@@ -77,7 +91,7 @@ describe('Messages Component', () => {
     });
 
     // Click the send button
-    fireEvent.click(screen.getByRole('button', { name: /send/i }));
+    fireEvent.click(screen.getByTestId('sendMessage'));
 
     // Wait for the API call to be made
     await waitFor(() =>
@@ -92,10 +106,14 @@ describe('Messages Component', () => {
   });
 
   test('opens the new message modal when "Add Contact" button is clicked', () => {
-    render(<Messages {...mockData} />);
+    const props = {
+      ...mockData,
+      createCallMutation: { isLoading: true },
+    };
+    render(<Messages {...props} />);
 
     // Click the Add Contact button
-    fireEvent.click(screen.getByRole('button', { name: /add/i }));
+    fireEvent.click(screen.getByTestId('newMessageModal')); 
 
     // Check if the modal is opened (you may need to test specific content within the modal)
     expect(screen.getByText('New Message')).toBeInTheDocument();

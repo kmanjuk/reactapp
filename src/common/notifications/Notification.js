@@ -55,6 +55,7 @@ export const Notification = ({ notification: { id, type, message }, px, onDismis
         aria-label="Close"
         onClick={() => setOpenMessage(false)}
         className="trtui-toast-close"
+        data-testid="closeNotification"
       >
         ✖
       </button>

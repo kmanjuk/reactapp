@@ -12,12 +12,12 @@ describe('useAuthStore', () => {
   test('initial state is empty', () => {
     const { result } = renderHook(() => useAuthStore());
 
-    expect(result.current.authentication).toBeUndefined();
-    expect(result.current.loggedIn).toBeUndefined();
-    expect(result.current.tokenSource).toBeUndefined();
-    expect(result.current.session).toBeUndefined();
-    expect(result.current.role).toBeUndefined();
-    expect(result.current.roleId).toBeUndefined();
+    expect(result.current.authentication).toBeNull();
+    expect(result.current.loggedIn).toBeFalsy();
+    expect(result.current.tokenSource).toBeNull();
+    expect(result.current.session).toBeNull();
+    expect(result.current.role).toBeNull();
+    expect(result.current.roleId).toBeNull();
   });
 
   test('sets authentication details correctly', () => {
@@ -49,12 +49,12 @@ describe('useAuthStore', () => {
       result.current.unsetAuthentication();
     });
 
-    expect(result.current.authentication).toBeUndefined();
-    expect(result.current.loggedIn).toBeUndefined();
-    expect(result.current.tokenSource).toBeUndefined();
-    expect(result.current.session).toBeUndefined();
-    expect(result.current.role).toBeUndefined();
-    expect(result.current.roleId).toBeUndefined();
+    expect(result.current.authentication).toBeNull();
+    expect(result.current.loggedIn).toBeFalsy();
+    expect(result.current.tokenSource).toBeNull();
+    expect(result.current.session).toBeNull();
+    expect(result.current.role).toBeNull();
+    expect(result.current.roleId).toBeNull();
   });
 
   test('persists authentication state', () => {

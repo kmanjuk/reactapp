@@ -82,7 +82,7 @@ describe('getUser', () => {
   });
 
   it('should log an error if authentication fails', async () => {
-    fetchMock.mockRejectOnce(new Error('authentication has been failed!'));
+    fetchMock.mockRejectOnce(new Error('Authentication has failed!'));
 
     console.log = jest.fn();
 
@@ -92,7 +92,7 @@ describe('getUser', () => {
       authDetails: mockAuthDetails,
     });
 
-    expect(console.log).toHaveBeenCalledWith(new Error('authentication has been failed!'));
+    expect(console.log).toHaveBeenCalledWith(new Error('Authentication has failed!'));
   });
 });
 

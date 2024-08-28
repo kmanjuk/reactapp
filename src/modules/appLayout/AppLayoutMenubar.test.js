@@ -3,130 +3,146 @@ import { render, screen } from '@testing-library/react'
 import '@testing-library/jest-dom/extend-expect'
 import { AppLayoutMenubar } from './AppLayoutMenubar'
 
+// Mock the AppLayoutMenuItems component
+jest.mock('./AppLayoutMenuItems', () => ({
+  AppLayoutMenuItems: ({ menuItem }) => <div>{menuItem.pageTitle}</div>,
+}))
+
+const mockEnvData = {
+  REACT_APP_THEME_LOGO: 'mock-logo.png',
+}
+
+const mockAuthDetails = {
+  session: {
+    pages: [
+      { pageName: 'Dashboard', pageViewRoles: [{ roleName: 'admin' }] },
+    ],
+  },
+  role: 'admin',
+}
+
 const mockRoutesData = [
   {
-    name: 'Dashboard',
-    path: 'dashboard',
-    isPrivate: true,
+    pageName: 'Dashboard',
+    isPrivate: 1,
+    apiEndPointSchema: { group: 'Main', noMenu: false },
     pageTitle: 'Dashboard',
-    apiEndPointSchema: {
-      icon: 'dashboard',
-      group: 'Main',
-      noMenu: false,
-    },
+    routePath: '/dashboard',
   },
   {
-    name: 'Settings',
-    path: 'settings',
-    isPrivate: true,
+    pageName: 'Settings',
+    isPrivate: 1,
+    apiEndPointSchema: { group: 'Main', noMenu: false },
     pageTitle: 'Settings',
-    apiEndPointSchema: {
-      icon: 'settings',
-      group: 'User',
-      noMenu: false,
-    },
+    routePath: '/settings',
+  },
+  {
+    pageName: 'Profile',
+    isPrivate: 0,
+    apiEndPointSchema: { group: 'User', noMenu: false },
+    pageTitle: 'Profile',
+    routePath: '/profile',
   },
 ]
 
-const mockAuthDetails = {
-  role: 'admin',
-  session: {
-    pages: [
-      {
-        pageName: 'Dashboard',
-        roles: [{ roleName: 'admin' }],
-      },
-      {
-        pageName: 'Settings',
-        roles: [{ roleName: 'admin' }],
-      },
-    ],
-  },
-}
-
-const mockEnvData = {
-  REACT_APP_THEME_LOGO: 'mockLogo.png',
-}
-
-const mockSideMenuRef = {
-  current: null,
-}
-
-const mockSetToggleMenu = jest.fn()
-
 describe('AppLayoutMenubar', () => {
-  test('renders menu items based on user role and route configuration', () => {
+  const sideMenuRef = { current: null }
+  const setToggleMenu = jest.fn()
+
+  it('renders the logo and grouped menu items correctly', () => {
     render(
       <AppLayoutMenubar
-        envData={mockEnvData}
         toggleMenu={true}
-        setToggleMenu={mockSetToggleMenu}
-        sideMenuRef={mockSideMenuRef}
+        sideMenuRef={sideMenuRef}
+        envData={mockEnvData}
         authDetails={mockAuthDetails}
         routesData={mockRoutesData}
+        setToggleMenu={setToggleMenu}
       />
     )
 
-    // Check that the menu items are rendered
+    // Check for the logo
+    const logo = screen.getByAltText('logo-lg-dark')
+    expect(logo).toBeInTheDocument()
+    expect(logo).toHaveAttribute('src', 'mock-logo.png')
+
+    // Check for grouped menu items
     expect(screen.getByText('Dashboard')).toBeInTheDocument()
     expect(screen.getByText('Settings')).toBeInTheDocument()
+
+    // Ensure "Profile" is not shown since it is not private
+    expect(screen.queryByText('Profile')).not.toBeInTheDocument()
   })
 
-  test('groups and sorts menu items correctly', () => {
+  it('groups and sorts menu items correctly', () => {
     render(
       <AppLayoutMenubar
-        envData={mockEnvData}
         toggleMenu={true}
-        setToggleMenu={mockSetToggleMenu}
-        sideMenuRef={mockSideMenuRef}
+        sideMenuRef={sideMenuRef}
+        envData={mockEnvData}
         authDetails={mockAuthDetails}
         routesData={mockRoutesData}
+        setToggleMenu={setToggleMenu}
       />
     )
 
-    // Check that the menu group titles are rendered
-    expect(screen.getByText('Main')).toBeInTheDocument()
-    expect(screen.getByText('User')).toBeInTheDocument()
+    const menuTitles = screen.getAllByRole('heading', { level: 3 }) // Assuming the group titles are rendered as <h3>
+    expect(menuTitles[0]).toHaveTextContent('Main')
 
-    // Ensure the menu items are sorted within their groups
-    const menuItems = screen.getAllByRole('link')
+    // Ensure the items are sorted alphabetically within each group
+    const menuItems = screen.getAllByText(/Dashboard|Settings/)
     expect(menuItems[0]).toHaveTextContent('Dashboard')
     expect(menuItems[1]).toHaveTextContent('Settings')
   })
 
-  test('renders logo correctly based on environment data', () => {
+  it('renders nothing if there are no valid menu items for the user role', () => {
+    const modifiedRoutesData = [
+      { ...mockRoutesData[0], isPrivate: 0 },
+      { ...mockRoutesData[1], isPrivate: 0 },
+    ]
+
     render(
       <AppLayoutMenubar
-        envData={mockEnvData}
         toggleMenu={true}
-        setToggleMenu={mockSetToggleMenu}
-        sideMenuRef={mockSideMenuRef}
+        sideMenuRef={sideMenuRef}
+        envData={mockEnvData}
         authDetails={mockAuthDetails}
-        routesData={mockRoutesData}
+        routesData={modifiedRoutesData}
+        setToggleMenu={setToggleMenu}
       />
     )
 
-    const logos = screen.getAllByRole('img')
-    logos.forEach((logo) => {
-      expect(logo).toHaveAttribute('src', 'mockLogo.png')
-    })
+    // Expect no menu items to be rendered since all items are not private
+    expect(screen.queryByText('Dashboard')).not.toBeInTheDocument()
+    expect(screen.queryByText('Settings')).not.toBeInTheDocument()
   })
 
-  test('calls setToggleMenu when a menu item is clicked', () => {
-    render(
+  it('handles the toggleMenu prop correctly', () => {
+    const { rerender } = render(
       <AppLayoutMenubar
+        toggleMenu={false}
+        sideMenuRef={sideMenuRef}
         envData={mockEnvData}
-        toggleMenu={true}
-        setToggleMenu={mockSetToggleMenu}
-        sideMenuRef={mockSideMenuRef}
         authDetails={mockAuthDetails}
         routesData={mockRoutesData}
+        setToggleMenu={setToggleMenu}
       />
     )
 
-    const dashboardLink = screen.getByText('Dashboard')
-    dashboardLink.click()
+    const sidebar = screen.getByRole('navigation')
+    expect(sidebar).toHaveStyle('marginLeft: 0')
 
-    expect(mockSetToggleMenu).toHaveBeenCalledWith(false)
+    rerender(
+      <AppLayoutMenubar
+        toggleMenu={true}
+        sideMenuRef={sideMenuRef}
+        envData={mockEnvData}
+        authDetails={mockAuthDetails}
+        routesData={mockRoutesData}
+        setToggleMenu={setToggleMenu}
+      />
+    )
+
+    expect(sidebar).not.toHaveStyle('marginLeft: 0')
   })
 })

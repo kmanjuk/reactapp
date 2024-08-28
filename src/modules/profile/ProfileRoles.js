@@ -27,6 +27,7 @@ export const ProfileRoles = ({ authDetails }) => {
               role="button"
               id="dropdownMenuLink2"
               data-bs-toggle="dropdown"
+              data-testid="roleButton"
               aria-expanded="false"
               onClick={() => setRoleExpand(!roleExpand)}
             >
@@ -41,6 +42,7 @@ export const ProfileRoles = ({ authDetails }) => {
             animationDuration: '.3s',
             animationFillMode: 'both',
           }}
+          data-testid="roleExpanded"
         >
           {authDetails?.session?.user?.userRoles?.length &&
             authDetails?.session?.user?.userRoles.length > 0 &&

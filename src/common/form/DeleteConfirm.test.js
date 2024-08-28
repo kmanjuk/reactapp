@@ -38,7 +38,7 @@ describe('DeleteConfirm Component', () => {
       deleteCallMutation: { isLoading: true },
     }
     render(<DeleteConfirm {...props} />)
-    const deleteButton = screen.getByText('Deleting...')
+    const deleteButton = screen.getAllByText('Deleting...')[0]
     expect(deleteButton).toBeInTheDocument()
   })
 })

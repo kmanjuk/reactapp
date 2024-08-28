@@ -19,9 +19,9 @@ describe('Error404 component', () => {
   test('renders Error404 component correctly', () => {
     render(<Error404 pageNotFound={true} />)
 
-    expect(screen.getByText('SORRY, PAGE NOT FOUND 😭')).toBeInTheDocument()
-    expect(screen.getByText('The page you are looking for not available!')).toBeInTheDocument()
-    expect(screen.getByRole('img', { name: '' })).toHaveAttribute('src', 'mocked-error-img.png')
+    expect(screen.getAllByText('SORRY, PAGE NOT FOUND 😭')[0]).toBeInTheDocument()
+    expect(screen.getAllByText('The page you are looking for is not available!')[0]).toBeInTheDocument()
+    expect(screen.getByTestId('error404image')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /Back To Home/i })).toBeInTheDocument()
   })
 })

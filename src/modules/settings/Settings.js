@@ -35,7 +35,7 @@ export const Settings = () => {
               </li>
               <li className="trtui-nav-item" role="presentation">
                 <span
-                  className={`trtui-nav-link trtui-cursor-pointer ${activeTab === 'cp' ? 'trtui-active' : ''}`}
+                  className={`trtui-nav-link trtui-cursor-pointer ${activeTab === 'seo' ? 'trtui-active' : ''}`}
                   data-bs-toggle="tab"
                   role="tab"
                   aria-selected="false"
@@ -64,7 +64,7 @@ export const Settings = () => {
                 role="tabpanel"
               >
                 <div className="trtui-row">
-                  <div className="trtui-col-12">Theme & Page</div>
+                  <div className="trtui-col-12">Theme & Page Content</div>
                 </div>
               </div>
               <div
@@ -73,7 +73,7 @@ export const Settings = () => {
                 role="tabpanel"
               >
                 <div className="trtui-row">
-                  <div className="trtui-col-12">Site & App</div>
+                  <div className="trtui-col-12">Site & App Content</div>
                 </div>
               </div>
 
@@ -83,7 +83,7 @@ export const Settings = () => {
                 role="tabpanel"
               >
                 <div className="trtui-row">
-                  <div className="trtui-col-12">SEO</div>
+                  <div className="trtui-col-12">SEO Content</div>
                 </div>
               </div>
               <div
@@ -92,7 +92,7 @@ export const Settings = () => {
                 role="tabpanel"
               >
                 <div className="trtui-row">
-                  <div className="trtui-col-12">Consent & Languages</div>
+                  <div className="trtui-col-12">Consent & Languages Content</div>
                 </div>
               </div>
             </div>

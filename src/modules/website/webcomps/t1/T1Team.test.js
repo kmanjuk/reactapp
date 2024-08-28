@@ -41,9 +41,9 @@ describe('T1Team component', () => {
   it('renders the team member details correctly', () => {
     render(<T1Team pageData={mockPageData} />);
     
-    const alice = screen.getByAltText('');
-    const bob = screen.getByAltText('');
-    const charlie = screen.getByAltText('');
+    const alice = screen.getAllByAltText('')[0];
+    const bob = screen.getAllByAltText('')[1];
+    const charlie = screen.getAllByAltText('')[2];
     
     expect(alice).toHaveAttribute('src', '/images/alice.jpg');
     expect(screen.getByText('Alice Johnson')).toBeInTheDocument();

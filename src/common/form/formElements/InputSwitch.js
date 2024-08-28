@@ -45,6 +45,7 @@ const Checkbox = ({ fnClick, fnChange, checked = false, register, field }) => (
       }}
       checked={checked}
       {...register(field.name)}
+      data-testid="inputCheckbox"
     />
     <span className="control"></span>
   </label>

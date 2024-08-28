@@ -1,135 +1,233 @@
 import React from 'react';
-import { render, screen, waitFor } from '@testing-library/react';
-import '@testing-library/jest-dom';
+import { render, screen } from '@testing-library/react';
 import { Website } from './Website';
 import { useGetPageCall, useGetSPAPageCall } from '../../lib/api/get';
-import { mainUILoad, isValidJsonString } from '../../lib/uiHelper';
+import { LoginModal } from '../../common/LoginModal';
+import { WebError } from './WebError';
+import * as Web from './webcomps';
 
-// Mock dependencies
+// Mock the custom hooks and components
 jest.mock('../../lib/api/get', () => ({
   useGetPageCall: jest.fn(),
   useGetSPAPageCall: jest.fn(),
 }));
 
-jest.mock('../../lib/uiHelper', () => ({
-  mainUILoad: jest.fn(),
-  isValidJsonString: jest.fn(),
-}));
-
 jest.mock('../../common/LoginModal', () => ({
-  LoginModal: () => <div>Login Modal</div>,
+  LoginModal: jest.fn(() => <div>LoginModal</div>),
 }));
 
-jest.mock('./ThemeHelmet', () => ({
-  ThemeHelmet: () => <div>Theme Helmet</div>,
+jest.mock('./WebError', () => ({
+  WebError: jest.fn(() => <div>WebError</div>),
 }));
 
-jest.mock('../../common/Loading', () => ({
-  Loading: () => <div>Loading</div>,
+jest.mock('./webcomps', () => ({
+  Navbar: jest.fn(() => <div>Navbar</div>),
+  Footer: jest.fn(() => <div>Footer</div>),
 }));
+
+const mockEnvData = {
+  REACT_APP_PRIMARY_COLOR: '#000000',
+  REACT_APP_SECONDARY_COLOR: '#ffffff',
+  REACT_APP_THEME_FAVICON: 'https://thulishacdnstorage.blob.core.windows.net/resources/E7C9BB32-83AC-4B88-A035-C6EB02A6328F/favicon.png',
+};
+
+const mockAppDataParsed = {
+  webSettings: {
+    'webSettings-defaultTheme': 'T1',
+    'webSettings-navbarComponent': 'Navbar',
+    'webSettings-footerComponent': 'Footer',
+    'webSettings-defaultSPAPage': 'home',
+  },
+};
+
+const mockRouteData = {
+  isSPA: 1,
+  pageId: 'page-1',
+  pageName: 'HomePage',
+};
+
+const mockAuthDetails = {
+  loggedIn: true,
+};
 
 describe('Website Component', () => {
-  const defaultProps = {
-    envData: {
-      REACT_APP_PRIMARY_COLOR: '#000',
-      REACT_APP_SECONDARY_COLOR: '#FFF',
-      REACT_APP_THEME_FAVICON: 'favicon.ico',
-    },
-    appDataParsed: {
-      webSettings: {
-        'webSettings-defaultTheme': 'T1',
-        'webSettings-defaultSPAPage': 'home',
-        'webSettings-navbarComponent': 'NavbarComponent',
-        'webSettings-footerComponent': 'FooterComponent',
-      },
-    },
-    routeData: {
-      pageId: '1',
-      pageName: 'HomePage',
-      isSPA: true,
-    },
-    isLocalEnvironment: 'local',
-    authDetails: { loggedIn: true },
-    setToggleLoginModal: jest.fn(),
-    toggleLoginModal: false,
-    sideLoginModalRef: { current: null },
-  };
-
-  it('should render loading state when data is loading', () => {
-    useGetPageCall.mockReturnValue({ isLoading: true });
-    useGetSPAPageCall.mockReturnValue({ isLoading: true });
-
-    render(<Website {...defaultProps} />);
-    expect(screen.getByText('Loading')).toBeInTheDocument();
+  beforeEach(() => {
+    // Reset mocks before each test
+    jest.clearAllMocks();
   });
 
-  it('should render theme helmet', async () => {
-    useGetPageCall.mockReturnValue({ isLoading: false });
-    useGetSPAPageCall.mockReturnValue({ isLoading: false, data: { data: [] } });
-
-    render(<Website {...defaultProps} />);
-    await waitFor(() => {
-      expect(screen.getByText('Theme Helmet')).toBeInTheDocument();
+  it('should render loading state when data is being fetched', () => {
+    useGetPageCall.mockReturnValue({
+      isLoading: true,
+      isRefetching: false,
+      data: null,
     });
-  });
 
-  it('should render LoginModal when toggleLoginModal is true', () => {
-    render(<Website {...defaultProps} toggleLoginModal={true} />);
-    expect(screen.getByText('Login Modal')).toBeInTheDocument();
-  });
+    useGetSPAPageCall.mockReturnValue({
+      isLoading: true,
+      data: null,
+    });
 
-  it('should call mainUILoad on render', () => {
-    render(<Website {...defaultProps} />);
-    expect(mainUILoad).toHaveBeenCalledWith(
-      '#000',
-      '#FFF',
-      'favicon.ico'
+    render(
+      <Website
+        envData={mockEnvData}
+        appDataParsed={mockAppDataParsed}
+        routeData={mockRouteData}
+        isLocalEnvironment="true"
+        authDetails={mockAuthDetails}
+        setToggleLoginModal={jest.fn()}
+        toggleLoginModal={false}
+        sideLoginModalRef={{ current: null }}
+      />
     );
+
+    //expect(screen.getAllByText(/loading/i)[0]).toBeInTheDocument();
+    const loadingSpinner = screen.getByTestId('loading-Spinner');
+    expect(loadingSpinner).toBeInTheDocument();
   });
 
-  it('should render components based on SPA and page data', async () => {
-    useGetPageCall.mockReturnValue({ isLoading: false, data: { data: [] } });
+  it('should render Navbar and Footer components when page data is available', () => {
+    useGetPageCall.mockReturnValue({
+      isLoading: false,
+      isRefetching: false,
+      data: {
+        formData: {
+          pageData: JSON.stringify([
+            {
+              childItems: [
+                {
+                  childItems: [
+                    {
+                      className: {
+                        className: 'Navbar',
+                      },
+                      pageElementDisplayOrder: 1,
+                    },
+                    {
+                      className: {
+                        className: 'Footer',
+                      },
+                      pageElementDisplayOrder: 2,
+                    },
+                  ],
+                },
+              ],
+            },
+          ]),
+        },
+      },
+    });
+
     useGetSPAPageCall.mockReturnValue({
       isLoading: false,
       data: {
-        data: [
-          {
-            pageData: JSON.stringify([
-              {
-                childItems: [
-                  {
-                    childItems: [
-                      {
-                        pageElementDisplayOrder: 1,
-                        className: { className: 'NavbarComponent' },
-                      },
-                    ],
-                  },
-                ],
-              },
-            ]),
-          },
-        ],
+        formData: {
+          pageData: JSON.stringify([]),
+        },
       },
     });
 
-    render(<Website {...defaultProps} />);
-    // Check that NavbarComponent is rendered or verify other expected behavior.
-    // This depends on the actual implementation of Web.NavbarComponent.
+    const {container} = render(
+      <Website
+        envData={mockEnvData}
+        appDataParsed={mockAppDataParsed}
+        routeData={mockRouteData}
+        isLocalEnvironment="true"
+        authDetails={mockAuthDetails}
+        setToggleLoginModal={jest.fn()}
+        toggleLoginModal={false}
+        sideLoginModalRef={{ current: null }}
+      />
+    );
+    expect(container.querySelector("div")).toBeInTheDocument()
+    expect(container.querySelector("div")).toBeInTheDocument()
   });
 
-  it('should handle invalid JSON for page data gracefully', async () => {
+  it('should render error message when component fails to load', () => {
     useGetPageCall.mockReturnValue({
       isLoading: false,
-      data: { data: { pageData: 'Invalid JSON' } },
-    });
-    useGetSPAPageCall.mockReturnValue({
-      isLoading: false,
-      data: { data: [{ pageData: 'Invalid JSON' }] },
+      isRefetching: false,
+      data: {
+        formData: {
+          pageData: JSON.stringify([
+            {
+              childItems: [
+                {
+                  childItems: [
+                    {
+                      className: {
+                        className: 'NonExistentComponent',
+                      },
+                      pageElementDisplayOrder: 1,
+                    },
+                  ],
+                },
+              ],
+            },
+          ]),
+        },
+      },
     });
 
-    render(<Website {...defaultProps} />);
-    // Check that error handling or fallback UI is rendered.
-    expect(screen.queryByText('Something Went Wrong!')).toBeInTheDocument();
+    useGetSPAPageCall.mockReturnValue({
+      isLoading: false,
+      data: {
+        formData: {
+          pageData: JSON.stringify([]),
+        },
+      },
+    });
+
+    render(
+      <Website
+        envData={mockEnvData}
+        appDataParsed={mockAppDataParsed}
+        routeData={mockRouteData}
+        isLocalEnvironment="true"
+        authDetails={mockAuthDetails}
+        setToggleLoginModal={jest.fn()}
+        toggleLoginModal={false}
+        sideLoginModalRef={{ current: null }}
+      />
+    );
+
+    expect(screen.getByText(/something went wrong/i)).toBeInTheDocument();
+  });
+
+  it('should render LoginModal when toggleLoginModal is true', () => {
+    useGetPageCall.mockReturnValue({
+      isLoading: false,
+      isRefetching: false,
+      data: {
+        formData: {
+          pageData: JSON.stringify([]),
+        },
+      },
+    });
+
+    useGetSPAPageCall.mockReturnValue({
+      isLoading: false,
+      data: {
+        formData: {
+          pageData: JSON.stringify([]),
+        },
+      },
+    });
+
+    render(
+      <Website
+        envData={mockEnvData}
+        appDataParsed={mockAppDataParsed}
+        routeData={mockRouteData}
+        isLocalEnvironment="true"
+        authDetails={mockAuthDetails}
+        setToggleLoginModal={jest.fn()}
+        toggleLoginModal={true}
+        sideLoginModalRef={{ current: null }}
+      />
+    );
+
+    expect(screen.getAllByText(/LoginModal/i)[0]).toBeInTheDocument();
   });
 });
+

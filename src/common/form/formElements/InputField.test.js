@@ -2,7 +2,7 @@ import React from 'react'
 import { render, screen } from '@testing-library/react'
 import '@testing-library/jest-dom/extend-expect'
 import { InputField } from './InputField'
-
+ 
 describe('InputField Component', () => {
   const defaultProps = {
     field: {
@@ -98,5 +98,10 @@ describe('InputField Component', () => {
     }
     render(<InputField {...props} />)
     expect(screen.getByPlaceholderText('Test Placeholder')).toHaveValue('2023-07-23')
+  })
+
+  test('should throw error and return catch block', () => {
+    render(<InputField />)
+    expect(screen.getByText('Error')).toBeInTheDocument()
   })
 })

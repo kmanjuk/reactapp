@@ -37,8 +37,8 @@ describe('T1Documents component', () => {
       </BrowserRouter>
     );
 
-    const category1 = screen.getByText('Category 1');
-    const category2 = screen.getByText('Category 2');
+    const category1 = screen.getAllByText('Category 1')[0];
+    const category2 = screen.getAllByText('Category 2')[0];
 
     expect(category1).toBeInTheDocument();
     expect(category2).toBeInTheDocument();

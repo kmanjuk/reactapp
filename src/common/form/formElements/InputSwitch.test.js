@@ -32,7 +32,7 @@ describe('InputSwitch Component', () => {
 
   test('renders without crashing', () => {
     render(<TestComponent {...defaultProps} />)
-    expect(screen.getByLabelText('Enable feature')).toBeInTheDocument()
+    expect(screen.getAllByText('Enable feature')[0]).toBeInTheDocument()
   })
 
   test('hides the field when hidden prop is true', () => {
@@ -46,7 +46,7 @@ describe('InputSwitch Component', () => {
 
   test('switch state is handled correctly', () => {
     render(<TestComponent {...defaultProps} />)
-    const checkbox = screen.getByLabelText('Enable feature')
+    const checkbox = screen.getByTestId('inputCheckbox')
     expect(checkbox.checked).toBe(false)
     fireEvent.click(checkbox)
     expect(checkbox.checked).toBe(true)
@@ -59,7 +59,7 @@ describe('InputSwitch Component', () => {
       field: { ...defaultProps.field, fnClick: mockFnClick },
     }
     render(<TestComponent {...props} />)
-    const checkbox = screen.getByLabelText('Enable feature')
+    const checkbox = screen.getByTestId('inputCheckbox')
     fireEvent.click(checkbox)
     expect(mockFnClick).toHaveBeenCalledWith(true)
   })
@@ -71,7 +71,7 @@ describe('InputSwitch Component', () => {
       field: { ...defaultProps.field, fnChange: mockFnChange },
     }
     render(<TestComponent {...props} />)
-    const checkbox = screen.getByLabelText('Enable feature')
+    const checkbox = screen.getByTestId('inputCheckbox')
     fireEvent.change(checkbox, { target: { checked: true } })
     expect(mockFnChange).toHaveBeenCalledWith(true)
   })

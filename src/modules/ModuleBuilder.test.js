@@ -2,71 +2,111 @@ import React from 'react'
 import { render, screen } from '@testing-library/react'
 import '@testing-library/jest-dom/extend-expect'
 import { ModuleBuilder } from './ModuleBuilder'
+import { Notifications } from '../common/notifications/Notifications'
+import { AppLayout } from './appLayout/AppLayout'
+import { LoginModal } from '../common/LoginModal'
 
-// Mocking child components
+// Mocking the imported components
+jest.mock('../common/notifications/Notifications', () => ({
+  Notifications: jest.fn(() => <div>Mocked Notifications Component</div>),
+}))
+
 jest.mock('./appLayout/AppLayout', () => ({
-  AppLayout: () => <div>AppLayout Component</div>
+  AppLayout: jest.fn(() => <div>Mocked AppLayout Component</div>),
 }))
 
 jest.mock('../common/LoginModal', () => ({
-  LoginModal: () => <div>LoginModal Component</div>
+  LoginModal: jest.fn(() => <div>Mocked LoginModal Component</div>),
 }))
 
-jest.mock('../lib/uiHelper', () => ({
-  unloadCSS: jest.fn()
-}))
-
-describe('ModuleBuilder Component', () => {
-  const defaultProps = {
-    envData: {},
+describe('ModuleBuilder', () => {
+  const mockProps = {
+    envData: {
+      theme: 'dark',
+      logoUrl: 'https://example.com/logo.png',
+    },
     setToggleLoginModal: jest.fn(),
-    toggleLoginModal: false,
-    sideLoginModalRef: {},
-    isLocalEnvironment: 'local',
-    authDetails: {},
-    appDataParsed: {},
-    routeData: {}
+    toggleLoginModal: true,
+    sideLoginModalRef: React.createRef(),
+    isLocalEnvironment: 'true',
+    authDetails: {
+      user: {
+        name: 'John Doe',
+      },
+    },
+    appDataParsed: {
+      routesData: [],
+    },
+    routeData: {
+      path: '/dashboard',
+      component: 'Dashboard',
+    },
   }
 
-  it('renders AppLayout component', () => {
-    render(<ModuleBuilder {...defaultProps} />)
-    expect(screen.getByText('AppLayout Component')).toBeInTheDocument()
+  it('renders the component with correct structure', () => {
+    render(
+        <ModuleBuilder {...mockProps} />
+    )
+
+    expect(screen.getByText('Mocked Notifications Component')).toBeInTheDocument()
+    expect(screen.getByText('Mocked AppLayout Component')).toBeInTheDocument()
   })
 
-  it('does not render LoginModal component when toggleLoginModal is false', () => {
-    render(<ModuleBuilder {...defaultProps} />)
-    expect(screen.queryByText('LoginModal Component')).not.toBeInTheDocument()
+  it('sets preload styles using Helmet', () => {
+    render(
+      <ModuleBuilder {...mockProps} />
+    )
+
+    // Check that Helmet is setting the preload links correctly
+    expect(document.querySelector('link[rel="preload"][href="/css/bootstrap.min.css"]')).toBeInTheDocument()
+    expect(document.querySelector('link[rel="preload"][href="/css/app.min.css"]')).toBeInTheDocument()
   })
 
-  it('renders LoginModal component when toggleLoginModal is true', () => {
-    const props = { ...defaultProps, toggleLoginModal: true }
-    render(<ModuleBuilder {...props} />)
-    expect(screen.getByText('LoginModal Component')).toBeInTheDocument()
+  it('conditionally renders the LoginModal component based on toggleLoginModal prop', () => {
+    const { rerender } = render(
+      <ModuleBuilder {...mockProps} />
+    )
+
+    expect(screen.getByText('Mocked LoginModal Component')).toBeInTheDocument()
+
+    rerender(
+      <ModuleBuilder {...mockProps} />
+    )
+
+    expect(screen.queryByText('Mocked LoginModal Component')).not.toBeInTheDocument()
   })
 
-  it('calls unloadCSS on mount', () => {
-    render(<ModuleBuilder {...defaultProps} />)
-    expect(require('../lib/uiHelper').unloadCSS).toHaveBeenCalled()
-  })
+  it('passes the correct props to AppLayout and LoginModal', () => {
+    render(
+      <ModuleBuilder {...mockProps} />
+    )
 
-  it('loads CSS files on mount', async () => {
-    render(<ModuleBuilder {...defaultProps} />)
-    
-    // Check if the CSS files are loaded
-    await import('../assets/css/bootstrap.min.css')
-    await import('../assets/css/icons.min.css')
-    await import('../assets/css/app.min.css')
-    await import('../assets/css/custom.min.css')
+    // Verify the props passed to AppLayout
+    expect(AppLayout).toHaveBeenCalledWith(
+      expect.objectContaining({
+        setToggleLoginModal: mockProps.setToggleLoginModal,
+        toggleLoginModal: mockProps.toggleLoginModal,
+        sideLoginModalRef: mockProps.sideLoginModalRef,
+        envData: mockProps.envData,
+        isLocalEnvironment: mockProps.isLocalEnvironment,
+        authDetails: mockProps.authDetails,
+        routeData: mockProps.routeData,
+        appDataParsed: mockProps.appDataParsed,
+      }),
+      {}
+    )
 
-    // Mocking the css imports to ensure they are called
-    const bootstrapCSS = await jest.requireActual('../assets/css/bootstrap.min.css')
-    const iconsCSS = await jest.requireActual('../assets/css/icons.min.css')
-    const appCSS = await jest.requireActual('../assets/css/app.min.css')
-    const customCSS = await jest.requireActual('../assets/css/custom.min.css')
-
-    expect(bootstrapCSS).toBeDefined()
-    expect(iconsCSS).toBeDefined()
-    expect(appCSS).toBeDefined()
-    expect(customCSS).toBeDefined()
+    // Verify the props passed to LoginModal when it's rendered
+    expect(LoginModal).toHaveBeenCalledWith(
+      expect.objectContaining({
+        setToggleLoginModal: mockProps.setToggleLoginModal,
+        toggleLoginModal: mockProps.toggleLoginModal,
+        sideLoginModalRef: mockProps.sideLoginModalRef,
+        envData: mockProps.envData,
+        isLocalEnvironment: mockProps.isLocalEnvironment,
+        appDataParsed: mockProps.appDataParsed,
+      }),
+      {}
+    )
   })
 })

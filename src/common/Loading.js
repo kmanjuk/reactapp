@@ -36,7 +36,7 @@ export const Loading = ({ envData, appDataParsed }) => {
   }
 
   return (
-    <div className="custom-spinner">
+    <div className="custom-spinner" data-testid="loading-Spinner">
       <div className="custom-spinner-container">
         <div
           className={

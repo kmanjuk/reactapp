@@ -1,5 +1,5 @@
 import React from 'react'
-import { render, screen } from '@testing-library/react'
+import { render, renderHook, screen } from '@testing-library/react'
 import '@testing-library/jest-dom/extend-expect'
 import { TextArea } from './TextArea'
 import { useForm } from 'react-hook-form'
@@ -34,7 +34,7 @@ describe('TextArea Component', () => {
 
   test('renders without crashing', () => {
     render(<TestComponent {...defaultProps} />)
-    expect(screen.getByLabelText('Enter text')).toBeInTheDocument()
+    expect(screen.getByText('Enter text')).toBeInTheDocument()
   })
 
   test('hides the field when hidden prop is true', () => {
@@ -53,15 +53,30 @@ describe('TextArea Component', () => {
       defaultData: { testTextAreaField: 'Default text' },
     }
     render(<TestComponent {...props} />)
-    expect(screen.getByLabelText('Enter text')).toHaveValue('Default text')
+    expect(screen.getByText('Default text')).toHaveValue('Default text')
   })
 
-  test('displays error message when there are validation errors', () => {
+  test('displays error message when there are validation errors when isAdd is true', () => {
     const props = {
       ...defaultProps,
       errors: { testTextAreaField: { message: 'Error message' } },
     }
     render(<TestComponent {...props} />)
     expect(screen.getByText('Error message')).toBeInTheDocument()
+  })
+
+  test('displays error message when there are validation errors', () => {
+    const props = {
+      ...defaultProps,
+      isAdd: false,
+      errors: { testTextAreaField: { message: 'Error message' } },
+    }
+    render(<TestComponent {...props} />)
+    expect(screen.getByText('Error message')).toBeInTheDocument()
+  })
+
+  test('should throw error and return catch block', () => {
+    render(<TestComponent />)
+    expect(screen.getByText('Error')).toBeInTheDocument()
   })
 })

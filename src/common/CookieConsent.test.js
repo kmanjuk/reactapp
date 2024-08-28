@@ -1,7 +1,7 @@
 import React from 'react'
 import { render } from '@testing-library/react'
 import '@testing-library/jest-dom/extend-expect'
-import { CookieConsentComp } from './CookieConsentComp'
+import { CookieConsentComp } from './CookieConsent'
 
 // Mocking the window.initCookieConsent function
 window.initCookieConsent = jest.fn(() => ({

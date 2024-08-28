@@ -14,10 +14,10 @@ describe('AppLayoutFooter', () => {
   it('displays the correct text content', () => {
     render(<AppLayoutFooter />)
 
-    const leftText = screen.getByText('© TRT.')
+    const leftText = screen.getAllByText('© TRT.')[0]
     expect(leftText).toBeInTheDocument()
 
-    const rightText = screen.getByText('Develop by Thulisha Reddy Technologies')
+    const rightText = screen.getAllByText('Thulisha Reddy Technologies')[0]
     expect(rightText).toBeInTheDocument()
   })
 })

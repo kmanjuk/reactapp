@@ -1,4 +1,5 @@
-import { renderHook, act } from '@testing-library/react'
+import { act } from 'react'
+import { renderHook } from '@testing-library/react'
 import { useMutation } from 'react-query'
 import { axios } from '../axios'
 import { updateCall, useUpdateCall } from './update'

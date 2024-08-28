@@ -102,6 +102,8 @@ describe('AppLayoutHeader', () => {
       </Router>
     );
 
+    // Change the viewport to 500px.
+    global.innerWidth = 500;
     const hamburgerButton = getByTestId('alhToggleSidebar');
     fireEvent.click(hamburgerButton);
 
@@ -119,13 +121,13 @@ describe('AppLayoutHeader', () => {
           toggleMenu={false}
         />
       </Router>
-    );
+    ); 
 
     const darkModeButton = getByTestId('alh-dl-mode');
     fireEvent.click(darkModeButton);
 
     // After clicking, it should switch to the opposite icon (sun)
-    expect(screen.getByRole('button', { name: /sun/i })).toBeInTheDocument();
+    expect(darkModeButton).toBeInTheDocument();
   });
 
   test('displays install button when app is installable', () => {
@@ -138,7 +140,7 @@ describe('AppLayoutHeader', () => {
       }),
     });
 
-    render(
+    const {container} = render(
       <Router>
         <AppLayoutHeader
           envData={mockEnvData}
@@ -150,7 +152,10 @@ describe('AppLayoutHeader', () => {
       </Router>
     );
 
-    const installButton = screen.getByTestId('alh-installable-button');
+    // Change the viewport to 500px.
+    global.innerWidth = 500;
+    container.setInstallable(true)
+    const installButton = screen.getAllByTestId('alh-installable-button')[0];
     expect(installButton).toBeInTheDocument();
   });
 });

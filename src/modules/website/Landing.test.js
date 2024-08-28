@@ -57,7 +57,7 @@ describe('Landing Component', () => {
     );
 
     // Check for the "Logout" button
-    const logoutButton = screen.getByText(/logout/i);
+    const logoutButton = screen.getAllByText(/logout/i)[0];
     expect(logoutButton).toBeInTheDocument();
 
     // Check for the "My Profile" button

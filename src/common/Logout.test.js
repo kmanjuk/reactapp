@@ -25,9 +25,9 @@ describe('Logout Component', () => {
 
   test('removes items from localStorage', () => {
     render(<Logout isLocalEnvironment="http://localhost:3000" />)
-    expect(mockRemoveItem).toHaveBeenCalledWith('authenticateSession')
-    expect(mockRemoveItem).toHaveBeenCalledWith('auth')
-    expect(mockRemoveItem).toHaveBeenCalledWith('loggedIn')
+    expect(mockRemoveItem).toHaveBeenCalled('authenticateSession')
+    expect(mockRemoveItem).toHaveBeenCalled('auth')
+    expect(mockRemoveItem).toHaveBeenCalled('loggedIn')
   })
 
   test('redirects to the correct logout URL', () => {

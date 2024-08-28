@@ -45,7 +45,10 @@ export const AppLayoutMenuItems = ({ menuItem, setToggleMenu, urlLink }) => {
           to={`/console/${menuItem.routePath}`}
           onClick={() => setToggleMenu(false)}
         >
-          <i className={`ri-${menuItem.apiEndPointSchema.icon || 'dashboard-2'}-line`} />
+          <i
+            data-testid="menuItemIcon"
+            className={`ri-${menuItem.apiEndPointSchema.icon || 'dashboard-2'}-line`}
+          />
           <span data-key={menuItem.pageTitle}>{menuItem.pageTitle}</span>
         </Link>
       ) : (
